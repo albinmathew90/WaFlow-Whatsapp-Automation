@@ -18,6 +18,8 @@ export default function MediaSelectorModal({
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [filterType, setFilterType] = useState<string>(defaultFilter);
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,6 +56,8 @@ export default function MediaSelectorModal({
       fetchMedia();
       setFilterType(defaultFilter);
       setSelectedItem(null);
+      setUploadError(null);
+      setUploadProgress(0);
     }
   }, [isOpen, defaultFilter]);
 
@@ -62,6 +66,8 @@ export default function MediaSelectorModal({
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setUploading(true);
+    setUploadProgress(0);
+    setUploadError(null);
     const token = sessionStorage.getItem('crm_token');
     let lastUploadedItem = null;
 
@@ -71,33 +77,51 @@ export default function MediaSelectorModal({
         const formData = new FormData();
         formData.append('file', file);
 
-        const res = await fetch('/openwa-api/crm/media/upload', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: formData
-        });
-        if (res.ok) {
-          const item = await res.json();
-          lastUploadedItem = {
-            ...item,
-            url: `/openwa-api/crm/media/file/${item.filename}`,
-            createdAt: new Date(item.createdAt).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric'
-            })
+        await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', '/openwa-api/crm/media/upload');
+          xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+          
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const percent = Math.round((event.loaded / event.total) * 100);
+              setUploadProgress(percent);
+            }
           };
-        }
+
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              const item = JSON.parse(xhr.responseText);
+              lastUploadedItem = {
+                ...item,
+                url: `/openwa-api/crm/media/file/${item.filename}`,
+                createdAt: new Date(item.createdAt).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })
+              };
+              resolve(xhr.responseText);
+            } else {
+              reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.statusText}`));
+            }
+          };
+
+          xhr.onerror = () => reject(new Error('Network error during upload'));
+          xhr.send(formData);
+        });
       }
       await fetchMedia();
       if (lastUploadedItem) {
         setSelectedItem(lastUploadedItem);
         setActiveTab('library');
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Upload error', e);
+      setUploadError(e.message || 'An error occurred during upload.');
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -172,7 +196,7 @@ export default function MediaSelectorModal({
       return (
         <div className="flex items-center justify-center h-full w-full bg-purple-900 text-white">
           <svg className="w-12 h-12 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+            <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
           </svg>
         </div>
       );
@@ -186,14 +210,21 @@ export default function MediaSelectorModal({
     );
   };
 
+  const handleSelect = () => {
+    if (selectedItem) {
+      onSelect(selectedItem);
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden">
-        {/* Modal Top Bar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 shrink-0">
-          <div className="flex items-center gap-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="w-full max-w-5xl h-[85vh] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        {/* Modal Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
+          <div className="flex items-center space-x-6">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">Select Media</h2>
-            <div className="flex gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+            <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
               <button
                 onClick={() => setActiveTab('library')}
                 className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
@@ -237,6 +268,15 @@ export default function MediaSelectorModal({
                 </svg>
                 <h3 className="text-base font-bold text-gray-800 dark:text-gray-200 mb-1">Drop files to upload</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">or select from your computer</p>
+                
+                {uploadError && (
+                  <div className="w-full mb-6 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-lg border border-red-100 dark:border-red-800/30">
+                    <p className="font-semibold mb-1">Upload Failed</p>
+                    <p>{uploadError}</p>
+                    <p className="text-xs mt-1 opacity-80">This usually happens if the file exceeds your server's upload limit.</p>
+                  </div>
+                )}
+
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -244,14 +284,30 @@ export default function MediaSelectorModal({
                   multiple
                   className="hidden"
                 />
-                <button
-                  disabled={uploading}
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all disabled:opacity-50"
-                >
-                  {uploading ? 'Uploading...' : 'Select Files'}
-                </button>
-                <p className="text-[11px] text-gray-400 mt-4">Maximum upload file size: 50 MB.</p>
+                
+                {uploading ? (
+                  <div className="w-full space-y-2">
+                    <div className="flex justify-between text-xs text-gray-500 font-medium">
+                      <span>Uploading...</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                      <div 
+                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out" 
+                        style={{ width: `${uploadProgress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all"
+                  >
+                    Select Files
+                  </button>
+                )}
+                
+                <p className="text-[11px] text-gray-400 mt-4">Maximum upload file size: 300 MB.</p>
               </div>
             </div>
           ) : (

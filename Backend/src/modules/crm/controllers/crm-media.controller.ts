@@ -28,7 +28,7 @@ export class CrmMediaController {
   @Post('upload')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 50 * 1024 * 1024 } }))
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 300 * 1024 * 1024 } }))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload a media file to the CRM Media Library' })
   async upload(@Req() req: any, @UploadedFile() file: any) {
