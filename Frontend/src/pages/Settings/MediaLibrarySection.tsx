@@ -91,7 +91,14 @@ export default function MediaLibrarySection() {
             if (xhr.status >= 200 && xhr.status < 300) {
               resolve(xhr.responseText);
             } else {
-              reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.statusText}`));
+              let errorMsg = `Upload failed with status ${xhr.status}: ${xhr.statusText}`;
+              try {
+                const jsonResp = JSON.parse(xhr.responseText);
+                if (jsonResp.message) errorMsg = jsonResp.message;
+              } catch (e) {
+                // Not JSON, fallback to default message
+              }
+              reject(new Error(errorMsg));
             }
           };
 

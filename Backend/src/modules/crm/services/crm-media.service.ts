@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CrmMedia } from '../entities/crm-media.entity';
@@ -15,6 +15,22 @@ export class CrmMediaService {
   ) {}
 
   async uploadFile(userId: string, file: { buffer: Buffer; originalname: string; mimetype: string; size: number }): Promise<CrmMedia> {
+    const sizeBytes = file.size || (file.buffer ? file.buffer.length : 0);
+    const originalName = file.originalname || 'media';
+
+    // Prevent duplicate uploads of the same file
+    const existingMedia = await this.mediaRepository.findOne({
+      where: {
+        userId,
+        originalName,
+        sizeBytes,
+      },
+    });
+
+    if (existingMedia) {
+      throw new ConflictException('This file already exists in your media library.');
+    }
+
     const ext = path.extname(file.originalname || '') || '';
     const randomHash = crypto.randomBytes(8).toString('hex');
     const safeBase = path.basename(file.originalname || 'file', ext).toLowerCase().replace(/[^a-z0-9-_]/g, '_').slice(0, 50) || 'media';
