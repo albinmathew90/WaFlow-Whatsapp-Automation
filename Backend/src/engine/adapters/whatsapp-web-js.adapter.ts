@@ -959,51 +959,78 @@ export class WhatsAppWebJsAdapter extends EventEmitter implements IWhatsAppEngin
    * logs at debug, so the sweep can never block an engine start.
    */
   private async killOrphanedChromiumProcesses(): Promise<void> {
-    if (process.platform !== 'darwin' && process.platform !== 'linux') {
+    const marker = `--openwa-session=${this.config.sessionId}`;
+    const killedPids: number[] = [];
+
+    if (process.platform === 'win32') {
+      try {
+        const wmicOutput = await new Promise<string>((resolve, reject) => {
+          execFile('wmic', ['process', 'where', `CommandLine LIKE '%${marker}%' AND Name LIKE '%chrome%'`, 'get', 'ProcessId'], { maxBuffer: 8 * 1024 * 1024 }, (error, stdout) => {
+            if (error) reject(error instanceof Error ? error : new Error(error.message));
+            else resolve(stdout);
+          });
+        });
+        const pids = wmicOutput.split('\n').map(p => p.trim()).filter(p => p && !p.toLowerCase().includes('processid'));
+        for (const pidStr of pids) {
+          const pid = parseInt(pidStr, 10);
+          if (isNaN(pid) || pid === process.pid) continue;
+          try {
+            process.kill(pid, 'SIGKILL');
+            killedPids.push(pid);
+          } catch (error) {
+            if ((error as NodeJS.ErrnoException).code !== 'ESRCH') {
+              this.logger.debug(`Could not SIGKILL orphaned Chromium pid ${pid}`, { error: String(error) });
+            }
+          }
+        }
+      } catch (err) {
+        this.logger.debug(`Sweep check failed (normal if no orphans): ${String(err)}`);
+      }
+    } else if (process.platform === 'darwin' || process.platform === 'linux') {
+      try {
+        // No shell: the args array is handed to ps verbatim, so nothing here is injectable.
+        // maxBuffer is raised because `ps -eo args` prints full command lines, which on a busy host
+        // (many Chromium renderers carrying dozens of flags each) can exceed the 1MB default.
+        const psOutput = await new Promise<string>((resolve, reject) => {
+          execFile('ps', ['-eo', 'pid=,args='], { maxBuffer: 8 * 1024 * 1024 }, (error, stdout) => {
+            // The @types/node ExecFileException is an Omit<> of ErrnoException, which the type
+            // checker no longer recognises as an Error — narrow it explicitly for the reject.
+            if (error) reject(error instanceof Error ? error : new Error(error.message));
+            else resolve(stdout);
+          });
+        });
+        for (const line of psOutput.split('\n')) {
+          const match = /^\s*(\d+)\s+(.*)$/.exec(line);
+          if (!match) continue;
+          const pid = Number(match[1]);
+          const args = match[2];
+          if (pid === process.pid || !args.includes(marker)) continue;
+          // Never kill a non-browser process that happens to carry the marker string
+          // (e.g. a `grep --openwa-session=…` probing the process table).
+          if (!/chrome|chromium|headless/i.test(args)) continue;
+          try {
+            process.kill(pid, 'SIGKILL');
+            killedPids.push(pid);
+          } catch (error) {
+            // ESRCH: the process exited between `ps` and the kill — nothing left to do.
+            if ((error as NodeJS.ErrnoException).code !== 'ESRCH') {
+              this.logger.debug(`Could not SIGKILL orphaned Chromium pid ${pid}`, { error: String(error) });
+            }
+          }
+        }
+      } catch (err) {
+        this.logger.debug(`Sweep check failed (normal if no orphans): ${String(err)}`);
+      }
+    } else {
       this.logger.debug(`Skipping orphaned Chromium sweep: unsupported platform ${process.platform}`);
       return;
     }
-    try {
-      // No shell: the args array is handed to ps verbatim, so nothing here is injectable.
-      // maxBuffer is raised because `ps -eo args` prints full command lines, which on a busy host
-      // (many Chromium renderers carrying dozens of flags each) can exceed the 1MB default.
-      const psOutput = await new Promise<string>((resolve, reject) => {
-        execFile('ps', ['-eo', 'pid=,args='], { maxBuffer: 8 * 1024 * 1024 }, (error, stdout) => {
-          // The @types/node ExecFileException is an Omit<> of ErrnoException, which the type
-          // checker no longer recognises as an Error — narrow it explicitly for the reject.
-          if (error) reject(error instanceof Error ? error : new Error(error.message));
-          else resolve(stdout);
-        });
-      });
-      const marker = `--openwa-session=${this.config.sessionId}`;
-      const killedPids: number[] = [];
-      for (const line of psOutput.split('\n')) {
-        const match = /^\s*(\d+)\s+(.*)$/.exec(line);
-        if (!match) continue;
-        const pid = Number(match[1]);
-        const args = match[2];
-        if (pid === process.pid || !args.includes(marker)) continue;
-        // Never kill a non-browser process that happens to carry the marker string
-        // (e.g. a `grep --openwa-session=…` probing the process table).
-        if (!/chrome|chromium|headless/i.test(args)) continue;
-        try {
-          process.kill(pid, 'SIGKILL');
-          killedPids.push(pid);
-        } catch (error) {
-          // ESRCH: the process exited between `ps` and the kill — nothing left to do.
-          if ((error as NodeJS.ErrnoException).code !== 'ESRCH') {
-            this.logger.debug(`Could not SIGKILL orphaned Chromium pid ${pid}`, { error: String(error) });
-          }
-        }
-      }
-      if (killedPids.length > 0) {
-        this.logger.log(
-          `Killed ${killedPids.length} orphaned Chromium process(es) left over from a previous process lifetime`,
-          { sessionId: this.config.sessionId, pids: killedPids },
-        );
-      }
-    } catch (error) {
-      this.logger.debug('Could not enumerate processes for the orphaned Chromium sweep', { error: String(error) });
+
+    if (killedPids.length > 0) {
+      this.logger.log(
+        `Killed ${killedPids.length} orphaned Chromium process(es) left over from a previous process lifetime`,
+        { sessionId: this.config.sessionId, pids: killedPids },
+      );
     }
   }
 

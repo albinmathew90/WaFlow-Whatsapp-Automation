@@ -216,7 +216,7 @@ describe('SessionService', () => {
       expect(dataSource.transaction).toHaveBeenCalled(); // DB removal still ran
     });
 
-    it('delete() purges the engine on-disk auth dir (keyed by session NAME) so a same-name recreate starts clean', async () => {
+    it('delete() purges the engine on-disk auth dir (keyed by session ID) so a same-name recreate starts clean', async () => {
       (repository.findOne as jest.Mock).mockResolvedValue(
         createMockSession({ id: 'sess-uuid-1', name: 'test-session' }),
       );
@@ -224,7 +224,7 @@ describe('SessionService', () => {
 
       await service.delete('sess-uuid-1');
 
-      expect(engineFactory.purgeSessionData).toHaveBeenCalledWith('test-session');
+      expect(engineFactory.purgeSessionData).toHaveBeenCalledWith('sess-uuid-1');
     });
 
     it('delete() purges even when no engine is loaded (a stopped session has none)', async () => {
@@ -235,7 +235,7 @@ describe('SessionService', () => {
 
       await service.delete('sess-uuid-1');
 
-      expect(engineFactory.purgeSessionData).toHaveBeenCalledWith('test-session');
+      expect(engineFactory.purgeSessionData).toHaveBeenCalledWith('sess-uuid-1');
     });
 
     it('stop() completes when engine.disconnect() rejects — map reconciled, status updated', async () => {
@@ -587,7 +587,7 @@ describe('SessionService', () => {
       await service.start('sess-uuid-1');
 
       expect(engineFactory.create).toHaveBeenCalledWith(
-        expect.objectContaining({ sessionId: 'test-session', dbSessionId: 'sess-uuid-1' }),
+        expect.objectContaining({ sessionId: 'sess-uuid-1', dbSessionId: 'sess-uuid-1' }),
       );
       expect(mockEngine.initialize).toHaveBeenCalled();
       expect(repository.update).toHaveBeenCalledWith('sess-uuid-1', {

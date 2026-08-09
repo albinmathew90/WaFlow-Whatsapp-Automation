@@ -531,7 +531,7 @@ export class SessionService implements OnModuleDestroy, OnModuleInit, OnApplicat
       // independently of the (now torn-down, and on delete often never-loaded) engine instance, so the
       // teardown above doesn't touch it. Without this, recreating a session under the same name reloads
       // a stale store. Best-effort inside the factory — never fails an otherwise-successful delete.
-      await this.engineFactory.purgeSessionData(session.name);
+      await this.engineFactory.purgeSessionData(id);
     } finally {
       // Always clear the teardown mark so a later recreate/start with this id isn't suppressed.
       this.stoppingSessions.delete(id);
@@ -745,7 +745,7 @@ export class SessionService implements OnModuleDestroy, OnModuleInit, OnApplicat
     });
 
     const engine = this.engineFactory.create({
-      sessionId: session.name,
+      sessionId: id,
       dbSessionId: id,
       proxyUrl: session.proxyUrl || undefined,
       proxyType: session.proxyType || undefined,

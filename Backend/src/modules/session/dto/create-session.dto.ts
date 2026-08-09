@@ -11,8 +11,8 @@ export class CreateSessionDto {
   @IsString()
   @MinLength(3)
   @MaxLength(50)
-  @Matches(/^[a-zA-Z0-9-]+$/, {
-    message: 'Session name can only contain letters, numbers, and hyphens',
+  @Matches(/^[a-zA-Z0-9-_]+$/, {
+    message: 'Session name can only contain letters, numbers, hyphens, and underscores',
   })
   name: string;
 
