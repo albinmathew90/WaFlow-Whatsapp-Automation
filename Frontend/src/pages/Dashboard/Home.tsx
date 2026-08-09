@@ -162,7 +162,7 @@ const AddSessionModal = ({
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value.replace(/ /g, '_'))}
               placeholder="e.g. Sales India, Support Bot"
               className="mb-4 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm outline-none focus:border-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
@@ -452,7 +452,7 @@ export default function Home() {
           </button>
         </div>
       )}
-      <PageMeta title="Dashboard | ConvoReach" description="Manage your WhatsApp sessions" />
+      <PageMeta title="Dashboard | Waflow" description="Manage your WhatsApp sessions" />
 
       {showAddSession && (
         <AddSessionModal
