@@ -326,7 +326,6 @@ export default function MediaLibrarySection() {
             <div className="max-w-md w-full mb-6 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-lg border border-red-100 dark:border-red-800/30">
               <p className="font-semibold mb-1">Upload Failed</p>
               <p>{uploadError}</p>
-              <p className="text-xs mt-1 opacity-80">This usually happens if the file exceeds your server's upload limit.</p>
             </div>
           )}
 
