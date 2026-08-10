@@ -1,18 +1,19 @@
 import type { FlowEdge, FlowNode } from '../types/flow.types';
 
 const NODE_WIDTH = 320;
-const TRIGGER_NODE = { x: 100, y: 50, width: 320, height: 180 };
+const TRIGGER_NODE = { width: 320, height: 180 };
 
 interface Props {
   nodes: Record<string, FlowNode>;
   edges: FlowEdge[];
   drawingEdge: { from: string; branch?: string; mouseX: number; mouseY: number; startX?: number; startY?: number } | null;
   onClickEdge: (edge: FlowEdge) => void;
+  triggerPos: { x: number; y: number };
 }
 
-function getPortPos(nodeId: string, node: FlowNode | undefined, side: string) {
-  if (nodeId === 'trigger_node') {
-    return { x: TRIGGER_NODE.x + TRIGGER_NODE.width - 20, y: TRIGGER_NODE.y + 26 };
+function getPortPos(nodeId: string, node: FlowNode | undefined, side: string, triggerPos?: { x: number; y: number }) {
+  if (nodeId === 'trigger_node' && triggerPos) {
+    return { x: triggerPos.x + TRIGGER_NODE.width - 20, y: triggerPos.y + 26 };
   }
 
   if (!node) return { x: 0, y: 0 };
@@ -83,7 +84,7 @@ function getBezierMidpoint(x1: number, y1: number, x2: number, y2: number, isVer
   };
 }
 
-export default function EdgeLayer({ nodes, edges, drawingEdge, onClickEdge }: Props) {
+export default function EdgeLayer({ nodes, edges, drawingEdge, onClickEdge, triggerPos }: Props) {
   return (
     <svg
       style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible', pointerEvents: 'none', zIndex: 1 }}
@@ -108,7 +109,7 @@ export default function EdgeLayer({ nodes, edges, drawingEdge, onClickEdge }: Pr
         if (edge.from !== 'trigger_node' && !fromNode) return null;
         if (!toNode) return null;
 
-        const fromPort = getPortPos(edge.from, fromNode, (edge.branch as any) || 'output');
+        const fromPort = getPortPos(edge.from, fromNode, (edge.branch as any) || 'output', triggerPos);
         const toPort = getPortPos(edge.to, toNode, 'input');
         const isTrigger = edge.from === 'trigger_node';
         const path = bezierPath(fromPort.x, fromPort.y, toPort.x, toPort.y, isTrigger);
@@ -164,7 +165,7 @@ export default function EdgeLayer({ nodes, edges, drawingEdge, onClickEdge }: Pr
 
         if (startX === undefined || startY === undefined) {
           const fromNode = nodes[drawingEdge.from];
-          const fromPort = getPortPos(drawingEdge.from, fromNode, (drawingEdge.branch as any) || 'output');
+          const fromPort = getPortPos(drawingEdge.from, fromNode, (drawingEdge.branch as any) || 'output', triggerPos);
           startX = fromPort.x;
           startY = fromPort.y;
         }
@@ -172,12 +173,13 @@ export default function EdgeLayer({ nodes, edges, drawingEdge, onClickEdge }: Pr
         const path = bezierPath(startX, startY, drawingEdge.mouseX, drawingEdge.mouseY, drawingEdge.from === 'trigger_node');
         return (
           <path
+            id="live-edge-path"
             d={path}
-            stroke="#465fff"
+            stroke="#3b82f6"
             strokeWidth={2}
             fill="none"
             strokeDasharray="6,3"
-            opacity={0.7}
+            opacity={0.85}
           />
         );
       })()}

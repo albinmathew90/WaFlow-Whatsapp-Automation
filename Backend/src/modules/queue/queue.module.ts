@@ -7,12 +7,15 @@ import { ExpressAdapter } from '@bull-board/express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WebhookProcessor } from './processors/webhook.processor';
 import { IngressProcessor } from './processors/ingress.processor';
+import { OtpProcessor } from './processors/otp.processor';
 import { QUEUE_NAMES } from './queue-names';
 import { Webhook } from '../webhook/entities/webhook.entity';
 import { WebhookDeliveryFailure } from '../webhook/entities/webhook-delivery-failure.entity';
 import { IntegrationDeliveryFailure } from '../integration/entities/integration-delivery-failure.entity';
+import { OtpRequest } from '../otp/entities/otp-request.entity';
 import { HooksModule } from '../../core/hooks/hooks.module';
 import { PluginsModule } from '../../core/plugins/plugins.module';
+import { MessageModule } from '../message/message.module';
 
 // Re-export for backward compatibility
 export { QUEUE_NAMES } from './queue-names';
@@ -21,12 +24,14 @@ export { QUEUE_NAMES } from './queue-names';
   imports: [
     // Required for WebhookProcessor to inject Repository<Webhook> + Repository<WebhookDeliveryFailure>;
     // IngressProcessor to inject Repository<IntegrationDeliveryFailure> (both on the 'data' connection).
-    TypeOrmModule.forFeature([Webhook, WebhookDeliveryFailure, IntegrationDeliveryFailure], 'data'),
+    // OtpProcessor to inject Repository<OtpRequest> on the 'data' connection.
+    TypeOrmModule.forFeature([Webhook, WebhookDeliveryFailure, IntegrationDeliveryFailure, OtpRequest], 'data'),
     // Required for WebhookProcessor/IngressProcessor to inject HookManager
     HooksModule,
     // Required for IngressProcessor to inject PluginLoaderService (already @Global(), imported
     // explicitly for clarity, matching HooksModule above).
     PluginsModule,
+    MessageModule,
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -57,6 +62,13 @@ export { QUEUE_NAMES } from './queue-names';
         removeOnFail: { age: 86400, count: 5000 },
       },
     }),
+    BullModule.registerQueue({
+      name: QUEUE_NAMES.OTP,
+      defaultJobOptions: {
+        removeOnComplete: { age: 3600, count: 1000 },
+        removeOnFail: { age: 86400, count: 5000 },
+      },
+    }),
     BullBoardModule.forRoot({
       route: '/admin/queues',
       adapter: ExpressAdapter,
@@ -69,8 +81,12 @@ export { QUEUE_NAMES } from './queue-names';
       name: QUEUE_NAMES.INGRESS,
       adapter: BullMQAdapter,
     }),
+    BullBoardModule.forFeature({
+      name: QUEUE_NAMES.OTP,
+      adapter: BullMQAdapter,
+    }),
   ],
-  providers: [WebhookProcessor, IngressProcessor],
+  providers: [WebhookProcessor, IngressProcessor, OtpProcessor],
   exports: [BullModule],
 })
 export class QueueModule {}

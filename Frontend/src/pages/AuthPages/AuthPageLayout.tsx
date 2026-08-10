@@ -19,7 +19,7 @@ export default function AuthLayout({
             <div className="flex flex-col items-center max-w-xs">
               <Link to="/" className="block mb-4">
                 <h1 className="text-4xl font-bold text-white">
-                  ConvoReach
+                  Waflow
                 </h1>
               </Link>
               <p className="text-center text-gray-400 dark:text-white/60">

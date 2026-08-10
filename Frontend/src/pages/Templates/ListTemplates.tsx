@@ -81,7 +81,7 @@ export default function ListTemplates() {
 
   return (
     <>
-      <PageMeta title="Templates | ConvoReach" description="Manage your WhatsApp Templates" />
+      <PageMeta title="Templates | Waflow" description="Manage your WhatsApp Templates" />
       
       {deleteModalConfig && (
         <ConfirmDeleteModal

@@ -725,7 +725,7 @@ export default function Contacts() {
 
   return (
     <>
-      <PageMeta title="Contacts | ConvoReach" description="Manage your contacts" />
+      <PageMeta title="Contacts | Waflow" description="Manage your contacts" />
 
       {/* Page Header */}
       <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">

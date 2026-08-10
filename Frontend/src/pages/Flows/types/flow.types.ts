@@ -17,6 +17,7 @@ export interface FlowTrigger {
 // ─── Node Kinds ───────────────────────────────────────────────────────────────
 
 export type NodeKind =
+  | 'send_text'
   | 'text_button'
   | 'media_button'
   | 'list'
@@ -110,6 +111,7 @@ export const NODE_TYPES: NodeTypeDef[] = [
   { kind: 'set_custom_field', label: 'Set Custom Field', description: 'Save data to contact', category: 'action', icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', defaultData: {} },
   { kind: 'api_request', label: 'API Request', description: 'Call external webhook', category: 'action', icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1', defaultData: {} },
   { kind: 'connect_flow', label: 'Connect Flow', description: 'Jump to another flow', category: 'action', icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1', defaultData: {} },
+  { kind: 'end_flow', label: 'End Flow', description: 'Stop the conversation flow', category: 'action', icon: 'M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM12 10.5h.008v3.75H12V10.5z', defaultData: {} },
 ];
 
 export function getNodeTypeDef(kind: NodeKind): NodeTypeDef | undefined {

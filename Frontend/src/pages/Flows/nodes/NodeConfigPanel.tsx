@@ -55,17 +55,18 @@ export default function NodeConfigPanel({ nodeId, node, templates, onChange, onD
 
     switch (node.kind) {
       case 'text_button': return <TextButtonNodeBody {...bodyProps} />;
-      case 'send_media': return <MediaButtonNodeBody {...bodyProps} />;
+      case 'send_text': return <TextButtonNodeBody {...bodyProps} />;
+      case 'media_button': return <MediaButtonNodeBody {...bodyProps} />;
       case 'list': return <ListNodeBody {...bodyProps} />;
       case 'single_product': return <SingleProductNodeBody {...bodyProps} />;
       case 'multi_product': return <MultiProductNodeBody {...bodyProps} />;
       case 'catalog': return <CatalogNodeBody {...bodyProps} />;
-      case 'send_template': return <TemplateNodeBody {...bodyProps} />;
+      case 'template': return <TemplateNodeBody {...bodyProps} />;
       case 'condition': return <ConditionNodeBody {...bodyProps} />;
       case 'delay': return <DelayNodeBody {...bodyProps} />;
       case 'ask_question': return <QuestionNodeBody {...bodyProps} />;
       case 'ask_media': return <MediaQuestionNodeBody {...bodyProps} />;
-      case 'set_variable': return <ContactCustomFieldNodeBody {...bodyProps} />;
+      case 'set_custom_field': return <ContactCustomFieldNodeBody {...bodyProps} />;
       case 'ask_address': return <AddressNodeBody {...bodyProps} />;
       case 'ask_location': return <LocationNodeBody {...bodyProps} />;
       case 'api_request': return <APIRequestNodeBody {...bodyProps} />;

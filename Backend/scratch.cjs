@@ -1,7 +1,6 @@
-const sqlite3 = require('sqlite3');
+const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('./data/openwa.sqlite');
-db.all("SELECT id, name, userId FROM sessions", (err, rows) => {
-  if (err) console.error(err);
-  else console.log(rows);
-  db.close();
+
+db.each("SELECT sql FROM sqlite_master WHERE name='otp_template_versions'", (err, row) => {
+  console.log(row.sql);
 });

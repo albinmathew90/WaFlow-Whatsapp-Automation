@@ -1,11 +1,9 @@
 import { useState } from "react";
-import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import UserMetaCard from "../components/UserProfile/UserMetaCard";
 import UserInfoCard from "../components/UserProfile/UserInfoCard";
 import UserAddressCard from "../components/UserProfile/UserAddressCard";
 import ChangePasswordTab from "../components/UserProfile/ChangePasswordTab";
 import DeleteAccountTab from "../components/UserProfile/DeleteAccountTab";
-import PageMeta from "../components/common/PageMeta";
 
 type TabOption = 'profile' | 'password' | 'delete';
 
@@ -14,12 +12,6 @@ export default function UserProfiles() {
 
   return (
     <>
-      <PageMeta
-        title="React.js Profile Dashboard | ConvoReach - Next.js Admin Dashboard Template"
-        description="This is React.js Profile Dashboard page for ConvoReach - React.js Tailwind CSS Admin Dashboard Template"
-      />
-      <PageBreadcrumb pageTitle="Account Management" />
-      
       <div className="mb-6 flex gap-6 border-b border-gray-200 dark:border-gray-800">
         <button
           onClick={() => setActiveTab('profile')}

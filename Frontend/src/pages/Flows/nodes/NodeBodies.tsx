@@ -1227,6 +1227,30 @@ export function AddressNodeBody({ id, node, onChange, onStartEdge, color }: Body
 }
 
 export function LocationNodeBody({ id, node, onChange, onStartEdge, color }: BodyProps) {
+  const [customFields, setCustomFields] = React.useState<any[]>([]);
+  const [loadingFields, setLoadingFields] = React.useState(false);
+
+  React.useEffect(() => {
+    const fetchCustomFields = async () => {
+      setLoadingFields(true);
+      try {
+        const token = sessionStorage.getItem('crm_token');
+        const res = await fetch('/openwa-api/crm/custom-fields', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCustomFields(data);
+        }
+      } catch (e) {
+        console.error("Failed to load custom fields", e);
+      } finally {
+        setLoadingFields(false);
+      }
+    };
+    fetchCustomFields();
+  }, []);
+
   return (
     <div className="px-3 py-1.5 flex flex-col gap-2">
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
@@ -1236,18 +1260,22 @@ export function LocationNodeBody({ id, node, onChange, onStartEdge, color }: Bod
           <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter question message here.</span>
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select Contact Custom Field</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600">
-            <option value="">Select field...</option>
+          <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Save As (Custom Field)</span>
+          <select
+            className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600"
+            value={node.saveAs || ''}
+            onChange={(e) => onChange({ saveAs: e.target.value })}
+          >
+            <option value="">Default (answer)</option>
+            {loadingFields ? (
+              <option disabled>Loading...</option>
+            ) : (
+              customFields.map((f: any) => (
+                <option key={f.id} value={f.name}>{f.name}</option>
+              ))
+            )}
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select contact custom field to store Longitude.</span>
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select Contact Custom Field</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600">
-            <option value="">Select field...</option>
-          </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select contact custom field to store Latitude.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select contact custom field to store location reply.</span>
         </div>
       </div>
     </div>

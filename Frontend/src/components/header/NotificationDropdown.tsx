@@ -89,6 +89,39 @@ export default function NotificationDropdown() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  /** Play a soft two-tone chime using the Web Audio API (no external file needed). */
+  const playNotificationSound = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+      const playTone = (freq: number, startAt: number, duration: number, gain: number) => {
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + startAt);
+
+        gainNode.gain.setValueAtTime(0, ctx.currentTime + startAt);
+        gainNode.gain.linearRampToValueAtTime(gain, ctx.currentTime + startAt + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startAt + duration);
+
+        osc.start(ctx.currentTime + startAt);
+        osc.stop(ctx.currentTime + startAt + duration);
+      };
+
+      // Two-tone chime: higher note → lower note
+      playTone(880, 0,    0.18, 0.25); // A5
+      playTone(660, 0.15, 0.25, 0.18); // E5
+
+      // Auto-close the context after the sound finishes
+      setTimeout(() => ctx.close(), 600);
+    } catch {
+      // AudioContext unavailable or blocked — silently ignore
+    }
+  }, []);
+
   const addNotification = useCallback((msg: NotificationMsg) => {
     setNotifications((prev) => {
       if (prev.find((p) => p.id === msg.id)) return prev;
@@ -115,13 +148,17 @@ export default function NotificationDropdown() {
       return [...prev, { id: toastId, name, body: bodyText, time }].slice(-5);
     });
 
+    // Play chime sound
+    playNotificationSound();
+
     // Also try OS browser notification when tab is not focused
     if (typeof Notification !== "undefined" && Notification.permission === "granted" && !document.hasFocus()) {
       try {
         new Notification(`💬 ${name}`, { body: bodyText, icon: "/favicon.ico" });
       } catch { /* blocked */ }
     }
-  }, []);
+  }, [playNotificationSound]);
+
 
   const fetchRecentNotifications = useCallback(async () => {
     try {

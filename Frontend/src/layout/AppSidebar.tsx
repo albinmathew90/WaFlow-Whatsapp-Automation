@@ -56,6 +56,52 @@ const navItems: NavItem[] = [
     name: "Flows",
     path: "/flows",
   },
+  {
+    icon: (
+      <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" stroke="currentColor" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round">
+        {/* Phone body */}
+        <path d="M320 16H128C99 16 76 39 76 68v376c0 29 23 52 52 52h192c29 0 52-23 52-52V68c0-29-23-52-52-52z" />
+        {/* Phone top bar */}
+        <line x1="76" y1="100" x2="372" y2="100" />
+        {/* Phone bottom bar */}
+        <line x1="76" y1="412" x2="372" y2="412" />
+        {/* Notch */}
+        <line x1="200" y1="58" x2="248" y2="58" strokeWidth="14" strokeLinecap="round" />
+        {/* OTP speech bubble */}
+        <rect x="16" y="160" width="280" height="110" rx="22" ry="22" />
+        {/* Bubble tail */}
+        <path d="M120 270 L100 310 L155 270" />
+        {/* Asterisk 1 */}
+        <line x1="80" y1="215" x2="80" y2="225" strokeWidth="14" />
+        <line x1="75" y1="212" x2="85" y2="228" strokeWidth="14" />
+        <line x1="85" y1="212" x2="75" y2="228" strokeWidth="14" />
+        {/* Asterisk 2 */}
+        <line x1="156" y1="215" x2="156" y2="225" strokeWidth="14" />
+        <line x1="151" y1="212" x2="161" y2="228" strokeWidth="14" />
+        <line x1="161" y1="212" x2="151" y2="228" strokeWidth="14" />
+        {/* Asterisk 3 */}
+        <line x1="232" y1="215" x2="232" y2="225" strokeWidth="14" />
+        <line x1="227" y1="212" x2="237" y2="228" strokeWidth="14" />
+        <line x1="237" y1="212" x2="227" y2="228" strokeWidth="14" />
+        {/* Clock circle */}
+        <circle cx="390" cy="340" r="90" />
+        <circle cx="390" cy="340" r="72" />
+        {/* Clock hands */}
+        <line x1="390" y1="340" x2="390" y2="292" strokeWidth="16" />
+        <line x1="390" y1="340" x2="426" y2="360" strokeWidth="16" />
+        {/* Clock notch at 6 o'clock */}
+        <line x1="390" y1="400" x2="390" y2="408" strokeWidth="14" />
+      </svg>
+    ),
+    name: "OTP Builder",
+    subItems: [
+      { name: "Applications", path: "/otp-builder/applications" },
+      { name: "API Keys", path: "/otp-builder/api-keys" },
+      { name: "Templates", path: "/otp-builder/templates" },
+      { name: "Webhooks", path: "/otp-builder/webhooks" },
+      { name: "Logs", path: "/otp-builder/logs" },
+    ],
+  },
 ];
 
 const othersItems: NavItem[] = [
@@ -63,6 +109,7 @@ const othersItems: NavItem[] = [
     icon: <PlugInIcon />,
     name: "Settings",
     subItems: [
+      { name: "Account Management", path: "/settings/account" },
       { name: "Media Library", path: "/settings/media" },
       { name: "Contact Custom Fields", path: "/settings/contact-fields" },
     ],
@@ -272,7 +319,7 @@ const AppSidebar: React.FC = () => {
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              ConvoReach
+              Waflow
             </h1>
           ) : (
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">

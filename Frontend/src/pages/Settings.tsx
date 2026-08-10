@@ -5,6 +5,7 @@ import PageMeta from "../components/common/PageMeta";
 import ConfirmDeleteModal from "../components/common/ConfirmDeleteModal";
 import MediaLibrarySection from "./Settings/MediaLibrarySection";
 import ContactCustomFieldsSection from "./Settings/ContactCustomFieldsSection";
+import UserProfiles from "./UserProfiles";
 
 export interface Tag {
   id: string;
@@ -16,7 +17,7 @@ export interface Tag {
 
 export default function Settings() {
   const location = useLocation();
-  const activeTab = location.pathname.includes('/contact-fields') ? 'contact-fields' : 'media';
+  const activeTab = location.pathname.includes('/contact-fields') ? 'contact-fields' : location.pathname.includes('/media') ? 'media' : 'account';
   const [tags, setTags] = useState<Tag[]>([]);
 
   useEffect(() => {
@@ -108,15 +109,17 @@ export default function Settings() {
   return (
     <div>
       <PageMeta
-        title={activeTab === 'media' ? "Media Library | ConvoReach" : activeTab === 'contact-fields' ? "Contact Custom Fields | ConvoReach" : "Tags Management | ConvoReach"}
-        description={activeTab === 'media' ? "Media Library page for ConvoReach" : activeTab === 'contact-fields' ? "Contact Custom Fields page for ConvoReach" : "Tags Management page for ConvoReach"}
+        title={activeTab === 'media' ? "Media Library | Waflow" : activeTab === 'contact-fields' ? "Contact Custom Fields | Waflow" : "Account Management | Waflow"}
+        description={activeTab === 'media' ? "Media Library page for Waflow" : activeTab === 'contact-fields' ? "Contact Custom Fields page for Waflow" : "Account Management page for Waflow"}
       />
-      <PageBreadcrumb pageTitle={activeTab === 'media' ? "Media Library" : activeTab === 'contact-fields' ? "Contact Custom Fields" : "Tags Management"} />
+      <PageBreadcrumb pageTitle={activeTab === 'media' ? "Media Library" : activeTab === 'contact-fields' ? "Contact Custom Fields" : "Account Management"} />
 
       {activeTab === 'media' ? (
         <MediaLibrarySection />
-      ) : (
+      ) : activeTab === 'contact-fields' ? (
         <ContactCustomFieldsSection />
+      ) : (
+        <UserProfiles />
       )}
 
       {deleteModalConfig && (

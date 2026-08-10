@@ -25,18 +25,26 @@ export class MailService implements OnModuleInit {
       });
     } else {
       this.logger.log('No SMTP configuration found. Creating Ethereal Mail test account...');
-      const testAccount = await nodemailer.createTestAccount();
-      
-      this.transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false, // true for 465, false for other ports
-        auth: {
-          user: testAccount.user, // generated ethereal user
-          pass: testAccount.pass, // generated ethereal password
-        },
-      });
-      this.logger.log(`Ethereal Mail initialized. Credentials: ${testAccount.user} / ${testAccount.pass}`);
+      try {
+        const testAccount = await nodemailer.createTestAccount();
+        
+        this.transporter = nodemailer.createTransport({
+          host: 'smtp.ethereal.email',
+          port: 587,
+          secure: false,
+          auth: {
+            user: testAccount.user,
+            pass: testAccount.pass,
+          },
+        });
+        this.logger.log(`Ethereal Mail initialized. Credentials: ${testAccount.user} / ${testAccount.pass}`);
+      } catch (e) {
+        this.logger.warn(`Failed to create Ethereal test account: ${e.message}. Falling back to dummy transporter.`);
+        this.transporter = nodemailer.createTransport({
+           streamTransport: true,
+           newline: 'windows'
+        });
+      }
     }
   }
 

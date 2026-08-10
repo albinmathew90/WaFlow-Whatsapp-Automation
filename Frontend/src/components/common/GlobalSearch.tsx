@@ -18,6 +18,7 @@ const SEARCH_ITEMS = [
   { label: "Flow Builder", description: "Create automation flows", path: "/flows" },
   // Settings
   { label: "Settings", description: "App settings", path: "/settings" },
+  { label: "Account Management", description: "Manage your profile and security", path: "/settings/account" },
   { label: "Media Library", description: "Uploaded media files", path: "/settings/media" },
   { label: "Contact Custom Fields", description: "Manage custom contact fields", path: "/settings/contact-fields" },
   { label: "WhatsApp Settings", description: "WhatsApp session & connection", path: "/settings/whatsapp" },

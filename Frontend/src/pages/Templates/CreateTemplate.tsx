@@ -540,7 +540,7 @@ export default function CreateTemplate() {
 
   return (
     <>
-      <PageMeta title="Create Template | ConvoReach" description="Build a new WhatsApp Template" />
+      <PageMeta title="Create Template | Waflow" description="Build a new WhatsApp Template" />
 
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">

@@ -66,18 +66,10 @@ const NodeCardComponent = ({ id, node, isSelected, isStart, onSelect, onStartEdg
         position: 'absolute',
         left: node.x,
         top: node.y,
-        cursor: dragging ? 'grabbing' : 'grab',
-        userSelect: 'none',
         zIndex: isSelected ? 20 : 10,
       }}
-      className={`group select-none`}
+      className={`group`}
       data-nodeid={id}
-      onMouseDown={(e) => {
-        if ((e.target as HTMLElement).tagName.toLowerCase() !== 'button' && !(e.target as HTMLElement).closest('button')) {
-          onSelect(id);
-          onDragStart(e);
-        }
-      }}
       onMouseUp={() => {
         onSelect(id);
       }}
@@ -94,11 +86,22 @@ const NodeCardComponent = ({ id, node, isSelected, isStart, onSelect, onStartEdg
         `}
         style={{ borderTopColor: color, borderTopWidth: 4 }}
       >
-        {/* Badge removed as per user request */}
 
-        {/* Header */}
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color }}>
+        {/* Header (Drag Handle) */}
+        <div 
+          className="flex items-center gap-2 px-3 py-2 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 cursor-grab active:cursor-grabbing select-none"
+          onMouseDown={(e) => {
+            if ((e.target as HTMLElement).tagName.toLowerCase() !== 'button' && !(e.target as HTMLElement).closest('button')) {
+              onDragStart(e);
+            }
+          }}
+        >
+          <div className="flex items-center justify-center text-gray-400 mr-1">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm8-16a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4z" />
+            </svg>
+          </div>
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={typeDef?.icon} />
           </svg>
           <span className="text-[13px] font-bold text-gray-800 dark:text-gray-100 flex-1">

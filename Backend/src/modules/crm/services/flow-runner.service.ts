@@ -102,10 +102,15 @@ export class FlowRunnerService implements OnModuleInit {
         const expired = ageMs > SESSION_EXPIRY_MINUTES * 60 * 1000;
         if (expired) {
           await this.stateRepo.delete(existing.id);
+          // Falls through to trigger check below
         } else if (existing.waitingForReply) {
           // Resume the capture node — save the user's reply as the variable
           await this.resumeCaptureNode(existing, messageBody, sessionId, chatId, userId);
           return;
+        } else {
+          // Flow is active but between nodes (not waiting for a reply).
+          // This can happen if the flow is executing synchronously.
+          // Don't block the trigger check — let new triggers win.
         }
       }
 
@@ -159,6 +164,11 @@ export class FlowRunnerService implements OnModuleInit {
     const firstNodeId = this.findFirstNodeId(flow);
     if (!firstNodeId) return;
 
+    // Delete any existing state for this chat before starting fresh.
+    // This prevents UNIQUE constraint violations when a new trigger fires
+    // while a non-waiting (between-nodes) state already exists.
+    await this.stateRepo.delete({ userId, sessionId, chatId });
+
     const state = await this.stateRepo.save(
       this.stateRepo.create({
         userId,
@@ -192,9 +202,14 @@ export class FlowRunnerService implements OnModuleInit {
       (e) => e.from === currentNodeId && (branch ? e.branch === branch : !e.branch),
     );
     if (edge) return edge.to;
-    // fallback: any edge from current if no branch-specific one
-    const any = flow.edges.find((e) => e.from === currentNodeId);
-    return any?.to;
+    // Fallback: only use any edge when no specific branch was requested
+    // (i.e. for linear nodes without branching). For branching nodes (condition, list)
+    // where a specific branch was requested but not found, return undefined to end flow.
+    if (!branch) {
+      const any = flow.edges.find((e) => e.from === currentNodeId);
+      return any?.to;
+    }
+    return undefined;
   }
 
   private async advanceTo(flow: CrmFlow, state: CrmFlowState, nextNodeId: string | undefined, sessionId: string, chatId: string): Promise<void> {
@@ -267,7 +282,9 @@ export class FlowRunnerService implements OnModuleInit {
         await this.sendText(sessionId, chatId, text);
         
         const hasQuickReplies = node.buttons?.some((b: any) => b.type === 'quick_reply' || !b.type);
-        if (hasQuickReplies || node.kind === 'text_button') {
+        if (hasQuickReplies) {
+          // Only pause and wait for reply if there are actual quick-reply buttons.
+          // Link-only buttons don't need a reply — auto-advance to next node.
           state.waitingForReply = true;
           state.vars['__captureVar__'] = node.saveAs || 'answer';
           await this.stateRepo.save(state);
@@ -340,7 +357,10 @@ export class FlowRunnerService implements OnModuleInit {
         let result = false;
 
         if (conditionOn === 'user_message') {
-          const userMsg = state.vars['user_message'] || '';
+          // Check the last captured reply first (set by ask_question / text_button capture).
+          // Fall back to the initial user_message (the trigger keyword) if no capture var.
+          const capturedAnswer = state.vars['answer'] || state.vars['user_message'] || '';
+          const userMsg = capturedAnswer;
           const msgToCompare = (node.caseSensitive ? userMsg : userMsg.toLowerCase()).trim();
           const rawKeywords = node.keywords || [];
           const flatKeywords = rawKeywords.flatMap((k: string) => k.split(',').map(kw => kw.trim()).filter(Boolean));
@@ -528,11 +548,17 @@ export class FlowRunnerService implements OnModuleInit {
     chatId: string,
     userId: string,
   ): Promise<void> {
-    const flows = await this.flowsService.findAllEnabled(userId);
-    const flow = flows.find((f) => f.id === state.flowId);
+    // First try enabled flows; if the flow was disabled mid-session, load it directly so we can clean up gracefully.
+    let flows = await this.flowsService.findAllEnabled(userId);
+    let flow = flows.find((f) => f.id === state.flowId);
     if (!flow) {
-      await this.stateRepo.delete(state.id);
-      return;
+      // Flow may have been disabled — load it directly to allow graceful cleanup
+      const directFlow = await this.flowsService.findOne(userId, state.flowId);
+      if (!directFlow) {
+        await this.stateRepo.delete(state.id);
+        return;
+      }
+      flow = directFlow;
     }
 
     let branch: string | undefined = undefined;
@@ -576,6 +602,9 @@ export class FlowRunnerService implements OnModuleInit {
 
     const captureVar = state.vars['__captureVar__'] || 'answer';
     state.vars[captureVar] = resolvedReply;
+    // Always keep user_message updated to the latest reply so condition nodes
+    // placed after a capture node can check against the most recent user input.
+    state.vars['user_message'] = resolvedReply;
     delete state.vars['__captureVar__'];
     
     await this.saveToContactDb(userId, chatId, captureVar, resolvedReply, state.vars['__fallbackName__'] || '');

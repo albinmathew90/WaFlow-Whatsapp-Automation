@@ -8,6 +8,7 @@ import { NotFoundException } from '@nestjs/common';
 import { WebhookService } from './webhook.service';
 import { Webhook } from './entities/webhook.entity';
 import { Session, SessionStatus } from '../session/entities/session.entity';
+import { User } from '../crm/entities/user.entity';
 
 describe('WebhookService session-scoped access', () => {
   let ds: DataSource;
@@ -19,7 +20,7 @@ describe('WebhookService session-scoped access', () => {
     ds = new DataSource({
       type: 'sqlite',
       database: ':memory:',
-      entities: [Session, Webhook],
+      entities: [Session, Webhook, User],
       synchronize: true,
     });
     await ds.initialize();

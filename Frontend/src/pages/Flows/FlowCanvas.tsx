@@ -27,6 +27,7 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
   const [trigger, setTrigger] = useState<Flow['trigger']>(
     initialFlow?.trigger || { event: 'keyword', keywords: [], caseSensitive: false }
   );
+  const [triggerPos, setTriggerPos] = useState({ x: 100, y: 50 });
   const [nodes, setNodes] = useState<Record<string, FlowNode>>(initialFlow?.nodes || {});
   const [edges, setEdges] = useState<FlowEdge[]>(initialFlow?.edges || []);
 
@@ -41,9 +42,11 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const panRef = useRef(pan);
   const scaleRef = useRef(scale);
+  const triggerPosRef = useRef(triggerPos);
 
   useEffect(() => { panRef.current = pan; }, [pan]);
   useEffect(() => { scaleRef.current = scale; }, [scale]);
+  useEffect(() => { triggerPosRef.current = triggerPos; }, [triggerPos]);
   const canvasDragRef = useRef<{ startX: number; startY: number; startPanX: number; startPanY: number } | null>(null);
 
   // Drag state
@@ -99,6 +102,8 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
 
     // Middle click or Left click on background to pan
     if (e.button === 1 || e.button === 0) {
+      // Prevent browser text-selection while panning
+      e.preventDefault();
       canvasDragRef.current = {
         startX: e.clientX,
         startY: e.clientY,
@@ -112,15 +117,28 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
   };
 
   const startDrag = useCallback((nodeId: string, e: React.MouseEvent) => {
+    // Prevent browser text-selection while dragging nodes
+    e.preventDefault();
     setNodes((currentNodes) => {
-      dragRef.current = {
-        nodeId,
-        startX: e.clientX,
-        startY: e.clientY,
-        origX: currentNodes[nodeId].x,
-        origY: currentNodes[nodeId].y,
-      };
-      return currentNodes;
+      if (nodeId === 'trigger_node') {
+        dragRef.current = {
+          nodeId,
+          startX: e.clientX,
+          startY: e.clientY,
+          origX: triggerPosRef.current.x,
+          origY: triggerPosRef.current.y,
+        };
+        return currentNodes;
+      } else {
+        dragRef.current = {
+          nodeId,
+          startX: e.clientX,
+          startY: e.clientY,
+          origX: currentNodes[nodeId].x,
+          origY: currentNodes[nodeId].y,
+        };
+        return currentNodes;
+      }
     });
     setDraggingId(nodeId);
     setSelectedNodeId(nodeId);
@@ -131,13 +149,16 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
       // Node Dragging
       if (dragRef.current) {
         const { nodeId, startX, startY, origX, origY } = dragRef.current;
-        // Adjust dx/dy by scale so dragging feels 1:1 with cursor
-        const dx = (e.clientX - startX) / scale;
-        const dy = (e.clientY - startY) / scale;
-        setNodes((prev) => ({
-          ...prev,
-          [nodeId]: { ...prev[nodeId], x: Math.max(0, origX + dx), y: Math.max(0, origY + dy) },
-        }));
+        const dx = (e.clientX - startX) / scaleRef.current;
+        const dy = (e.clientY - startY) / scaleRef.current;
+        if (nodeId === 'trigger_node') {
+          setTriggerPos({ x: Math.max(0, origX + dx), y: Math.max(0, origY + dy) });
+        } else {
+          setNodes((prev) => ({
+            ...prev,
+            [nodeId]: { ...prev[nodeId], x: Math.max(0, origX + dx), y: Math.max(0, origY + dy) },
+          }));
+        }
       }
       // Canvas Panning
       if (canvasDragRef.current) {
@@ -150,14 +171,21 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
       if (edgeDrawingRef.current) {
         const rect = canvasRef.current?.getBoundingClientRect();
         if (rect) {
-          // Calculate mouse pos relative to canvas container, then adjust for pan & scale
           const rawX = e.clientX - rect.left;
           const rawY = e.clientY - rect.top;
-          setDrawingEdge((prev) => prev ? {
-            ...prev,
-            mouseX: (rawX - pan.x) / scale,
-            mouseY: (rawY - pan.y) / scale
-          } : null);
+          const mouseX = (rawX - panRef.current.x) / scaleRef.current;
+          const mouseY = (rawY - panRef.current.y) / scaleRef.current;
+          
+          const livePath = document.getElementById('live-edge-path');
+          if (livePath) {
+            const { startX, startY, from } = edgeDrawingRef.current;
+            if (startX !== undefined && startY !== undefined) {
+              const dx = Math.abs(mouseX - startX);
+              const offset = Math.max(dx / 2, 50);
+              const pathStr = `M${startX},${startY} C${startX + offset},${startY} ${mouseX - offset},${mouseY} ${mouseX},${mouseY}`;
+              livePath.setAttribute('d', pathStr);
+            }
+          }
         }
       }
     };
@@ -172,14 +200,23 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
   }, []);
 
   // ── Edge Drawing ─────────────────────────────────────────────────────────────
-  const startEdge = useCallback((fromId: string, branch?: string, startClientX?: number, startClientY?: number) => {
+  const startEdge = useCallback((fromId: string, branch?: string) => {
+    const portElId = fromId === 'trigger_node' ? 'port-trigger_node-output' : `port-${fromId}-${branch || 'output'}`;
+    const portEl = document.getElementById(portElId);
     const rect = canvasRef.current?.getBoundingClientRect();
+    
     let initialX = 0;
     let initialY = 0;
-    if (rect && startClientX !== undefined && startClientY !== undefined) {
-      initialX = (startClientX - rect.left - panRef.current.x) / scaleRef.current;
-      initialY = (startClientY - rect.top - panRef.current.y) / scaleRef.current;
+    
+    if (portEl && rect) {
+      const portRect = portEl.getBoundingClientRect();
+      const portCenterX = portRect.left + portRect.width / 2;
+      const portCenterY = portRect.top + portRect.height / 2;
+      
+      initialX = (portCenterX - rect.left - panRef.current.x) / scaleRef.current;
+      initialY = (portCenterY - rect.top - panRef.current.y) / scaleRef.current;
     }
+    
     const newEdge = { from: fromId, branch, mouseX: initialX, mouseY: initialY, startX: initialX, startY: initialY };
     setDrawingEdge(newEdge);
     edgeDrawingRef.current = newEdge;
@@ -224,6 +261,32 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
   };
 
   const handleWheel = (e: React.WheelEvent) => {
+    // Check if the scroll originated from inside a scrollable element or input
+    let curr = e.target as HTMLElement | null;
+    let isScrollable = false;
+
+    while (curr && curr !== e.currentTarget) {
+      const tag = curr.tagName.toLowerCase();
+      if (tag === 'textarea' || tag === 'input' || tag === 'select') {
+        isScrollable = true;
+        break;
+      }
+      const style = window.getComputedStyle(curr);
+      if (style.overflowY === 'auto' || style.overflowY === 'scroll' || style.overflowX === 'auto' || style.overflowX === 'scroll') {
+        // Only count as scrollable if it actually has overflow
+        if (curr.scrollHeight > curr.clientHeight || curr.scrollWidth > curr.clientWidth) {
+          isScrollable = true;
+          break;
+        }
+      }
+      curr = curr.parentElement;
+    }
+
+    if (isScrollable) {
+      // Let the browser handle the scroll natively for the element, don't zoom the canvas
+      return;
+    }
+
     e.preventDefault();
     const zoomSensitivity = 0.001;
     // Pabbly typically zooms IN on scroll UP (negative deltaY).
@@ -441,7 +504,11 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
             backgroundImage: 'radial-gradient(circle, #e2e8f0 1px, transparent 1px)',
             backgroundSize: `${28 * scale}px ${28 * scale}px`,
             backgroundPosition: `${pan.x}px ${pan.y}px`,
-            cursor: canvasDragRef.current ? 'grabbing' : 'auto'
+            cursor: (canvasDragRef.current || draggingId) ? 'grabbing' : 'auto',
+            // Always prevent text selection on the canvas — inputs/textareas inside nodes
+            // override this naturally so they remain fully functional.
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
           }}
           onMouseDown={onMouseDownCanvas}
           onClick={handleCanvasClick}
@@ -453,10 +520,24 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
             style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})` }}
           >
             {/* Edge SVG layer */}
-            <EdgeLayer nodes={nodes} edges={edges} drawingEdge={drawingEdge} onClickEdge={deleteEdge} />
+            <EdgeLayer
+          nodes={nodes}
+          edges={edges}
+          drawingEdge={drawingEdge}
+          onClickEdge={deleteEdge}
+          triggerPos={triggerPos}
+        />
 
             {/* Trigger Node */}
-            <TriggerNode trigger={trigger} onChange={setTrigger} onStartEdge={startEdge} />
+            <TriggerNode
+          trigger={trigger}
+          x={triggerPos.x}
+          y={triggerPos.y}
+          dragging={draggingId === 'trigger_node'}
+          onDragStart={(e) => startDrag('trigger_node', e)}
+          onChange={setTrigger}
+          onStartEdge={startEdge}
+        />
 
             {/* Nodes */}
             {Object.entries(nodes).map(([id, node]) => (

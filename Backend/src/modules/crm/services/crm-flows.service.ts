@@ -55,7 +55,14 @@ export class CrmFlowsService {
   }
 
   async findAllEnabled(userId?: string): Promise<CrmFlow[]> {
-    return this.flowsRepository.find({ where: { enabled: true } });
+    if (userId) {
+      return this.flowsRepository.find({ where: { enabled: true, userId }, order: { createdAt: 'ASC' } });
+    }
+    return this.flowsRepository.find({ where: { enabled: true }, order: { createdAt: 'ASC' } });
+  }
+
+  async deleteAll(userId: string): Promise<void> {
+    await this.flowsRepository.delete({ userId });
   }
 
   async findOne(userId: string, id: string): Promise<CrmFlow | null> {

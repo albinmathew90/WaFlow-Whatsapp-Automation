@@ -40,5 +40,5 @@ export function isSafeStorageKey(key: string): boolean {
  * the auth dir — normal creation validates via the DTO, but data import / seed can carry a raw name.
  */
 export function isSafeSessionName(name: unknown): name is string {
-  return typeof name === 'string' && /^[a-zA-Z0-9-]+$/.test(name);
+  return typeof name === 'string' && /^[a-zA-Z0-9-_]+$/.test(name);
 }

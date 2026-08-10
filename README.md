@@ -1,6 +1,6 @@
 <div align="center">
   <img width="180" height="180" alt="apple-touch-icon" src="https://github.com/user-attachments/assets/1aa6467a-b41e-49b0-a438-05b7ee5ae4ed" />
-  <h1>ConvoReach</h1>
+  <h1>Waflow</h1>
   <p><b>An Open Source WhatsApp CRM, Automation & Bulk-Messaging Platform</b></p>
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -12,9 +12,9 @@
 
 <br />
 
-**ConvoReach** is a powerful, self-hosted Customer Relationship Management (CRM) platform built specifically for WhatsApp. It combines a robust, multi-engine backend API (powered by NestJS and OpenWA) with a stunning, highly responsive React frontend dashboard.
+**Waflow** is a powerful, self-hosted Customer Relationship Management (CRM) platform built specifically for WhatsApp. It combines a robust, multi-engine backend API (powered by NestJS and OpenWA) with a stunning, highly responsive React frontend dashboard.
 
-Whether you need to manage customer support via an Inbox, automate workflows with Flow Builders, or send massive Broadcast campaigns, ConvoReach provides a full-stack solution to scale your WhatsApp operations without vendor lock-in.
+Whether you need to manage customer support via an Inbox, automate workflows with Flow Builders, or send massive Broadcast campaigns, Waflow provides a full-stack solution to scale your WhatsApp operations without vendor lock-in.
 
 ---
 
@@ -53,7 +53,7 @@ Whether you need to manage customer support via an Inbox, automate workflows wit
 This repository is organized as a monorepo, keeping the client and server code neatly separated:
 
 ```text
-convoreach/
+waflow/
 ├── frontend/             # React/Vite Dashboard Application
 │   ├── src/
 │   │   ├── components/   # Reusable UI elements (Buttons, Modals, Forms)
@@ -74,7 +74,7 @@ convoreach/
 
 ## 🚀 Getting Started (Local Setup)
 
-To run ConvoReach locally, you need [Node.js (v20+)](https://nodejs.org/) installed on your machine. You will need to run both the frontend and backend simultaneously in separate terminal windows.
+To run Waflow locally, you need [Node.js (v20+)](https://nodejs.org/) installed on your machine. You will need to run both the frontend and backend simultaneously in separate terminal windows.
 
 ### 1. Setup the Backend API
 The backend acts as the bridge to WhatsApp and serves the database.
@@ -110,7 +110,7 @@ npm run dev
 
 ## ☁️ Deployment (Production)
 
-To deploy ConvoReach to a production environment (like an Azure Ubuntu VM or AWS EC2), follow these general steps:
+To deploy Waflow to a production environment (like an Azure Ubuntu VM or AWS EC2), follow these general steps:
 
 1. **Install Prerequisites:** Ensure your server has Node.js, Git, PM2, Redis, and Nginx installed.
 2. **Clone the Repo:** `git clone https://github.com/your-username/Convoreach-App.git`
@@ -119,7 +119,7 @@ To deploy ConvoReach to a production environment (like an Azure Ubuntu VM or AWS
    cd backend
    npm install
    npm run build
-   pm2 start dist/main.js --name "convoreach-api"
+   pm2 start dist/main.js --name "waflow-api"
    ```
 4. **Build the Frontend:**
    ```bash
@@ -133,7 +133,7 @@ To deploy ConvoReach to a production environment (like an Azure Ubuntu VM or AWS
 
 ## 🛡️ Security & Privacy
 
-ConvoReach is a self-hosted solution. **Your data belongs to you.**
+Waflow is a self-hosted solution. **Your data belongs to you.**
 - Messages and customer contacts are stored in your own local database (SQLite/PostgreSQL).
 - WhatsApp session data and tokens (e.g., `.wwebjs_auth`) remain strictly on your server and are explicitly ignored by Git to prevent accidental credential leaks.
 - API endpoints are protected using JWT-based authentication.

@@ -71,7 +71,7 @@ const AppHeader: React.FC = () => {
 
           <Link to="/" className="lg:hidden">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              ConvoReach
+              Waflow
             </h1>
           </Link>
 

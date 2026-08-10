@@ -5,8 +5,8 @@ export default function Blank() {
   return (
     <div>
       <PageMeta
-        title="React.js Blank Dashboard | ConvoReach - Next.js Admin Dashboard Template"
-        description="This is React.js Blank Dashboard page for ConvoReach - React.js Tailwind CSS Admin Dashboard Template"
+        title="React.js Blank Dashboard | Waflow - Next.js Admin Dashboard Template"
+        description="This is React.js Blank Dashboard page for Waflow - React.js Tailwind CSS Admin Dashboard Template"
       />
       <PageBreadcrumb pageTitle="Blank Page" />
       <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">

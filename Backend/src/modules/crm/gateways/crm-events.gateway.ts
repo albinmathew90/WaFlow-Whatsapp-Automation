@@ -45,6 +45,27 @@ export class CrmEventsGateway implements OnGatewayConnection, OnGatewayDisconnec
         const message = ctx.data as Message;
         const sessionId = ctx.sessionId;
         try {
+          // ── Apply the same content rules as the inbox ──────────────────────
+          // 1. Skip group chats — inbox (and notifications) are 1:1 only.
+          const chatId: string = (message as any).chatId ?? '';
+          if (chatId.endsWith('@g.us') || chatId.endsWith('@broadcast')) {
+            return { continue: true, data: message };
+          }
+
+          // 2. Skip system events / empty "end-to-end encrypted" notices.
+          //    A valid notification must have either a non-blank body or a
+          //    recognised media type (image, video, audio, voice, document,
+          //    sticker, location, contact_card).
+          const MEDIA_TYPES = new Set(['image', 'video', 'audio', 'voice', 'document', 'sticker', 'location', 'contact_card']);
+          const msgType: string = (message as any).type ?? 'text';
+          const body: string = (message as any).body ?? '';
+          const isTextType = !MEDIA_TYPES.has(msgType);
+          if (isTextType && !body.trim()) {
+            // No meaningful content — skip (system event, encrypted notice, etc.)
+            return { continue: true, data: message };
+          }
+          // ──────────────────────────────────────────────────────────────────
+
           if (sessionId) {
             const session = await this.sessionService.findOne(sessionId);
             if (session && session.userId) {

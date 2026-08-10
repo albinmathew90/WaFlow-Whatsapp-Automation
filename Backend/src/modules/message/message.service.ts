@@ -62,11 +62,24 @@ export class MessageService {
 
   async getRecentIncomingMessages(sessionIds: string[], limit: number = 20): Promise<Message[]> {
     if (!sessionIds.length) return [];
-    
+
+    // Apply the same content rules as the inbox:
+    //  - Skip group chats (@g.us / @broadcast) — inbox is 1:1 only.
+    //  - Skip system events / empty notices — must have a real text body OR a media type.
+    const MEDIA_TYPES = ['image', 'video', 'audio', 'voice', 'document', 'sticker', 'location', 'contact_card'];
+
     return this.messageRepository
       .createQueryBuilder('message')
       .where('message.sessionId IN (:...sessionIds)', { sessionIds })
       .andWhere('message.direction = :direction', { direction: MessageDirection.INCOMING })
+      // Exclude group/broadcast chats
+      .andWhere("message.chatId NOT LIKE '%@g.us'")
+      .andWhere("message.chatId NOT LIKE '%@broadcast'")
+      // Only include messages that have a real body OR a recognised media type
+      .andWhere(
+        `(TRIM(COALESCE(message.body, '')) != '' OR message.type IN (:...mediaTypes))`,
+        { mediaTypes: MEDIA_TYPES },
+      )
       .orderBy('message.timestamp', 'DESC')
       .take(limit)
       .getMany();

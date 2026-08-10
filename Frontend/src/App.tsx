@@ -19,6 +19,13 @@ import Settings from "./pages/Settings";
 import { InboxPage } from "./pages/Inbox";
 import { UserProvider, useUser } from "./context/UserContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import Applications from './pages/OTPBuilder/Applications';
+import DeveloperIntegration from './pages/OTPBuilder/DeveloperIntegration/DeveloperIntegration';
+import Templates from './pages/OTPBuilder/Templates';
+import TemplateEditor from './pages/OTPBuilder/TemplateEditor';
+import ApiKeys from "./pages/OTPBuilder/ApiKeys";
+import Webhooks from "./pages/OTPBuilder/Webhooks";
+import AnalyticsAndLogs from "./pages/OTPBuilder/AnalyticsAndLogs/AnalyticsAndLogs";
 
 // ---- Full-page loading spinner (inline styles so it always renders) ----
 function LoadingScreen() {
@@ -89,11 +96,21 @@ export default function App() {
               </Route>
               <Route path="/flows" element={<Flows />} />
               <Route path="/activity-log" element={<ActivityLog />} />
-              <Route path="/settings" element={<Navigate to="/settings/tags" replace />} />
+              <Route path="/otp-builder">
+                <Route path="applications" element={<Applications />} />
+                <Route path="applications/:appId/integration" element={<DeveloperIntegration />} />
+                <Route path="api-keys" element={<ApiKeys />} />
+                <Route path="templates" element={<Templates />} />
+                <Route path="templates/create" element={<TemplateEditor />} />
+                <Route path="templates/edit/:templateId" element={<TemplateEditor />} />
+                <Route path="webhooks" element={<Webhooks />} />
+                <Route path="logs" element={<AnalyticsAndLogs />} />
+              </Route>
+              <Route path="/settings" element={<Navigate to="/settings/account" replace />} />
+              <Route path="/settings/account" element={<Settings />} />
               <Route path="/settings/tags" element={<Settings />} />
               <Route path="/settings/media" element={<Settings />} />
               <Route path="/settings/contact-fields" element={<Settings />} />
-              <Route path="/profile" element={<UserProfiles />} />
             </Route>
 
             {/* Public Auth pages — redirect to dashboard if already logged in */}

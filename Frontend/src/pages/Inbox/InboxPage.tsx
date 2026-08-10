@@ -180,7 +180,7 @@ export default function InboxPage() {
 
   return (
     <>
-      <PageMeta title="Inbox | ConvoReach" description="Manage WhatsApp conversations from your marketing campaigns" />
+      <PageMeta title="Inbox | Waflow" description="Manage WhatsApp conversations from your marketing campaigns" />
 
       {/*
         Full-bleed inbox layout: escape AppLayout's padding using negative margins.
@@ -327,6 +327,13 @@ export default function InboxPage() {
 }
 
 function NoChatSelected({ message }: { message: string }) {
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-950 relative">
       <div className="flex-1 flex flex-col items-center justify-center gap-4">
@@ -341,7 +348,7 @@ function NoChatSelected({ message }: { message: string }) {
           </div>
         </div>
         <div className="text-center mt-2">
-          <p className="text-xl font-bold text-gray-700 dark:text-gray-300">Good Afternoon</p>
+          <p className="text-xl font-bold text-gray-700 dark:text-gray-300">{getGreeting()}</p>
           <p className="text-sm text-gray-400 dark:text-gray-500 mt-2 font-medium">
             {message}
           </p>

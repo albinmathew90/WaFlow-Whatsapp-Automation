@@ -4,11 +4,15 @@ import { TemplateSelectorModal } from './NodeBodies';
 
 interface Props {
   trigger: FlowTrigger;
+  x: number;
+  y: number;
+  dragging?: boolean;
   onChange: (trigger: FlowTrigger) => void;
   onStartEdge: (fromId: string, branch?: string, startClientX?: number, startClientY?: number) => void;
+  onDragStart: (e: React.MouseEvent) => void;
 }
 
-export default function TriggerNode({ trigger, onChange, onStartEdge }: Props) {
+export default function TriggerNode({ trigger, x, y, dragging, onChange, onStartEdge, onDragStart }: Props) {
   const [keywordInput, setKeywordInput] = useState('');
   const [showTemplateModal, setShowTemplateModal] = useState(false);
 
@@ -51,17 +55,32 @@ export default function TriggerNode({ trigger, onChange, onStartEdge }: Props) {
     <div
       style={{
         position: 'absolute',
-        left: 100,
-        top: 50,
+        left: x,
+        top: y,
         zIndex: 15,
       }}
       className="relative w-[320px] rounded-xl bg-white dark:bg-gray-900 border-2 border-blue-400 dark:border-blue-500 shadow-md flex flex-col"
       data-nodeid="trigger_node"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-blue-100 dark:border-blue-900/30">
-        <span className="text-[14px] font-bold text-gray-800 dark:text-gray-100">Trigger</span>
+      {/* Header (Drag Handle) */}
+      <div 
+        className="flex items-center justify-between px-4 py-3 border-b border-blue-100 dark:border-blue-900/30 cursor-grab active:cursor-grabbing select-none"
+        onMouseDown={(e) => {
+          if ((e.target as HTMLElement).tagName.toLowerCase() !== 'button' && !(e.target as HTMLElement).closest('button')) {
+            onDragStart(e);
+          }
+        }}
+      >
+        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center text-gray-400">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm8-16a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4z" />
+            </svg>
+          </div>
+          <span className="text-[14px] font-bold text-gray-800 dark:text-gray-100">Trigger</span>
+        </div>
         <button
+          id="port-trigger_node-output"
           onMouseDown={(e) => {
             e.stopPropagation();
             onStartEdge('trigger_node', undefined, e.clientX, e.clientY);

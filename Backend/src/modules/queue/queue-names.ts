@@ -3,4 +3,5 @@
 export const QUEUE_NAMES = {
   WEBHOOK: 'webhook-queue',
   INGRESS: 'ingress-queue',
+  OTP: 'otp-queue',
 } as const;
