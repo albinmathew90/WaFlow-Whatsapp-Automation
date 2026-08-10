@@ -279,8 +279,6 @@ export default function Webhooks() {
                   </h4>
                   <p className="mt-1 text-xs text-blue-700 dark:text-blue-400">
                     Your Webhook URL is a web address on <strong>your own server</strong> (e.g. <code>https://api.yourwebsite.com/webhook</code>) that we will send data to. 
-                    <br/><br/>
-                    Just testing? Go to <a href="https://webhook.site" target="_blank" rel="noreferrer" className="underline font-bold hover:text-blue-900 dark:hover:text-blue-300">webhook.site</a>, copy your unique URL, and paste it below to see live events instantly!
                   </p>
                 </div>
 
