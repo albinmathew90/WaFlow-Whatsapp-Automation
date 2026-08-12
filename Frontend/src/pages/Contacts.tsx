@@ -168,7 +168,7 @@ export default function Contacts() {
   } | null>(null);
   
   // Form State
-  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]);
+  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES.find(c => c.code === 'IN') || COUNTRY_CODES[0]);
   const [newPhone, setNewPhone] = useState('');
   const [newName, setNewName] = useState('');
   const [newStatus, setNewStatus] = useState<'opted_in' | 'opted_out'>('opted_in');
@@ -398,6 +398,7 @@ export default function Contacts() {
     setEditContactId(null);
     setNewPhone('');
     setNewName('');
+    setSelectedCountry(COUNTRY_CODES.find(c => c.code === 'IN') || COUNTRY_CODES[0]);
     setNewStatus('opted_in');
     setSelectedTagIds([]);
   };
@@ -515,7 +516,7 @@ export default function Contacts() {
         const header = lines[0].split(',').map(h => h.trim().toLowerCase());
         const nameIdx = header.findIndex(h => h.includes('name'));
         const mobileIdx = header.findIndex(h => h.includes('mobile') || h.includes('phone') || h.includes('number'));
-        const optinIdx = header.findIndex(h => h.includes('optin') || h.includes('opt-in') || h.includes('opt in'));
+        const optinIdx = header.findIndex(h => h.includes('optin') || h.includes('opt-in') || h.includes('opt in') || h.includes('status'));
 
         for (let i = 1; i < lines.length; i++) {
           // Extremely basic split (does not handle quoted commas, but sufficient for standard simple CSVs)
@@ -529,6 +530,10 @@ export default function Contacts() {
           if (mobile.toUpperCase().includes('E+')) {
             mobile = Number(mobile).toLocaleString('fullwide', { useGrouping: false });
           }
+          
+          // Clean the number: strip Excel formula wrappers (=""), spaces, dashes, brackets
+          mobile = mobile.replace(/[^0-9+]/g, '');
+
           // Ensure it has a plus sign if it's a long number without one
           if (!mobile.startsWith('+') && mobile.length >= 10) {
             mobile = '+' + mobile;
@@ -543,8 +548,8 @@ export default function Contacts() {
           
           let isOptedIn = true; // default true
           if (optinIdx >= 0 && cols[optinIdx]) {
-            const optinStr = cols[optinIdx].toLowerCase();
-            if (optinStr === 'false' || optinStr === 'no' || optinStr === '0') {
+            const optinStr = cols[optinIdx].toLowerCase().trim();
+            if (optinStr === 'false' || optinStr === 'no' || optinStr === '0' || optinStr.includes('out') || optinStr === 'opted_out' || optinStr === 'unsubscribed') {
               isOptedIn = false;
             }
           }
@@ -810,7 +815,7 @@ export default function Contacts() {
             </div>
             <div className="space-y-1 p-3">
               <button 
-                onClick={() => setActiveSegment('All Contacts')}
+                onClick={() => { setActiveSegment('All Contacts'); setSearchQuery(''); }}
                 className={`flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm font-medium transition ${activeSegment === 'All Contacts' ? 'bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800/50'}`}
               >
                 <div className="flex items-center gap-3">
@@ -823,7 +828,7 @@ export default function Contacts() {
               {segments.map(segment => (
                 <div key={segment.id} className="group relative">
                   <button 
-                    onClick={() => setActiveSegment(segment.name)}
+                    onClick={() => { setActiveSegment(segment.name); setSearchQuery(''); }}
                     className={`flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm font-medium transition ${activeSegment === segment.name ? 'bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800/50'}`}
                   >
                     <div className="flex items-center gap-3 pr-6">
@@ -1057,13 +1062,17 @@ export default function Contacts() {
           ) : (
             <div className="divide-y divide-gray-100 dark:divide-gray-800">
               {filteredContacts.map(contact => (
-                <div key={contact.id} className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50/80 dark:hover:bg-gray-800/30">
+                <div 
+                  key={contact.id} 
+                  onClick={() => toggleSelection(contact.id)}
+                  className="group cursor-pointer flex items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50/80 dark:hover:bg-gray-800/30"
+                >
                   <div className="w-8 shrink-0">
                     <input 
                       type="checkbox" 
                       checked={selectedIds.includes(contact.id)}
-                      onChange={() => toggleSelection(contact.id)}
-                      className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-600" 
+                      readOnly
+                      className="h-4 w-4 cursor-pointer rounded border-gray-300 text-brand-600 focus:ring-brand-600" 
                     />
                   </div>
                   <div className="min-w-[140px] flex-1">
@@ -1089,16 +1098,19 @@ export default function Contacts() {
                     </p>
                   </div>
                   <div className="w-[140px] shrink-0 flex items-center justify-end gap-2">
-                    <button onClick={() => handleEditContact(contact)} className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white" title="Edit">
+                    <button onClick={(e) => { e.stopPropagation(); handleEditContact(contact); }} className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white" title="Edit">
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                     </button>
                     <button 
-                      onClick={() => setDeleteModalConfig({
-                        isOpen: true,
-                        title: 'Delete Contact',
-                        itemName: contact.name,
-                        onConfirm: () => handleDeleteContact(contact.id)
-                      })} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteModalConfig({
+                          isOpen: true,
+                          title: 'Delete Contact',
+                          itemName: contact.name,
+                          onConfirm: () => handleDeleteContact(contact.id)
+                        });
+                      }} 
                       className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400" 
                       title="Delete"
                     >
