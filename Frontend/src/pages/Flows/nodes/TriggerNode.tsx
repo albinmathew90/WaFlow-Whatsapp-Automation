@@ -59,12 +59,12 @@ export default function TriggerNode({ trigger, x, y, dragging, onChange, onStart
         top: y,
         zIndex: 15,
       }}
-      className="relative w-[320px] rounded-xl bg-white dark:bg-gray-900 border-2 border-blue-400 dark:border-blue-500 shadow-md flex flex-col"
+      className="relative w-[320px] rounded-xl bg-white dark:bg-gray-900 border-2 border-brand-400 dark:border-brand-500 shadow-md flex flex-col"
       data-nodeid="trigger_node"
     >
       {/* Header (Drag Handle) */}
       <div 
-        className="flex items-center justify-between px-4 py-3 border-b border-blue-100 dark:border-blue-900/30 cursor-grab active:cursor-grabbing select-none"
+        className="flex items-center justify-between px-4 py-3 border-b border-brand-100 dark:border-brand-900/30 cursor-grab active:cursor-grabbing select-none"
         onMouseDown={(e) => {
           if ((e.target as HTMLElement).tagName.toLowerCase() !== 'button' && !(e.target as HTMLElement).closest('button')) {
             onDragStart(e);
@@ -85,7 +85,7 @@ export default function TriggerNode({ trigger, x, y, dragging, onChange, onStart
             e.stopPropagation();
             onStartEdge('trigger_node', undefined, e.clientX, e.clientY);
           }}
-          className="absolute right-[-8px] top-[14px] w-4 h-4 rounded-full border-2 bg-white dark:bg-gray-900 hover:scale-125 transition-transform z-20 cursor-pointer shadow-sm border-blue-400"
+          className="absolute right-[-8px] top-[14px] w-4 h-4 rounded-full border-2 bg-white dark:bg-gray-900 hover:scale-125 transition-transform z-20 cursor-pointer shadow-sm border-brand-400"
           title="Drag to connect"
         />
       </div>
@@ -95,7 +95,7 @@ export default function TriggerNode({ trigger, x, y, dragging, onChange, onStart
         <div className="flex flex-col gap-1.5">
           <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Trigger Event</label>
           <select
-            className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 outline-none focus:border-blue-400"
+            className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 outline-none focus:border-brand-400"
             value={trigger.event}
             onChange={(e) => onChange({ ...trigger, event: e.target.value as any })}
           >
@@ -168,14 +168,14 @@ export default function TriggerNode({ trigger, x, y, dragging, onChange, onStart
                     checked={!!trigger.caseSensitive}
                     onChange={(e) => onChange({ ...trigger, caseSensitive: e.target.checked })}
                   />
-                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-500"></div>
+                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-brand-500"></div>
                 </label>
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Enter Regex</label>
                 <input
-                  className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 outline-none focus:border-blue-400"
+                  className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 outline-none focus:border-brand-400"
                   placeholder="Enter a regex pattern..."
                   value={trigger.regex || ''}
                   onChange={(e) => onChange({ ...trigger, regex: e.target.value })}
@@ -194,7 +194,7 @@ export default function TriggerNode({ trigger, x, y, dragging, onChange, onStart
               <div className="flex flex-col gap-2 mt-2">
                 <button
                   onMouseDown={(e) => { e.stopPropagation(); setShowTemplateModal(true); }}
-                  className="w-full py-2 flex justify-center items-center gap-1.5 text-[13px] font-bold text-blue-600 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition cursor-pointer"
+                  className="w-full py-2 flex justify-center items-center gap-1.5 text-[13px] font-bold text-brand-600 border border-brand-200 dark:border-brand-800 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-900/30 transition cursor-pointer"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>
                   Choose Template
@@ -233,3 +233,4 @@ export default function TriggerNode({ trigger, x, y, dragging, onChange, onStart
     </div>
   );
 }
+

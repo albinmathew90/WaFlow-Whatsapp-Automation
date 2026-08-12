@@ -18,10 +18,12 @@ export default function SignUpForm() {
   const { refetch } = useUser();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<{ message: string; isDuplicate?: boolean } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     try {
       const response = await fetch('/openwa-api/crm/auth/register', {
         method: 'POST',
@@ -30,16 +32,32 @@ export default function SignUpForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Registration failed');
+        let errText = "Registration failed";
+        try {
+          const errData = await response.json();
+          errText = errData.message || errData.error || errText;
+        } catch (e) {}
+
+        if (response.status === 409 || errText.toLowerCase().includes("already exists") || errText.toLowerCase().includes("duplicate")) {
+          setError({ message: 'Account is already signed up.', isDuplicate: true });
+          setIsLoading(false);
+          return;
+        }
+
+        throw new Error(errText);
       }
 
       const data = await response.json();
-      sessionStorage.setItem("crm_token", data.accessToken);
+      if (isChecked) {
+        localStorage.setItem("crm_token", data.accessToken);
+      } else {
+        sessionStorage.setItem("crm_token", data.accessToken);
+      }
       await refetch();
       navigate("/");
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Registration failed');
+      setError({ message: err.message || 'Registration failed' });
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +88,11 @@ export default function SignUpForm() {
 
         const data = await backendRes.json();
         // Only the JWT token is persisted — user profile is always fetched from the server
-        sessionStorage.setItem("crm_token", data.accessToken);
+        if (isChecked) {
+          localStorage.setItem("crm_token", data.accessToken);
+        } else {
+          sessionStorage.setItem("crm_token", data.accessToken);
+        }
         await refetch();
         
         navigate("/");
@@ -80,17 +102,18 @@ export default function SignUpForm() {
     }
   });
   return (
-    <div className="flex flex-col flex-1 w-full overflow-y-auto lg:w-1/2 no-scrollbar">
-      <div className="w-full max-w-md mx-auto mb-5 sm:pt-10">
-      </div>
-      <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
+    <div className="flex flex-col flex-1 w-full overflow-y-auto no-scrollbar">
+      <div className="flex flex-col justify-center flex-1 w-full max-w-lg mx-auto pt-4 pb-4">
+        <div className="flex justify-center w-full mb-0 mt-4">
+          <img src="/images/logo/logo.png" className="h-32 scale-[1.6] object-contain" alt="Waflow" />
+        </div>
         <div>
-          <div className="mb-5 sm:mb-8">
-            <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
+          <div className="mb-2">
+            <h1 className="mb-1 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
               Sign Up
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign up!
+              Enter your details to sign up!
             </p>
           </div>
           <div>
@@ -98,7 +121,7 @@ export default function SignUpForm() {
               <button 
                 type="button"
                 onClick={() => signUpWithGoogle()}
-                className="inline-flex items-center justify-center w-full gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
+                className="inline-flex items-center justify-center w-full gap-3 py-2.5 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
               >
                 <svg
                   width="20"
@@ -127,7 +150,7 @@ export default function SignUpForm() {
                 Sign up with Google
               </button>
             </div>
-            <div className="relative py-3 sm:py-5">
+            <div className="relative pt-2 pb-0">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
               </div>
@@ -137,9 +160,26 @@ export default function SignUpForm() {
                 </span>
               </div>
             </div>
+            
+            {error && (
+              <div className="flex items-start gap-3 p-4 mb-5 text-sm font-medium border rounded-xl bg-error-50 text-error-600 border-error-200 dark:bg-error-500/10 dark:border-error-500/20 dark:text-error-400">
+                <svg className="shrink-0 mt-0.5 size-5 text-error-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  {error.message}{" "}
+                  {error.isDuplicate && (
+                    <Link to="/signin" className="font-bold underline hover:text-error-700 dark:hover:text-error-300">
+                      Please log in here.
+                    </Link>
+                  )}
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit}>
-              <div className="space-y-5">
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="space-y-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {/* <!-- First Name --> */}
                   <div className="sm:col-span-1">
                     <Label>
@@ -214,7 +254,7 @@ export default function SignUpForm() {
                     checked={isChecked}
                     onChange={setIsChecked}
                   />
-                  <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
+                  <p className="inline-block text-xs font-normal text-gray-500 dark:text-gray-400">
                     By creating an account means you agree to the{" "}
                     <span className="text-gray-800 dark:text-white/90">
                       Terms and Conditions,
@@ -227,14 +267,14 @@ export default function SignUpForm() {
                 </div>
                 {/* <!-- Button --> */}
                 <div>
-                  <button disabled={isLoading} className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50">
+                  <button disabled={isLoading} className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50">
                     {isLoading ? "Signing up..." : "Sign Up"}
                   </button>
                 </div>
               </div>
             </form>
 
-            <div className="mt-5">
+            <div className="mt-2">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Already have an account? {""}
                 <Link

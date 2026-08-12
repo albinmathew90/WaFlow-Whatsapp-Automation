@@ -131,7 +131,7 @@ export default function EdgeLayer({ nodes, edges, drawingEdge, onClickEdge, trig
               onClick={() => onClickEdge(edge)}
             />
             {/* The visible line */}
-            <path d={path} fill="none" stroke={strokeColor} strokeWidth={2} markerEnd={marker} className="group-hover:stroke-blue-500 transition-colors pointer-events-none" />
+            <path d={path} fill="none" stroke={strokeColor} strokeWidth={2} markerEnd={marker} className="group-hover:stroke-brand-500 transition-colors pointer-events-none" />
 
             {/* Branch Label */}
             {edge.branch && (() => {
@@ -175,7 +175,7 @@ export default function EdgeLayer({ nodes, edges, drawingEdge, onClickEdge, trig
           <path
             id="live-edge-path"
             d={path}
-            stroke="#3b82f6"
+            stroke="#059669"
             strokeWidth={2}
             fill="none"
             strokeDasharray="6,3"
@@ -186,3 +186,4 @@ export default function EdgeLayer({ nodes, edges, drawingEdge, onClickEdge, trig
     </svg>
   );
 }
+

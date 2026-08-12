@@ -40,7 +40,7 @@ export default function OtpLogsTab({ appId }: OtpLogsTabProps) {
     switch (status) {
       case 'verified': return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Verified</span>;
       case 'delivered': return <span className="px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-xs font-medium">Delivered</span>;
-      case 'sent': return <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Sent</span>;
+      case 'sent': return <span className="px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-xs font-medium">Sent</span>;
       case 'failed': return <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Failed</span>;
       case 'expired': return <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">Expired</span>;
       default: return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">{status}</span>;
@@ -133,3 +133,4 @@ export default function OtpLogsTab({ appId }: OtpLogsTabProps) {
     </div>
   );
 }
+

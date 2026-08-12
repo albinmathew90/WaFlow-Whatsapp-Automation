@@ -36,7 +36,7 @@ export default function NodeConfigPanel({ nodeId, node, templates, onChange, onD
   }
 
   const typeDef = getNodeTypeDef(node.kind);
-  const color = typeDef?.category === 'message' ? '#10b981' : '#3b82f6';
+  const color = typeDef?.category === 'message' ? '#10b981' : '#059669';
 
   const update = (patch: Partial<FlowNode>) => {
     const updated = { ...local, ...patch };
@@ -147,3 +147,4 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </div>
   );
 }
+

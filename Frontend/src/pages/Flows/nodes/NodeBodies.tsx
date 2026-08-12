@@ -101,7 +101,7 @@ function ButtonConfigModal({ node, onChange, onClose }: { node: FlowNode, onChan
             onChange({ buttons: [...(node.buttons || []), newBtn] });
             onClose();
           }}
-          className="px-5 py-1.5 text-[13px] font-bold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          className="px-5 py-1.5 text-[13px] font-bold bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
         >
           Save
         </button>
@@ -128,14 +128,14 @@ export function TextButtonNodeBody({ id, node, onChange, onStartEdge, color }: B
         {node.buttons && node.buttons.length > 0 && (
           <div className="mt-2 flex flex-col gap-1.5">
             {node.buttons.map((b: any) => (
-              <div key={b.id} className="relative group w-full py-1.5 flex justify-center items-center text-[12px] font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg">
+              <div key={b.id} className="relative group w-full py-1.5 flex justify-center items-center text-[12px] font-bold text-brand-600 bg-brand-50 border border-brand-100 rounded-lg">
                 <span>{b.name}</span>
                 <button
                   onMouseDown={(e) => {
                     e.stopPropagation();
                     onChange({ buttons: node.buttons.filter((btn: any) => btn.id !== b.id) });
                   }}
-                  className="absolute right-2 text-blue-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                  className="absolute right-2 text-brand-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition cursor-pointer"
                   title="Remove button"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -144,8 +144,8 @@ export function TextButtonNodeBody({ id, node, onChange, onStartEdge, color }: B
                   <div 
                     id={`port-${id}-${b.id}`}
                     onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, b.id, e.clientX, e.clientY); }}
-                    className="w-3.5 h-3.5 rounded-full border-[2.5px] bg-white cursor-crosshair hover:bg-blue-50 shadow-sm"
-                    style={{ borderColor: '#3b82f6' }}
+                    className="w-3.5 h-3.5 rounded-full border-[2.5px] bg-white cursor-crosshair hover:bg-brand-50 shadow-sm"
+                    style={{ borderColor: '#059669' }}
                     title="Connect Button"
                   />
                 </div>
@@ -155,7 +155,7 @@ export function TextButtonNodeBody({ id, node, onChange, onStartEdge, color }: B
         )}
         <button 
           onMouseDown={(e) => { e.stopPropagation(); setShowButtonModal(true); }}
-          className="w-full mt-2 py-1.5 flex justify-center items-center gap-1 text-[12px] font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition cursor-pointer"
+          className="w-full mt-2 py-1.5 flex justify-center items-center gap-1 text-[12px] font-bold text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50 transition cursor-pointer"
         >
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4"/></svg>
           Add Button
@@ -238,14 +238,14 @@ export function MediaButtonNodeBody({ id, node, onChange, onStartEdge, color }: 
         {node.buttons && node.buttons.length > 0 && (
           <div className="mt-2 flex flex-col gap-1.5">
             {node.buttons.map((b: any) => (
-              <div key={b.id} className="relative group w-full py-1.5 flex justify-center items-center text-[12px] font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg">
+              <div key={b.id} className="relative group w-full py-1.5 flex justify-center items-center text-[12px] font-bold text-brand-600 bg-brand-50 border border-brand-100 rounded-lg">
                 <span>{b.name}</span>
                 <button
                   onMouseDown={(e) => {
                     e.stopPropagation();
                     onChange({ buttons: node.buttons.filter((btn: any) => btn.id !== b.id) });
                   }}
-                  className="absolute right-2 text-blue-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                  className="absolute right-2 text-brand-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition cursor-pointer"
                   title="Remove button"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -254,8 +254,8 @@ export function MediaButtonNodeBody({ id, node, onChange, onStartEdge, color }: 
                   <div 
                     id={`port-${id}-${b.id}`}
                     onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, b.id, e.clientX, e.clientY); }}
-                    className="w-3.5 h-3.5 rounded-full border-[2.5px] bg-white cursor-crosshair hover:bg-blue-50 shadow-sm"
-                    style={{ borderColor: '#3b82f6' }}
+                    className="w-3.5 h-3.5 rounded-full border-[2.5px] bg-white cursor-crosshair hover:bg-brand-50 shadow-sm"
+                    style={{ borderColor: '#059669' }}
                     title="Connect Button"
                   />
                 </div>
@@ -265,7 +265,7 @@ export function MediaButtonNodeBody({ id, node, onChange, onStartEdge, color }: 
         )}
         <button 
           onMouseDown={(e) => { e.stopPropagation(); setShowButtonModal(true); }}
-          className="w-full mt-1 py-1.5 flex justify-center items-center gap-1 text-[12px] font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition cursor-pointer"
+          className="w-full mt-1 py-1.5 flex justify-center items-center gap-1 text-[12px] font-bold text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50 transition cursor-pointer"
         >
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4"/></svg>
           Add Button
@@ -436,20 +436,20 @@ export function ListNodeBody({ id, node, onChange, onStartEdge, color }: BodyPro
                      <button onMouseDown={() => removeItem(s.id, item.id)} className="text-gray-400 hover:text-red-500 transition cursor-pointer" title="Remove item">
                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
                      </button>
-                     <button id={`port-${id}-${item.id}`} onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, item.id, e.clientX, e.clientY); }} className="w-3.5 h-3.5 rounded-full border-2 bg-white cursor-pointer hover:scale-110 transition-transform" style={{ borderColor: '#3b82f6' }} title="Connect Item" />
+                     <button id={`port-${id}-${item.id}`} onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, item.id, e.clientX, e.clientY); }} className="w-3.5 h-3.5 rounded-full border-2 bg-white cursor-pointer hover:scale-110 transition-transform" style={{ borderColor: '#059669' }} title="Connect Item" />
                    </div>
                  </div>
                </div>
              ))}
 
-             <button onMouseDown={() => addItem(s.id)} className="w-full mt-1 py-1.5 flex justify-center items-center gap-1 text-[12px] font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition cursor-pointer">
+             <button onMouseDown={() => addItem(s.id)} className="w-full mt-1 py-1.5 flex justify-center items-center gap-1 text-[12px] font-bold text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50 transition cursor-pointer">
                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4"/></svg>
                Add Items
              </button>
           </div>
         ))}
 
-        <button onMouseDown={addSection} className="w-full py-1.5 text-[12px] font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition cursor-pointer">Add Section</button>
+        <button onMouseDown={addSection} className="w-full py-1.5 text-[12px] font-bold text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50 transition cursor-pointer">Add Section</button>
         <button className="w-full py-1.5 text-[12px] font-bold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition">Open List</button>
       </div>
     </div>
@@ -552,7 +552,7 @@ export function MultiProductNodeBody({ id, node, onChange, onStartEdge, color }:
                 const newSections = [...(node.sections || [])];
                 newSections[idx].products = [...(newSections[idx].products || []), ''];
                 onChange({ sections: newSections });
-             }} className="w-full text-[11px] font-bold text-blue-600 border border-blue-200 rounded py-1 hover:bg-blue-50">Add Product ID</button>
+             }} className="w-full text-[11px] font-bold text-brand-600 border border-brand-200 rounded py-1 hover:bg-brand-50">Add Product ID</button>
              <button onMouseDown={() => {
                 onChange({ sections: node.sections.filter((_: any, i: number) => i !== idx) });
              }} className="absolute -top-2 -right-2 w-5 h-5 bg-white border border-red-200 rounded-full text-red-500 text-[10px] flex items-center justify-center cursor-pointer hover:bg-red-50">X</button>
@@ -561,7 +561,7 @@ export function MultiProductNodeBody({ id, node, onChange, onStartEdge, color }:
         
         <button onMouseDown={() => {
           onChange({ sections: [...(node.sections || []), { id: Math.random().toString(), title: '', products: [] }] });
-        }} className="w-full py-1.5 text-[12px] font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition">Add Section</button>
+        }} className="w-full py-1.5 text-[12px] font-bold text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50 transition">Add Section</button>
       </div>
     </div>
   );
@@ -644,7 +644,7 @@ export function TemplateNodeBody({ id, node, onChange, onStartEdge, color }: Bod
         <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5">
           <button 
             onMouseDown={(e) => { e.stopPropagation(); setShowModal(true); }}
-            className="w-full py-1.5 flex justify-center items-center gap-1 text-[12px] font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition cursor-pointer"
+            className="w-full py-1.5 flex justify-center items-center gap-1 text-[12px] font-bold text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50 transition cursor-pointer"
           >
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4"/></svg>
             Add Template
@@ -872,7 +872,7 @@ export function ConditionNodeBody({ id, node, onChange, onStartEdge, color }: Bo
               {node.op === 'time_in' || node.op === 'date_in' ? (
                 <>
                   <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300">Compare with</span>
-                  <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value="now" readOnly>
+                  <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value="now" disabled>
                     <option value="now">Now</option>
                   </select>
                   <span className="text-[9px] text-gray-500 dark:text-gray-500">Pick a contact custom field to apply this condition.</span>
@@ -1432,8 +1432,8 @@ export function APIRequestNodeBody({ id, node, onChange, onStartEdge, color }: B
           </div>
         )}
 
-        <div className="flex items-center justify-between border border-blue-200 dark:border-blue-500/30 rounded-lg p-1.5 px-3 mt-1 bg-blue-50/30 dark:bg-blue-900/10">
-          <span className="text-[12px] font-bold text-blue-600 dark:text-blue-400">Status Fallback</span>
+        <div className="flex items-center justify-between border border-brand-200 dark:border-brand-500/30 rounded-lg p-1.5 px-3 mt-1 bg-brand-50/30 dark:bg-brand-900/10">
+          <span className="text-[12px] font-bold text-brand-600 dark:text-brand-400">Status Fallback</span>
           <button id={`port-${id}-fallback`} onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, 'fallback', e.clientX, e.clientY); }} className="w-3.5 h-3.5 rounded-full border-2 bg-white cursor-pointer hover:scale-125 transition-transform" style={{ borderColor: color }} title="Connect Fallback path" />
         </div>
       </div>
@@ -1554,3 +1554,4 @@ export function DefaultNodeBody({ id, node, onChange, onStartEdge, color }: Body
     </div>
   );
 }
+

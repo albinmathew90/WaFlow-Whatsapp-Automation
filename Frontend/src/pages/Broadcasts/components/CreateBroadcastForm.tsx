@@ -602,7 +602,7 @@ export default function CreateBroadcastForm({ onCreated, onCancel }: Props) {
                       name="scheduleType"
                       checked={scheduleType === 'scheduled'}
                       onChange={() => setScheduleType('scheduled')}
-                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
+                      className="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500 cursor-pointer"
                     />
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Yes (Schedule for Later)</span>
                   </label>
@@ -612,7 +612,7 @@ export default function CreateBroadcastForm({ onCreated, onCancel }: Props) {
                       name="scheduleType"
                       checked={scheduleType === 'instant'}
                       onChange={() => setScheduleType('instant')}
-                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
+                      className="w-4 h-4 text-brand-600 border-gray-300 focus:ring-brand-500 cursor-pointer"
                     />
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-200">No (Send Instantly)</span>
                   </label>
@@ -906,3 +906,4 @@ export default function CreateBroadcastForm({ onCreated, onCancel }: Props) {
     </div>
   );
 }
+

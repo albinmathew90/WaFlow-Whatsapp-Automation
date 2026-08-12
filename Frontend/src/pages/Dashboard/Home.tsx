@@ -33,10 +33,10 @@ const StatusBadge = ({ status }: { status: string }) => {
   const map: Record<string, string> = {
     READY: "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400",
     AUTHENTICATED: "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400",
-    AUTHENTICATING: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
+    AUTHENTICATING: "bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400",
     QR_READY: "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400",
-    STARTING: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
-    INITIALIZING: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
+    STARTING: "bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400",
+    INITIALIZING: "bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400",
     DISCONNECTED: "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
     STOPPED: "bg-gray-100 text-gray-600 dark:bg-gray-500/10 dark:text-gray-400",
     ERROR: "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
@@ -509,7 +509,7 @@ export default function Home() {
           {[
             { label: "Total Sessions", value: stats.total, color: "text-gray-900 dark:text-white" },
             { label: "Active", value: stats.active, color: "text-green-600 dark:text-green-400" },
-            { label: "Ready", value: stats.ready, color: "text-blue-600 dark:text-blue-400" },
+            { label: "Ready", value: stats.ready, color: "text-amber-600 dark:text-amber-400" },
             { label: "Disconnected", value: stats.disconnected, color: "text-red-500 dark:text-red-400" },
           ].map((stat) => (
             <div key={stat.label} className="rounded-xl border border-gray-200 bg-white px-5 py-4 dark:border-gray-800 dark:bg-gray-900">
@@ -605,7 +605,7 @@ export default function Home() {
                   onClick={() => setActiveTab(tab)}
                   className={`flex items-center gap-1.5 text-sm font-medium capitalize transition ${
                     activeTab === tab
-                      ? "border-b-2 border-brand-500 text-brand-600 dark:text-brand-400"
+                      ? "border-b-2 border-brand-600 text-brand-600 dark:border-brand-500 dark:text-brand-500"
                       : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                   }`}
                 >

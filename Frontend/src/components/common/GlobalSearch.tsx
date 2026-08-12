@@ -11,18 +11,24 @@ const SEARCH_ITEMS = [
   { label: "Broadcasts", description: "Send bulk messages", path: "/broadcasts" },
   // Templates
   { label: "Templates", description: "List all templates", path: "/templates" },
-  { label: "List Templates", description: "View all message templates", path: "/templates" },
   { label: "Create Template", description: "Build a new template", path: "/templates/create" },
   // Flows
   { label: "Flows", description: "Automation flow builder", path: "/flows" },
-  { label: "Flow Builder", description: "Create automation flows", path: "/flows" },
-  // Settings
   { label: "Settings", description: "App settings", path: "/settings" },
   { label: "Account Management", description: "Manage your profile and security", path: "/settings/account" },
+  { label: "Account Profile", description: "Update your profile information", path: "/settings/account#profile" },
+  { label: "Change Password", description: "Update your account password", path: "/settings/account#password" },
+  { label: "Delete Account", description: "Permanently delete your account", path: "/settings/account#delete" },
+  { label: "Tags", description: "Manage contact tags", path: "/settings/tags" },
   { label: "Media Library", description: "Uploaded media files", path: "/settings/media" },
   { label: "Contact Custom Fields", description: "Manage custom contact fields", path: "/settings/contact-fields" },
-  { label: "WhatsApp Settings", description: "WhatsApp session & connection", path: "/settings/whatsapp" },
-  { label: "Profile", description: "Your account profile", path: "/profile" },
+  { label: "WhatsApp Sessions", description: "Manage WhatsApp connections", path: "/" },
+  // OTP Builder
+  { label: "OTP Applications", description: "Manage OTP apps & integrations", path: "/otp-builder/applications" },
+  { label: "OTP API Keys", description: "Manage API keys for OTP", path: "/otp-builder/api-keys" },
+  { label: "OTP Templates", description: "Create and manage OTP templates", path: "/otp-builder/templates" },
+  { label: "OTP Webhooks", description: "Configure webhooks for OTP", path: "/otp-builder/webhooks" },
+  { label: "OTP Logs & Analytics", description: "View API, OTP and webhook logs", path: "/otp-builder/logs" },
 ];
 
 // ─── Icons ────────────────────────────────────────────────────────────────────

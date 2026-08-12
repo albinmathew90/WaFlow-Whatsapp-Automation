@@ -16,6 +16,7 @@ export default function UserDropdown() {
 
   function handleSignOut() {
     sessionStorage.removeItem('crm_token');
+    localStorage.removeItem('crm_token');
     setUser(null);
     navigate('/signin');
   }

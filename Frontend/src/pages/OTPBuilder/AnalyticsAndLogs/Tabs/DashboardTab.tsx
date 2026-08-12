@@ -54,7 +54,7 @@ export default function DashboardTab({ appId }: DashboardTabProps) {
       fontFamily: 'inherit',
       toolbar: { show: false },
     },
-    colors: ['#3b82f6', '#10b981', '#ef4444'], // requests, verified, failed
+    colors: ['#059669', '#10b981', '#ef4444'], // requests, verified, failed
     dataLabels: { enabled: false },
     stroke: { curve: 'smooth', width: 2 },
     xaxis: {
@@ -115,3 +115,4 @@ export default function DashboardTab({ appId }: DashboardTabProps) {
     </div>
   );
 }
+

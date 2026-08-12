@@ -42,7 +42,7 @@ export default function WebhookLogsTab({ appId }: WebhookLogsTabProps) {
       case 'failed': return <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Failed</span>;
       case 'dead': return <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">Dead</span>;
       case 'pending': return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Pending</span>;
-      default: return <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">{status}</span>;
+      default: return <span className="px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-xs font-medium">{status}</span>;
     }
   };
 
@@ -133,3 +133,4 @@ export default function WebhookLogsTab({ appId }: WebhookLogsTabProps) {
     </div>
   );
 }
+

@@ -80,20 +80,20 @@ export default function ApiReferenceTab({ app }: { app: Application }) {
           The Waflow REST API empowers you to send, verify, and manage WhatsApp OTPs programmatically with zero infrastructure overhead.
         </p>
         
-        <div className="mt-10 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border border-blue-100 dark:border-blue-800/50 rounded-2xl p-8 shadow-sm">
-          <h3 className="text-blue-900 dark:text-blue-300 font-bold text-lg mb-3 flex items-center gap-3">
-            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="mt-10 bg-gradient-to-r from-brand-50 to-brand-50 dark:from-brand-900/10 dark:to-brand-900/10 border border-brand-100 dark:border-brand-800/50 rounded-2xl p-8 shadow-sm">
+          <h3 className="text-brand-900 dark:text-brand-300 font-bold text-lg mb-3 flex items-center gap-3">
+            <svg className="w-6 h-6 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
             Authentication
           </h3>
-          <p className="text-base text-blue-800/80 dark:text-blue-200/80 mb-5 max-w-3xl">
+          <p className="text-base text-brand-800/80 dark:text-brand-200/80 mb-5 max-w-3xl">
             Authenticate your API requests by including your secret API key in the header of every request. You can manage your API keys in the API Credentials tab.
           </p>
-          <div className="bg-white dark:bg-[#121212] rounded-xl border border-blue-200 dark:border-blue-800/50 p-4 shadow-sm inline-block w-full md:w-auto">
+          <div className="bg-white dark:bg-[#121212] rounded-xl border border-brand-200 dark:border-brand-800/50 p-4 shadow-sm inline-block w-full md:w-auto">
             <code className="text-sm font-mono text-gray-800 dark:text-gray-300 flex items-center gap-3">
               <span className="text-gray-400 select-none">Header</span>
-              <span className="text-blue-600 dark:text-blue-400">x-api-key:</span>
+              <span className="text-brand-600 dark:text-brand-400">x-api-key:</span>
               YOUR_SECRET_KEY
             </code>
           </div>
@@ -113,7 +113,7 @@ export default function ApiReferenceTab({ app }: { app: Application }) {
           </div>
           
           <div className="flex items-center gap-4 mb-10 bg-gray-50 dark:bg-[#1a1a1a] p-3 rounded-xl border border-gray-100 dark:border-gray-800/60 shadow-sm w-full md:w-max">
-            <span className="px-3 py-1.5 text-sm font-bold bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 rounded-lg uppercase tracking-widest shadow-sm">
+            <span className="px-3 py-1.5 text-sm font-bold bg-brand-100 text-brand-700 dark:bg-brand-500/20 dark:text-brand-400 rounded-lg uppercase tracking-widest shadow-sm">
               POST
             </span>
             <code className="text-base font-mono text-gray-700 dark:text-gray-300 pr-4">
@@ -331,7 +331,7 @@ export default function ApiReferenceTab({ app }: { app: Application }) {
           </div>
           
           <div className="flex items-center gap-4 mb-10 bg-gray-50 dark:bg-[#1a1a1a] p-3 rounded-xl border border-gray-100 dark:border-gray-800/60 shadow-sm w-full md:w-max">
-            <span className="px-3 py-1.5 text-sm font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400 rounded-lg uppercase tracking-widest shadow-sm">
+            <span className="px-3 py-1.5 text-sm font-bold bg-brand-100 text-brand-700 dark:bg-brand-500/20 dark:text-brand-400 rounded-lg uppercase tracking-widest shadow-sm">
               GET
             </span>
             <code className="text-base font-mono text-gray-700 dark:text-gray-300 pr-4">
@@ -407,3 +407,4 @@ export default function ApiReferenceTab({ app }: { app: Application }) {
     </div>
   );
 }
+

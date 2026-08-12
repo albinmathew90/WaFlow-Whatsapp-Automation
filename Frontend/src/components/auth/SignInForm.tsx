@@ -17,10 +17,12 @@ export default function SignInForm() {
   const { refetch } = useUser();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<{ message: string; isNotFound?: boolean } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     try {
       const response = await fetch('/openwa-api/crm/auth/login', {
         method: 'POST',
@@ -29,16 +31,32 @@ export default function SignInForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Login failed');
+        let errText = "Login failed";
+        try {
+          const errData = await response.json();
+          errText = errData.message || errData.error || errText;
+        } catch (e) {}
+
+        if (response.status === 401 || response.status === 404 || errText.toLowerCase().includes("invalid") || errText.toLowerCase().includes("not found")) {
+          setError({ message: 'Invalid credentials or account not found.', isNotFound: true });
+          setIsLoading(false);
+          return;
+        }
+
+        throw new Error(errText);
       }
 
       const data = await response.json();
-      sessionStorage.setItem("crm_token", data.accessToken);
+      if (isChecked) {
+        localStorage.setItem("crm_token", data.accessToken);
+      } else {
+        sessionStorage.setItem("crm_token", data.accessToken);
+      }
       await refetch();
       navigate("/");
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Login failed');
+      setError({ message: err.message || 'Login failed' });
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +87,11 @@ export default function SignInForm() {
 
         const data = await backendRes.json();
         // Only the JWT token is persisted — user profile is always fetched from the server
-        sessionStorage.setItem("crm_token", data.accessToken);
+        if (isChecked) {
+          localStorage.setItem("crm_token", data.accessToken);
+        } else {
+          sessionStorage.setItem("crm_token", data.accessToken);
+        }
         await refetch();
         
         navigate("/");
@@ -79,12 +101,13 @@ export default function SignInForm() {
     }
   });
   return (
-    <div className="flex flex-col flex-1">
-      <div className="w-full max-w-md pt-10 mx-auto">
-      </div>
-      <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
+    <div className="flex flex-col flex-1 w-full">
+      <div className="flex flex-col justify-center flex-1 w-full max-w-lg mx-auto pt-16 pb-10">
+        <div className="flex justify-center w-full mb-0 mt-4">
+          <img src="/images/logo/logo.png" className="h-32 scale-[1.6] object-contain" alt="Waflow" />
+        </div>
         <div>
-          <div className="mb-5 sm:mb-8">
+          <div className="mb-5">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
               Sign In
             </h1>
@@ -126,7 +149,7 @@ export default function SignInForm() {
                 Sign in with Google
               </button>
             </div>
-            <div className="relative py-3 sm:py-5">
+            <div className="relative pt-3 pb-1">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
               </div>
@@ -136,8 +159,25 @@ export default function SignInForm() {
                 </span>
               </div>
             </div>
+
+            {error && (
+              <div className="flex items-start gap-3 p-4 mb-5 text-sm font-medium border rounded-xl bg-error-50 text-error-600 border-error-200 dark:bg-error-500/10 dark:border-error-500/20 dark:text-error-400">
+                <svg className="shrink-0 mt-0.5 size-5 text-error-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  {error.message}{" "}
+                  {error.isNotFound && (
+                    <Link to="/signup" className="font-bold underline hover:text-error-700 dark:hover:text-error-300">
+                      Please sign up first.
+                    </Link>
+                  )}
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit}>
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div>
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}

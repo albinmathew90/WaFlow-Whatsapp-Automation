@@ -255,7 +255,7 @@ export default function ContactCustomFieldsSection() {
             )}
 
             {/* Add New Field Form */}
-            <div className="mt-4 flex flex-col gap-3 p-4 border border-blue-100 dark:border-blue-900/30 rounded-xl bg-blue-50/30 dark:bg-blue-900/10">
+            <div className="mt-4 flex flex-col gap-3 p-4 border border-brand-100 dark:border-brand-900/30 rounded-xl bg-brand-50/30 dark:bg-brand-900/10">
               <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200 mb-1">Add New Custom Field</h3>
               <p className="text-[11px] text-gray-500 mb-2">Note: Field Name should be written without spaces (e.g., LeadSource, PreferredProduct).</p>
               
@@ -304,3 +304,4 @@ export default function ContactCustomFieldsSection() {
     </div>
   );
 }
+

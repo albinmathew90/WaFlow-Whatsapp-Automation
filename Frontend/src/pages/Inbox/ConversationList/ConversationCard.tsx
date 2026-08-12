@@ -42,7 +42,7 @@ function getInitials(name: string | null, phone: string): string {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  active: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  active: 'bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300',
   replied: 'bg-success-50 text-success-700 dark:bg-success-500/20 dark:text-success-400',
   not_replied: 'bg-warning-50 text-warning-700 dark:bg-warning-500/20 dark:text-warning-400',
   interested: 'bg-brand-50 text-brand-600 dark:bg-brand-500/20 dark:text-brand-300',
@@ -195,3 +195,4 @@ export default function ConversationCard({ conversation, isSelected, sessionId, 
     </div>
   );
 }
+

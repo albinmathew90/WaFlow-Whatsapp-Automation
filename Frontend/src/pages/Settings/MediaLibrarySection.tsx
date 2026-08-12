@@ -279,7 +279,7 @@ export default function MediaLibrarySection() {
     if (mimetype.startsWith('video/')) {
       return (
         <div className="flex items-center justify-center h-full w-full bg-gray-800 text-white">
-          <svg className="w-14 h-14 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-14 h-14 text-brand-400" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
           </svg>
         </div>
@@ -310,7 +310,7 @@ export default function MediaLibrarySection() {
         <h1 className="text-2xl font-normal text-gray-800 dark:text-white">Media Library</h1>
         <button
           onClick={() => setShowUploader(!showUploader)}
-          className="px-3 py-1 text-sm font-medium rounded border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors bg-white dark:bg-gray-800 shadow-sm"
+          className="px-3 py-1 text-sm font-medium rounded border border-brand-600 text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950 transition-colors bg-white dark:bg-gray-800 shadow-sm"
         >
           {showUploader ? 'Close Uploader' : 'Add Media File'}
         </button>
@@ -345,7 +345,7 @@ export default function MediaLibrarySection() {
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
                 <div 
-                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out" 
+                  className="bg-brand-600 h-2.5 rounded-full transition-all duration-300 ease-out" 
                   style={{ width: `${uploadProgress}%` }}
                 ></div>
               </div>
@@ -353,7 +353,7 @@ export default function MediaLibrarySection() {
           ) : (
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition-all"
+              className="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg shadow-sm transition-all"
             >
               Select Files
             </button>
@@ -370,7 +370,7 @@ export default function MediaLibrarySection() {
               type="button"
               onClick={handleBulkDelete}
               disabled={selectedIds.size === 0}
-              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded text-sm shadow-sm transition"
+              className="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-medium rounded text-sm shadow-sm transition"
             >
               Delete permanently {selectedIds.size > 0 && `(${selectedIds.size})`}
             </button>
@@ -380,7 +380,7 @@ export default function MediaLibrarySection() {
                 setBulkSelectMode(false);
                 setSelectedIds(new Set());
               }}
-              className="px-4 py-1.5 border border-blue-600 text-blue-600 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-950 font-medium rounded text-sm shadow-sm transition"
+              className="px-4 py-1.5 border border-brand-600 text-brand-600 bg-white dark:bg-gray-800 hover:bg-brand-50 dark:hover:bg-brand-950 font-medium rounded text-sm shadow-sm transition"
             >
               Cancel
             </button>
@@ -394,7 +394,7 @@ export default function MediaLibrarySection() {
                   setSelectedIds(new Set(filteredItems.map(i => i.id)));
                 }
               }}
-              className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border border-gray-300 dark:border-gray-700 rounded bg-gray-50 dark:bg-gray-800 transition ml-auto sm:ml-2"
+              className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 border border-gray-300 dark:border-gray-700 rounded bg-gray-50 dark:bg-gray-800 transition ml-auto sm:ml-2"
             >
               {filteredItems.length > 0 && filteredItems.every(i => selectedIds.has(i.id)) ? 'Deselect All' : `Select All (${filteredItems.length})`}
             </button>
@@ -424,7 +424,7 @@ export default function MediaLibrarySection() {
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded focus:outline-none focus:border-blue-500 shadow-sm"
+                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded focus:outline-none focus:border-brand-500 shadow-sm"
               >
                 <option value="all">All media items</option>
                 <option value="image">Images</option>
@@ -437,7 +437,7 @@ export default function MediaLibrarySection() {
               <select
                 value={filterDate}
                 onChange={(e) => setFilterDate(e.target.value)}
-                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded focus:outline-none focus:border-blue-500 shadow-sm cursor-pointer"
+                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded focus:outline-none focus:border-brand-500 shadow-sm cursor-pointer"
               >
                 <option value="all">All dates</option>
                 <option value="today">Today (Last 24 Hours)</option>
@@ -451,7 +451,7 @@ export default function MediaLibrarySection() {
               <button
                 type="button"
                 onClick={() => setBulkSelectMode(true)}
-                className="px-3 py-1.5 text-sm font-medium border border-blue-600 text-blue-600 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-950 rounded transition shadow-sm"
+                className="px-3 py-1.5 text-sm font-medium border border-brand-600 text-brand-600 bg-white dark:bg-gray-800 hover:bg-brand-50 dark:hover:bg-brand-950 rounded transition shadow-sm"
               >
                 Bulk select
               </button>
@@ -464,7 +464,7 @@ export default function MediaLibrarySection() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded w-full sm:w-[220px] focus:outline-none focus:border-blue-500 shadow-sm"
+                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded w-full sm:w-[220px] focus:outline-none focus:border-brand-500 shadow-sm"
               />
             </div>
           </>
@@ -496,7 +496,7 @@ export default function MediaLibrarySection() {
                 <tr
                   key={item.id}
                   onClick={() => handleItemClick(item)}
-                  className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition ${selectedIds.has(item.id) ? 'bg-blue-50/50 dark:bg-blue-950/20' : ''}`}
+                  className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition ${selectedIds.has(item.id) ? 'bg-brand-50/50 dark:bg-brand-950/20' : ''}`}
                 >
                   {bulkSelectMode && (
                     <td className="p-3.5">
@@ -504,7 +504,7 @@ export default function MediaLibrarySection() {
                         type="checkbox"
                         checked={selectedIds.has(item.id)}
                         onChange={() => {}}
-                        className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                        className="w-4 h-4 text-brand-600 rounded border-gray-300 focus:ring-brand-500"
                       />
                     </td>
                   )}
@@ -512,13 +512,13 @@ export default function MediaLibrarySection() {
                     {item.mimetype.startsWith('image/') ? (
                       <img src={item.url} alt="" className="w-10 h-10 object-cover rounded border border-gray-200 dark:border-gray-700" />
                     ) : (
-                      <div className="w-10 h-10 bg-blue-50 dark:bg-blue-950/40 rounded border border-blue-200 dark:border-blue-800 flex flex-col items-center justify-center text-[10px] font-bold text-blue-600 dark:text-blue-400 shadow-2xs">
+                      <div className="w-10 h-10 bg-brand-50 dark:bg-brand-950/40 rounded border border-brand-200 dark:border-brand-800 flex flex-col items-center justify-center text-[10px] font-bold text-brand-600 dark:text-brand-400 shadow-2xs">
                         <svg className="w-4 h-4 mb-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm1 14H9v-2h6v2zm0-4H9v-2h6v2zm-2-5V3.5L18.5 9H13z"/></svg>
                         <span>{getFileBadge(item.originalName, item.mimetype)}</span>
                       </div>
                     )}
                   </td>
-                  <td className="p-3.5 font-medium text-blue-600 dark:text-blue-400 hover:underline">{item.originalName}</td>
+                  <td className="p-3.5 font-medium text-brand-600 dark:text-brand-400 hover:underline">{item.originalName}</td>
                   <td className="p-3.5">Admin</td>
                   <td className="p-3.5 text-gray-700 dark:text-gray-300 font-medium">{formatFriendlyMimeType(item.mimetype, item.originalName)}</td>
                   <td className="p-3.5">{item.createdAt}</td>
@@ -535,9 +535,9 @@ export default function MediaLibrarySection() {
               onClick={() => handleItemClick(item)}
               className={`group relative aspect-square rounded-sm overflow-hidden border bg-gray-100 dark:bg-gray-800 flex flex-col justify-between cursor-pointer transition-all ${
                 bulkSelectMode && selectedIds.has(item.id)
-                  ? 'border-2 border-blue-600 ring-2 ring-blue-600 shadow-md'
+                  ? 'border-2 border-brand-600 ring-2 ring-brand-600 shadow-md'
                   : selectedItem?.id === item.id
-                  ? 'border-2 border-blue-600 ring-2 ring-blue-600 shadow-md'
+                  ? 'border-2 border-brand-600 ring-2 ring-brand-600 shadow-md'
                   : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm'
               }`}
             >
@@ -547,8 +547,8 @@ export default function MediaLibrarySection() {
                   <div
                     className={`w-6 h-6 rounded flex items-center justify-center transition-all shadow-sm ${
                       selectedIds.has(item.id)
-                        ? 'bg-blue-600 text-white border border-blue-600'
-                        : 'bg-white/90 dark:bg-gray-800/90 border border-gray-400 dark:border-gray-500 text-transparent hover:border-blue-600'
+                        ? 'bg-brand-600 text-white border border-brand-600'
+                        : 'bg-white/90 dark:bg-gray-800/90 border border-gray-400 dark:border-gray-500 text-transparent hover:border-brand-600'
                     }`}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -604,7 +604,7 @@ export default function MediaLibrarySection() {
                     href={selectedItem.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+                    className="inline-block mt-4 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700"
                   >
                     Download / View Document
                   </a>
@@ -714,3 +714,4 @@ export default function MediaLibrarySection() {
     </div>
   );
 }
+

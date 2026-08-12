@@ -98,7 +98,7 @@ export default function OverviewTab({ app, onAppUpdate }: { app: Application, on
         <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
           <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Environment</p>
           <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${app.environment === 'production' ? 'bg-red-500' : 'bg-blue-500'}`}></span>
+            <span className={`w-2 h-2 rounded-full ${app.environment === 'production' ? 'bg-red-500' : 'bg-brand-500'}`}></span>
             <p className="font-bold text-sm text-gray-900 dark:text-white capitalize">{app.environment}</p>
           </div>
         </div>
@@ -171,3 +171,4 @@ export default function OverviewTab({ app, onAppUpdate }: { app: Application, on
     </div>
   );
 }
+

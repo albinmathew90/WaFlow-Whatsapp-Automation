@@ -41,18 +41,23 @@ layer(base);
   --color-white: #ffffff;
   --color-black: #101828;
 
-  --color-brand-25: #f2f7ff;
-  --color-brand-50: #ecf3ff;
-  --color-brand-100: #dde9ff;
-  --color-brand-200: #c2d6ff;
-  --color-brand-300: #9cb9ff;
-  --color-brand-400: #7592ff;
-  --color-brand-500: #465fff;
-  --color-brand-600: #3641f5;
-  --color-brand-700: #2a31d8;
-  --color-brand-800: #252dae;
-  --color-brand-900: #262e89;
-  --color-brand-950: #161950;
+  --color-brand-25: var(--accent-50);
+  --color-brand-50: var(--accent-50);
+  --color-brand-100: var(--accent-100);
+  --color-brand-200: var(--accent-100);
+  --color-brand-300: var(--accent-300);
+  --color-brand-400: var(--accent-300);
+  --color-brand-500: var(--accent-500);
+  --color-brand-600: var(--accent-600);
+  --color-brand-700: var(--accent-700);
+  --color-brand-800: var(--accent-800);
+  --color-brand-900: var(--accent-800);
+  --color-brand-950: var(--accent-800);
+
+  --color-page: var(--bg-page);
+  --color-surface: var(--bg-surface);
+  --color-surface-raised: var(--bg-surface-raised);
+  --color-border: var(--border);
 
   --color-blue-light-25: #f5fbff;
   --color-blue-light-50: #f0f9ff;
@@ -174,6 +179,36 @@ layer(base);
   color utility to any element that depends on these defaults.
 */
 @layer base {
+  :root {
+    --accent-50: #E1F5EE;
+    --accent-100: #A7E8CE;
+    --accent-300: #4ADE80;
+    --accent-500: #25D366;
+    --accent-600: #059669;
+    --accent-700: #047857;
+    --accent-800: #064E3B;
+
+    --bg-page: #F3F4F6;
+    --bg-surface: #FFFFFF;
+    --bg-surface-raised: #F8FAFC;
+    --border: #E2E5EA;
+  }
+
+  .dark {
+    --accent-50: #0F3B2E;
+    --accent-100: #155E42;
+    --accent-300: #3FE07D;
+    --accent-500: #25D366;
+    --accent-600: #2EE375;
+    --accent-700: #4FF08F;
+    --accent-800: #34D399;
+
+    --bg-page: #0F172A;
+    --bg-surface: #1A2436;
+    --bg-surface-raised: #222E42;
+    --border: #2A3549;
+  }
+
   *,
   ::after,
   ::before,

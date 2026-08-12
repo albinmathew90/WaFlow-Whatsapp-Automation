@@ -175,7 +175,7 @@ export default function BroadcastDetail({ broadcastId, onBack }: Props) {
           <div className="grid grid-cols-4 sm:grid-cols-7 gap-3 mt-5">
             {[
               { label: 'Queued', value: stats.queued, color: 'text-gray-500' },
-              { label: 'Sent', value: stats.sent, color: 'text-blue-500' },
+              { label: 'Sent', value: stats.sent, color: 'text-brand-500' },
               { label: 'Delivered', value: stats.delivered, color: 'text-success-500' },
               { label: 'Read', value: stats.read, color: 'text-brand-500' },
               { label: 'Failed', value: stats.failed, color: 'text-error-500' },
@@ -290,3 +290,4 @@ export default function BroadcastDetail({ broadcastId, onBack }: Props) {
     </div>
   );
 }
+

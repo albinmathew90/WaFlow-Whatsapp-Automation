@@ -193,7 +193,7 @@ export default function MediaSelectorModal({
     if (mimetype.startsWith('video/')) {
       return (
         <div className="flex items-center justify-center h-full w-full bg-gray-800 text-white">
-          <svg className="w-12 h-12 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-12 h-12 text-brand-400" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
           </svg>
         </div>
@@ -236,7 +236,7 @@ export default function MediaSelectorModal({
                 onClick={() => setActiveTab('library')}
                 className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
                   activeTab === 'library'
-                    ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-white shadow-sm'
+                    ? 'bg-white dark:bg-gray-700 text-brand-600 dark:text-white shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                 }`}
               >
@@ -246,7 +246,7 @@ export default function MediaSelectorModal({
                 onClick={() => setActiveTab('upload')}
                 className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
                   activeTab === 'upload'
-                    ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-white shadow-sm'
+                    ? 'bg-white dark:bg-gray-700 text-brand-600 dark:text-white shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                 }`}
               >
@@ -270,7 +270,7 @@ export default function MediaSelectorModal({
           {activeTab === 'upload' ? (
             <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-950">
               <div className="max-w-md w-full p-10 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-900 flex flex-col items-center text-center shadow-sm">
-                <svg className="w-16 h-16 text-blue-500 mb-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-16 h-16 text-brand-500 mb-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <h3 className="text-base font-bold text-gray-800 dark:text-gray-200 mb-1">Drop files to upload</h3>
@@ -299,7 +299,7 @@ export default function MediaSelectorModal({
                     </div>
                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
                       <div 
-                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out" 
+                        className="bg-brand-600 h-2.5 rounded-full transition-all duration-300 ease-out" 
                         style={{ width: `${uploadProgress}%` }}
                       ></div>
                     </div>
@@ -307,7 +307,7 @@ export default function MediaSelectorModal({
                 ) : (
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all"
+                    className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all"
                   >
                     Select Files
                   </button>
@@ -325,7 +325,7 @@ export default function MediaSelectorModal({
                   <select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
-                    className="px-3 py-1 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="px-3 py-1 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-brand-500"
                   >
                     <option value="all">All media items</option>
                     <option value="image">Images</option>
@@ -339,7 +339,7 @@ export default function MediaSelectorModal({
                     placeholder="Search media..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="px-3 py-1 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 w-48"
+                    className="px-3 py-1 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-500 w-48"
                   />
                 </div>
 
@@ -357,7 +357,7 @@ export default function MediaSelectorModal({
                           onClick={() => setSelectedItem(item)}
                           className={`group relative aspect-square rounded-sm overflow-hidden border bg-gray-100 dark:bg-gray-800 flex flex-col justify-between cursor-pointer transition-all ${
                             selectedItem?.id === item.id
-                              ? 'border-2 border-blue-600 ring-2 ring-blue-600 shadow-md'
+                              ? 'border-2 border-brand-600 ring-2 ring-brand-600 shadow-md'
                               : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm'
                           }`}
                         >
@@ -378,7 +378,7 @@ export default function MediaSelectorModal({
                             </p>
                           </div>
                           {selectedItem?.id === item.id && (
-                            <div className="absolute top-2 right-2 bg-blue-600 text-white rounded p-0.5 shadow z-10">
+                            <div className="absolute top-2 right-2 bg-brand-600 text-white rounded p-0.5 shadow z-10">
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                               </svg>
@@ -448,7 +448,7 @@ export default function MediaSelectorModal({
                         onClose();
                       }
                     }}
-                    className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-800 text-white font-semibold text-xs rounded-lg shadow-sm transition-all disabled:cursor-not-allowed"
+                    className="px-5 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-300 dark:disabled:bg-gray-800 text-white font-semibold text-xs rounded-lg shadow-sm transition-all disabled:cursor-not-allowed"
                   >
                     Select Item
                   </button>
@@ -461,3 +461,4 @@ export default function MediaSelectorModal({
     </div>
   );
 }
+

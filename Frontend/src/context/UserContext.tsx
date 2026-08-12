@@ -23,7 +23,7 @@ const UserContext = createContext<UserContextValue>({
 });
 
 async function fetchMe(): Promise<UserProfile | null> {
-  const token = sessionStorage.getItem('crm_token');
+  const token = sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token');
   if (!token) return null;
   try {
     const res = await fetch('/openwa-api/crm/auth/me', {
@@ -31,6 +31,7 @@ async function fetchMe(): Promise<UserProfile | null> {
     });
     if (!res.ok) {
       sessionStorage.removeItem('crm_token');
+      localStorage.removeItem('crm_token');
       return null;
     }
     return await res.json();

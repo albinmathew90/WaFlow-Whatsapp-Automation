@@ -32,7 +32,7 @@ const NodeCardComponent = ({ id, node, isSelected, isStart, onSelect, onStartEdg
   const [showAddMenu, setShowAddMenu] = useState(false);
   const typeDef = getNodeTypeDef(node.kind);
   const isMessage = typeDef?.category === 'message';
-  const color = isMessage ? '#10b981' : '#3b82f6';
+  const color = isMessage ? '#10b981' : '#059669';
   const isCondition = node.kind === 'condition';
   const isTerminal = node.kind === 'end_flow';
 
@@ -166,7 +166,7 @@ const NodeCardComponent = ({ id, node, isSelected, isStart, onSelect, onStartEdg
           <div className="px-3 pb-3 relative">
             <button
               onMouseDown={(e) => { e.stopPropagation(); setShowAddMenu(!showAddMenu); }}
-              className="w-full py-1.5 flex justify-center items-center gap-1 text-[12px] font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition cursor-pointer bg-white dark:bg-gray-800"
+              className="w-full py-1.5 flex justify-center items-center gap-1 text-[12px] font-bold text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50 transition cursor-pointer bg-white dark:bg-gray-800"
             >
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4"/></svg>
               Add Content
@@ -238,3 +238,4 @@ export default React.memo(NodeCardComponent, (prevProps, nextProps) => {
     prevProps.dragging === nextProps.dragging
   );
 });
+

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router";
 import UserMetaCard from "../components/UserProfile/UserMetaCard";
 import UserInfoCard from "../components/UserProfile/UserInfoCard";
 import UserAddressCard from "../components/UserProfile/UserAddressCard";
@@ -8,7 +9,20 @@ import DeleteAccountTab from "../components/UserProfile/DeleteAccountTab";
 type TabOption = 'profile' | 'password' | 'delete';
 
 export default function UserProfiles() {
-  const [activeTab, setActiveTab] = useState<TabOption>('profile');
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState<TabOption>(() => {
+    const hash = location.hash.replace('#', '');
+    return (hash === 'password' || hash === 'delete') ? hash : 'profile';
+  });
+
+  useEffect(() => {
+    const hash = location.hash.replace('#', '');
+    if (hash === 'password' || hash === 'delete') {
+      setActiveTab(hash as TabOption);
+    } else {
+      setActiveTab('profile');
+    }
+  }, [location.hash]);
 
   return (
     <>

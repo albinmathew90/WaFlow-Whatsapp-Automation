@@ -130,7 +130,7 @@ export default function DateTimePickerModal({
                   <button 
                     type="button"
                     onClick={() => setMode('calendar')}
-                    className="flex items-center gap-1 font-bold text-blue-600 dark:text-blue-400 text-xs hover:underline cursor-pointer"
+                    className="flex items-center gap-1 font-bold text-brand-600 dark:text-brand-400 text-xs hover:underline cursor-pointer"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                     Back
@@ -140,7 +140,7 @@ export default function DateTimePickerModal({
                     <select 
                       value={viewYear} 
                       onChange={(e) => setViewYear(parseInt(e.target.value, 10))}
-                      className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-bold text-xs px-2 py-1 rounded border-none cursor-pointer focus:ring-1 focus:ring-blue-500"
+                      className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-bold text-xs px-2 py-1 rounded border-none cursor-pointer focus:ring-1 focus:ring-brand-500"
                     >
                       {Array.from({ length: 20 }, (_, i) => new Date().getFullYear() - 2 + i).map(y => (
                         <option key={y} value={y}>{y}</option>
@@ -163,7 +163,7 @@ export default function DateTimePickerModal({
                         }}
                         className={`py-2 px-1 rounded-xl text-xs font-bold transition text-center cursor-pointer ${
                           isSelMonth
-                            ? 'bg-blue-600 text-white shadow-md'
+                            ? 'bg-brand-600 text-white shadow-md'
                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-100 dark:border-gray-800'
                         }`}
                       >
@@ -179,7 +179,7 @@ export default function DateTimePickerModal({
                 <div className="flex items-center justify-between mb-4">
                   <div 
                     onClick={() => setMode('monthYear')} 
-                    className="flex items-center gap-1.5 font-bold text-gray-900 dark:text-white text-base cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition py-1 px-2 -ml-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                    className="flex items-center gap-1.5 font-bold text-gray-900 dark:text-white text-base cursor-pointer hover:text-brand-600 dark:hover:text-brand-400 transition py-1 px-2 -ml-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
                     title="Click to change Month or Year"
                   >
                     <span>{MONTH_NAMES[viewMonth]} {viewYear}</span>
@@ -231,7 +231,7 @@ export default function DateTimePickerModal({
                         onClick={() => setSelDay(dayNum)}
                         className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition mx-auto cursor-pointer ${
                           isSelected
-                            ? 'bg-blue-600 text-white font-bold shadow-md'
+                            ? 'bg-brand-600 text-white font-bold shadow-md'
                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium'
                         }`}
                       >
@@ -258,7 +258,7 @@ export default function DateTimePickerModal({
                       onClick={() => setSelHour(h)}
                       className={`py-1.5 px-2 rounded-lg text-sm text-center transition w-full block ${
                         isSelected
-                          ? 'bg-blue-600 text-white font-bold shadow-sm order-first sticky top-0 z-10'
+                          ? 'bg-brand-600 text-white font-bold shadow-sm order-first sticky top-0 z-10'
                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium'
                       }`}
                     >
@@ -279,7 +279,7 @@ export default function DateTimePickerModal({
                       onClick={() => setSelMinute(m)}
                       className={`py-1.5 px-2 rounded-lg text-sm text-center transition w-full block ${
                         isSelected
-                          ? 'bg-blue-600 text-white font-bold shadow-sm order-first sticky top-0 z-10'
+                          ? 'bg-brand-600 text-white font-bold shadow-sm order-first sticky top-0 z-10'
                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium'
                       }`}
                     >
@@ -300,7 +300,7 @@ export default function DateTimePickerModal({
                       onClick={() => setSelAmPm(ap as 'AM' | 'PM')}
                       className={`py-1.5 px-2 rounded-lg text-sm text-center transition w-full block ${
                         isSelected
-                          ? 'bg-blue-600 text-white font-bold shadow-sm order-first sticky top-0 z-10'
+                          ? 'bg-brand-600 text-white font-bold shadow-sm order-first sticky top-0 z-10'
                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium'
                       }`}
                     >
@@ -327,3 +327,4 @@ export default function DateTimePickerModal({
     </div>
   );
 }
+

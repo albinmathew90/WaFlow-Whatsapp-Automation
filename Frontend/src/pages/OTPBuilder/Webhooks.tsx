@@ -270,14 +270,14 @@ export default function Webhooks() {
                   </div>
                 )}
 
-                <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl">
-                  <h4 className="text-sm font-bold text-blue-900 dark:text-blue-300 flex items-center gap-2">
+                <div className="mb-6 p-4 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-800 rounded-xl">
+                  <h4 className="text-sm font-bold text-brand-900 dark:text-brand-300 flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     What is this?
                   </h4>
-                  <p className="mt-1 text-xs text-blue-700 dark:text-blue-400">
+                  <p className="mt-1 text-xs text-brand-700 dark:text-brand-400">
                     Your Webhook URL is a web address on <strong>your own server</strong> (e.g. <code>https://api.yourwebsite.com/webhook</code>) that we will send data to. 
                   </p>
                 </div>
@@ -442,3 +442,4 @@ export default function Webhooks() {
     </>
   );
 }
+

@@ -169,7 +169,7 @@ export default function BroadcastDashboard({ broadcasts, stats, loading, onViewD
         <StatCard
           title="Sent Broadcast"
           value={stats.sent}
-          color="bg-blue-50 dark:bg-blue-500/10 text-blue-500"
+          color="bg-brand-50 dark:bg-brand-500/10 text-brand-500"
           icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>}
         />
         <StatCard
@@ -377,3 +377,4 @@ export default function BroadcastDashboard({ broadcasts, stats, loading, onViewD
     </div>
   );
 }
+
