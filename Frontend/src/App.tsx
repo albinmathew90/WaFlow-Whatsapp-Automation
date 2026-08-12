@@ -7,6 +7,12 @@ import ResetPassword from "./pages/AuthPages/ResetPassword";
 import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/UserProfiles";
 import AppLayout from "./layout/AppLayout";
+import AdminLayout from "./layout/AdminLayout";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import UsersPage from "./pages/Admin/UsersPage";
+import MediaPage from "./pages/Admin/MediaPage";
+import BlogsPage from "./pages/Admin/BlogsPage";
+import { BlogTopicsPage, CategoriesPage, SEOPage, ContactsPage, SubscribersPage } from "./pages/Admin/PlaceholderPages";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import Contacts from "./pages/Contacts";
@@ -111,6 +117,28 @@ export default function App() {
               <Route path="/settings/tags" element={<Settings />} />
               <Route path="/settings/media" element={<Settings />} />
               <Route path="/settings/contact-fields" element={<Settings />} />
+            </Route>
+
+            {/* Admin Dashboard Layout */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <ErrorBoundary>
+                    <AdminLayout />
+                  </ErrorBoundary>
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="collections/users" element={<UsersPage />} />
+              <Route path="collections/media" element={<MediaPage />} />
+              <Route path="collections/blogs" element={<BlogsPage />} />
+              <Route path="collections/blog-topics" element={<BlogTopicsPage />} />
+              <Route path="collections/case-study-categories" element={<CategoriesPage />} />
+              <Route path="collections/seo" element={<SEOPage />} />
+              <Route path="collections/contact" element={<ContactsPage />} />
+              <Route path="collections/subscriber" element={<SubscribersPage />} />
             </Route>
 
             {/* Public Auth pages — redirect to dashboard if already logged in */}

@@ -99,6 +99,19 @@ layer(base);
   --color-orange-900: #7e2410;
   --color-orange-950: #511c10;
 
+  --color-admin-primary: #1A73E8;
+  --color-admin-primary-hover: #1557b0;
+  --color-admin-primary-light: #e0f2fe;
+  --color-admin-bg: #f0f2f5;
+  --color-admin-surface: #ffffff;
+  --color-admin-text: #344767;
+  --color-admin-text-muted: #7b809a;
+  --color-admin-border: #f0f2f5;
+  --color-admin-sidebar: #202020;
+  --color-admin-sidebar-text: #ffffff;
+
+
+
   --color-success-25: #f6fef9;
   --color-success-50: #ecfdf3;
   --color-success-100: #d1fadf;
@@ -222,6 +235,16 @@ layer(base);
   }
   body {
     @apply relative font-normal font-outfit z-1 bg-gray-50;
+  }
+
+  @keyframes search-anim {
+    0%,
+    100% {
+      transform: translateY(calc(-50% - 5px)) scale(1);
+    }
+    50% {
+      transform: translateY(calc(-50% - 5px)) scale(1.1);
+    }
   }
 }
 
