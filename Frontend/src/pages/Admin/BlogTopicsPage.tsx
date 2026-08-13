@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router';
 
-type UserData = {
+type TopicData = {
   id: number;
-  email: string;
+  title: string;
   updatedAt: string;
   createdAt: string;
 };
@@ -11,29 +10,39 @@ type UserData = {
 type FilterRule = {
   id: string;
   logic: 'and' | 'or';
-  column: keyof UserData;
+  column: keyof TopicData;
   operator: string;
   value: string;
 };
 
-const INITIAL_USERS: UserData[] = [
-  { id: 1, email: 'fxlaunchpad.global@gmail.com', updatedAt: 'August 8th 2026, 11:13 PM', createdAt: 'August 5th 2026, 7:50 AM' },
-  { id: 2, email: 'admin@convoreach.com', updatedAt: 'August 10th 2026, 09:00 AM', createdAt: 'August 1st 2026, 10:00 AM' },
-  { id: 3, email: 'support@example.com', updatedAt: 'August 12th 2026, 04:20 PM', createdAt: 'August 2nd 2026, 01:15 PM' },
+const INITIAL_TOPICS: TopicData[] = [
+  { 
+    id: 1, 
+    title: 'API', 
+    updatedAt: 'August 12th 2026, 11:13 PM', 
+    createdAt: 'August 12th 2026, 7:50 AM' 
+  },
+  { 
+    id: 2, 
+    title: 'Updates', 
+    updatedAt: 'August 13th 2026, 10:00 AM', 
+    createdAt: 'August 10th 2026, 9:30 AM' 
+  },
 ];
 
-const UsersPage: React.FC = () => {
-  const [users, setUsers] = useState<UserData[]>(INITIAL_USERS);
+const BlogTopicsPage: React.FC = () => {
+  const [topics, setTopics] = useState<TopicData[]>(INITIAL_TOPICS);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const [selectedTopics, setSelectedTopics] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState<'none' | 'columns' | 'filters'>('none');
   const [filters, setFilters] = useState<FilterRule[]>([]);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   
   const [visibleColumns, setVisibleColumns] = useState({
-    email: true,
-    updatedAt: true,
+    title: true,
     createdAt: true,
-    id: true
+    updatedAt: true,
+    id: true,
   });
 
   const toggleTab = (tab: 'columns' | 'filters') => {
@@ -41,7 +50,7 @@ const UsersPage: React.FC = () => {
   };
 
   const addFilter = (logic: 'and' | 'or' = 'and') => {
-    setFilters([...filters, { id: Math.random().toString(), logic, column: 'email', operator: 'contains', value: '' }]);
+    setFilters([...filters, { id: Math.random().toString(), logic, column: 'title', operator: 'contains', value: '' }]);
   };
 
   const updateFilter = (id: string, field: keyof FilterRule, value: string) => {
@@ -52,13 +61,12 @@ const UsersPage: React.FC = () => {
     setFilters(filters.filter(f => f.id !== id));
   };
 
-  const filteredUsers = useMemo(() => {
-    let result = users.filter(u => u.email.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredTopics = useMemo(() => {
+    let result = topics.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
     
     if (filters.length === 0) return result;
 
-    // Apply advanced AND/OR filters
-    result = result.filter(u => {
+    result = result.filter(t => {
       let finalResult = false;
       let currentAndResult = true;
       let hasValidFilters = false;
@@ -66,11 +74,11 @@ const UsersPage: React.FC = () => {
       for (let i = 0; i < filters.length; i++) {
         const filter = filters[i];
         if (!filter.value && filter.operator !== 'exists') {
-          continue; // skip evaluation for empty rule
+          continue; 
         }
         hasValidFilters = true;
 
-        const cellValue = String(u[filter.column]).toLowerCase();
+        const cellValue = String(t[filter.column]).toLowerCase();
         const filterValue = filter.value.toLowerCase();
         
         let matched = false;
@@ -78,13 +86,7 @@ const UsersPage: React.FC = () => {
           case 'equals': matched = (cellValue === filterValue); break;
           case 'is not equal to': matched = (cellValue !== filterValue); break;
           case 'contains': matched = cellValue.includes(filterValue); break;
-          case 'is in': matched = filterValue.split(',').map(s=>s.trim()).includes(cellValue); break;
-          case 'is not in': matched = !filterValue.split(',').map(s=>s.trim()).includes(cellValue); break;
           case 'exists': matched = (cellValue !== '' && cellValue !== 'null'); break;
-          case 'is greater than': matched = (cellValue > filterValue); break;
-          case 'is less than': matched = (cellValue < filterValue); break;
-          case 'is less than or equal to': matched = (cellValue <= filterValue); break;
-          case 'is greater than or equal to': matched = (cellValue >= filterValue); break;
           default: matched = true;
         }
 
@@ -99,44 +101,43 @@ const UsersPage: React.FC = () => {
       }
 
       if (!hasValidFilters) return true;
-
       finalResult = finalResult || currentAndResult;
       return finalResult;
     });
 
     return result;
-  }, [users, searchQuery, filters]);
+  }, [topics, searchQuery, filters]);
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      setSelectedUsers(filteredUsers.map(u => u.id));
+      setSelectedTopics(filteredTopics.map(t => t.id));
     } else {
-      setSelectedUsers([]);
+      setSelectedTopics([]);
     }
   };
 
-  const handleSelectUser = (id: number) => {
-    if (selectedUsers.includes(id)) {
-      setSelectedUsers(selectedUsers.filter(userId => userId !== id));
+  const handleSelectTopic = (id: number) => {
+    if (selectedTopics.includes(id)) {
+      setSelectedTopics(selectedTopics.filter(topicId => topicId !== id));
     } else {
-      setSelectedUsers([...selectedUsers, id]);
+      setSelectedTopics([...selectedTopics, id]);
     }
   };
 
   const handleDeleteSelected = () => {
-    setUsers(users.filter(u => !selectedUsers.includes(u.id)));
-    setSelectedUsers([]);
+    setTopics(topics.filter(t => !selectedTopics.includes(t.id)));
+    setSelectedTopics([]);
   };
 
   const handleEditSelected = () => {
-    alert(`Editing mode would activate for User IDs: ${selectedUsers.join(', ')}`);
+    alert(`Editing mode would activate for Topic IDs: ${selectedTopics.join(', ')}`);
   };
 
   const toggleColumn = (key: keyof typeof visibleColumns) => {
     setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const hasSelection = selectedUsers.length > 0;
+  const hasSelection = selectedTopics.length > 0;
 
   return (
     <div className="w-full h-full">
@@ -148,7 +149,7 @@ const UsersPage: React.FC = () => {
           
           {hasSelection ? (
             <div className="flex items-center flex-1 gap-3 animate-in fade-in slide-in-from-left-2 duration-200">
-              <span className="text-xs font-medium text-gray-700">{selectedUsers.length} selected</span>
+              <span className="text-xs font-medium text-gray-700">{selectedTopics.length} selected</span>
               <div className="flex items-center gap-1.5">
                 <button 
                   onClick={handleEditSelected}
@@ -176,12 +177,17 @@ const UsersPage: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-transparent border-none text-xs focus:ring-0 w-full outline-none placeholder-gray-400 text-gray-900"
-                placeholder="Search by Email"
+                placeholder="Search by Title"
               />
             </div>
           )}
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 ml-4">
+            <button onClick={() => setIsCreateModalOpen(true)} className="px-3 py-1 bg-admin-primary text-white border border-transparent rounded text-xs font-medium hover:bg-admin-primary-hover flex items-center gap-1.5 shadow-sm transition-colors mr-2">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+              Create New
+            </button>
+
             <button 
               onClick={() => toggleTab('columns')}
               className={`px-2 py-1 border rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors ${activeTab === 'columns' ? 'bg-gray-100 border-gray-300 text-gray-900' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`}
@@ -230,7 +236,7 @@ const UsersPage: React.FC = () => {
               </div>
             ) : (
               <div className="flex flex-col w-full gap-2">
-                <span className="text-[11px] text-gray-700 font-semibold mb-0.5">Filter Users where</span>
+                <span className="text-[11px] text-gray-700 font-semibold mb-0.5">Filter Topics where</span>
                 
                 {filters.map((filter, index) => (
                   <React.Fragment key={filter.id}>
@@ -247,10 +253,9 @@ const UsersPage: React.FC = () => {
                         onChange={(e) => updateFilter(filter.id, 'column', e.target.value)}
                         className="bg-white border border-gray-300 text-[11px] rounded px-1.5 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full sm:w-32"
                       >
-                        <option value="email">Email</option>
-                        <option value="updatedAt">Updated At</option>
-                        <option value="createdAt">Created At</option>
-                        <option value="id">ID</option>
+                        {Object.keys(visibleColumns).map(col => (
+                           <option key={col} value={col}>{col.charAt(0).toUpperCase() + col.slice(1).replace(/([A-Z])/g, ' $1')}</option>
+                        ))}
                       </select>
 
                       <select
@@ -272,7 +277,7 @@ const UsersPage: React.FC = () => {
 
                       <div className="relative w-full sm:w-56 flex-1 sm:flex-none">
                         <input 
-                          type={filter.column.includes('At') ? 'date' : 'text'}
+                          type={filter.column.includes('At') || filter.column === 'date' ? 'date' : 'text'}
                           value={filter.value}
                           onChange={(e) => updateFilter(filter.id, 'value', e.target.value)}
                           placeholder="Enter a value"
@@ -322,93 +327,63 @@ const UsersPage: React.FC = () => {
                 <th scope="col" className="px-3 py-2 w-10 text-center">
                   <input 
                     type="checkbox" 
-                    checked={filteredUsers.length > 0 && selectedUsers.length === filteredUsers.length}
+                    checked={filteredTopics.length > 0 && selectedTopics.length === filteredTopics.length}
                     onChange={handleSelectAll}
                     className="w-3.5 h-3.5 rounded border-gray-300 text-admin-primary focus:ring-admin-primary bg-white cursor-pointer" 
                   />
                 </th>
-                {visibleColumns.email && (
-                  <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
-                    <div className="flex items-center gap-1">
-                      Email
-                      <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
-                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
+                {Object.entries(visibleColumns).map(([key, isVisible]) => (
+                  isVisible && (
+                    <th key={key} scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                        <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                          <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
+                        </div>
                       </div>
-                    </div>
-                  </th>
-                )}
-                {visibleColumns.updatedAt && (
-                  <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
-                    <div className="flex items-center gap-1">
-                      Updated At
-                      <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
-                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
-                      </div>
-                    </div>
-                  </th>
-                )}
-                {visibleColumns.createdAt && (
-                  <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
-                    <div className="flex items-center gap-1">
-                      Created At
-                      <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
-                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
-                      </div>
-                    </div>
-                  </th>
-                )}
-                {visibleColumns.id && (
-                  <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
-                    <div className="flex items-center gap-1">
-                      ID
-                      <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
-                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
-                      </div>
-                    </div>
-                  </th>
-                )}
+                    </th>
+                  )
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
-              {filteredUsers.length > 0 ? (
-                filteredUsers.map(user => (
-                  <tr key={user.id} className={`hover:bg-gray-50/50 transition-colors group ${selectedUsers.includes(user.id) ? 'bg-blue-50/30' : ''}`}>
+              {filteredTopics.length > 0 ? (
+                filteredTopics.map(topic => (
+                  <tr key={topic.id} className={`hover:bg-gray-50/50 transition-colors group ${selectedTopics.includes(topic.id) ? 'bg-blue-50/30' : ''}`}>
                     <td className="px-3 py-2 text-center">
                       <input 
                         type="checkbox" 
-                        checked={selectedUsers.includes(user.id)}
-                        onChange={() => handleSelectUser(user.id)}
+                        checked={selectedTopics.includes(topic.id)}
+                        onChange={() => handleSelectTopic(topic.id)}
                         className="w-3.5 h-3.5 rounded border-gray-300 text-admin-primary focus:ring-admin-primary bg-white cursor-pointer" 
                       />
                     </td>
-                    {visibleColumns.email && (
-                      <td className="px-3 py-2">
-                        <Link to="#" className="text-xs font-medium text-black hover:underline decoration-black underline-offset-2">
-                          {user.email}
-                        </Link>
-                      </td>
-                    )}
-                    {visibleColumns.updatedAt && (
-                      <td className="px-3 py-2 text-xs text-black">
-                        {user.updatedAt}
+                    {visibleColumns.title && (
+                      <td className="px-3 py-2 min-w-[200px]">
+                        <span className="text-xs font-medium text-black">{topic.title}</span>
                       </td>
                     )}
                     {visibleColumns.createdAt && (
-                      <td className="px-3 py-2 text-xs text-black">
-                        {user.createdAt}
+                      <td className="px-3 py-2 text-[11px] text-gray-500 whitespace-nowrap">
+                        {topic.createdAt}
+                      </td>
+                    )}
+                    {visibleColumns.updatedAt && (
+                      <td className="px-3 py-2 text-[11px] text-gray-500 whitespace-nowrap">
+                        {topic.updatedAt}
                       </td>
                     )}
                     {visibleColumns.id && (
                       <td className="px-3 py-2 text-[11px] text-gray-500 font-mono">
-                        ID: <span className="text-black font-semibold">{user.id}</span>
+                        {topic.id}
                       </td>
                     )}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-3 py-8 text-center">
-                    <p className="text-xs text-gray-500 font-medium">No users found matching your criteria.</p>
+                  <td colSpan={7} className="px-3 py-8 text-center">
+                    <p className="text-xs text-gray-500 font-medium">No topics found matching your criteria.</p>
                   </td>
                 </tr>
               )}
@@ -417,8 +392,50 @@ const UsersPage: React.FC = () => {
         </div>
         
       </div>
+
+      {/* Create New Topic Modal */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-start justify-center p-4 sm:p-6 bg-gray-900/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white shadow-2xl w-full max-w-2xl flex flex-col my-8 rounded-md overflow-hidden animate-in zoom-in-95 duration-200">
+            
+            {/* Modal Header */}
+            <div className="px-8 py-5 border-b border-gray-100 flex justify-between items-center bg-white">
+              <h3 className="font-bold text-gray-900 text-lg tracking-tight">Create New Topic</h3>
+              <button onClick={() => setIsCreateModalOpen(false)} className="text-gray-400 hover:text-gray-900 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            
+            {/* Modal Body */}
+            <div className="p-8">
+              <form 
+                className="flex flex-col gap-6" 
+                onSubmit={(e) => { 
+                  e.preventDefault(); 
+                  setIsCreateModalOpen(false);
+                }}
+              >
+                {/* Title */}
+                <div className="flex flex-col">
+                  <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
+                    Title <span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <input type="text" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required />
+                </div>
+                
+                {/* Save Button */}
+                <div className="mt-4 flex">
+                  <button type="submit" className="px-6 py-2 bg-gray-900 text-white font-medium rounded-sm hover:bg-black transition-colors text-[13px] shadow-sm">
+                    Save Topic
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default UsersPage;
+export default BlogTopicsPage;
