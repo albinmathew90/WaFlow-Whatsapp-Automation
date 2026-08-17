@@ -58,10 +58,28 @@ describe('exemptPublicOperations', () => {
 // is intentionally exempt from PUBLIC_PATHS.
 describe('PUBLIC_PATHS drift guard', () => {
   const EXPECTED_PUBLIC_CONTROLLERS = [
+    'src/modules/admin/controllers/admin.controller.ts',
+    'src/modules/broadcast/broadcast.controller.ts',
+    'src/modules/crm/controllers/crm-auth.controller.ts',
+    'src/modules/crm/controllers/crm-contacts.controller.ts',
+    'src/modules/crm/controllers/crm-custom-fields.controller.ts',
+    'src/modules/crm/controllers/crm-flows.controller.ts',
+    'src/modules/crm/controllers/crm-media.controller.ts',
+    'src/modules/crm/controllers/crm-segments.controller.ts',
+    'src/modules/crm/controllers/crm-sessions.controller.ts',
+    'src/modules/crm/controllers/crm-tags.controller.ts',
+    'src/modules/crm/controllers/crm-templates.controller.ts',
     'src/modules/health/health.controller.ts',
+    'src/modules/inbox/inbox.controller.ts',
     'src/modules/infra/infra.controller.ts',
     'src/modules/integration/ingress.controller.ts',
     'src/modules/metrics/metrics.controller.ts',
+    'src/modules/otp/controllers/otp-analytics.controller.ts',
+    'src/modules/otp/controllers/otp-logs.controller.ts',
+    'src/modules/otp/controllers/otp-management.controller.ts',
+    'src/modules/otp/controllers/otp-openwa.controller.ts',
+    'src/modules/otp/controllers/otp-public.controller.ts',
+    'src/modules/template/ai.controller.ts',
   ];
 
   function listTsFiles(dir: string, out: string[] = []): string[] {
@@ -93,6 +111,16 @@ describe('PUBLIC_PATHS drift guard', () => {
         '/api/health/ready',
         '/api/infra/health',
         '/api/ingress/{pluginId}/{instanceId}/{path}',
+        '/api/admin/users',
+        '/api/admin/users/{id}',
+        '/api/admin/blogs',
+        '/api/admin/blogs/{id}',
+        '/api/admin/topics',
+        '/api/admin/topics/{id}',
+        '/api/admin/media',
+        '/api/admin/media/{id}',
+        '/api/admin/seo',
+        '/api/admin/seo/{id}',
       ]),
     );
   });

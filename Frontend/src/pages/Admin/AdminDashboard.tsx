@@ -1,14 +1,70 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router';
+import { AdminAPI } from '../../api/admin';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { VectorMap } from '@react-jvectormap/core';
+import { worldMill } from '@react-jvectormap/world';
 
 const AdminDashboard: React.FC = () => {
+  const [lineData, setLineData] = useState<any[]>([]);
+  const [mapData, setMapData] = useState<{ [key: string]: number }>({});
+  
+  // KPI counts
+  const [totalUsers, setTotalUsers] = useState(0);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const users = await AdminAPI.getUsers();
+      setTotalUsers(users.length);
+
+      // Process Line Data (Signups per day)
+      const dateCounts: Record<string, number> = {};
+      const countryCounts: Record<string, number> = {};
+
+      users.forEach((u: any) => {
+        // Date processing
+        if (u.createdAt) {
+          const date = new Date(u.createdAt).toISOString().split('T')[0];
+          dateCounts[date] = (dateCounts[date] || 0) + 1;
+        }
+        
+        // Country processing
+        if (u.country) {
+          const code = u.country.toUpperCase();
+          countryCounts[code] = (countryCounts[code] || 0) + 1;
+        }
+      });
+
+      // Format line data and sort by date ascending
+      const sortedDates = Object.keys(dateCounts).sort();
+      let cumulative = 0;
+      const formattedLineData = sortedDates.map(date => {
+        cumulative += dateCounts[date];
+        return {
+          date,
+          users: cumulative // Or dateCounts[date] for daily. Let's do total cumulative "Joined Since"
+        };
+      });
+
+      setLineData(formattedLineData);
+      setMapData(countryCounts);
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
-    <div className="mt-0 px-2">
+    <div className="mt-0 px-2 space-y-8">
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <KpiCard
           title="Total Users"
-          value="0"
+          value={totalUsers.toString()}
           linkText="See all users"
           linkTo="/admin/collections/users"
           icon={<UsersIcon className="w-6 h-6 text-white" />}
@@ -86,6 +142,77 @@ const AdminDashboard: React.FC = () => {
           color="bg-[#00af91]"
           shadowColor="shadow-[#00af91]/40"
         />
+      </div>
+
+      {/* Analytics Widgets */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        
+        {/* Line Chart */}
+        <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-5 hover:shadow-md transition-shadow">
+          <div className="mb-4">
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">User Growth Over Time</h3>
+            <p className="text-xs text-gray-500 mt-1">Cumulative registered users</p>
+          </div>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={lineData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                <XAxis dataKey="date" tick={{fontSize: 12}} tickLine={false} axisLine={false} dy={10} />
+                <YAxis tick={{fontSize: 12}} tickLine={false} axisLine={false} dx={-10} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  labelStyle={{ fontWeight: 'bold', color: '#111827', marginBottom: '4px' }}
+                />
+                <Line type="monotone" dataKey="users" stroke="#000000" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Map */}
+        <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-5 hover:shadow-md transition-shadow">
+          <div className="mb-4">
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">User Demographics</h3>
+            <p className="text-xs text-gray-500 mt-1">Global distribution of registered users</p>
+          </div>
+          <div className="h-[300px] w-full bg-[#f8fafc] rounded-lg overflow-hidden border border-gray-100 relative">
+            <VectorMap
+              map={worldMill}
+              backgroundColor="transparent"
+              zoomOnScroll={false}
+              containerStyle={{
+                width: '100%',
+                height: '100%'
+              }}
+              regionStyle={{
+                initial: {
+                  fill: '#e2e8f0',
+                  stroke: 'none',
+                  "stroke-width": 0,
+                  "stroke-opacity": 1
+                },
+                hover: {
+                  "fill-opacity": 0.8,
+                  cursor: 'pointer'
+                }
+              }}
+              series={{
+                regions: [
+                  {
+                    values: mapData,
+                    scale: ['#93c5fd', '#1e3a8a'],
+                    normalizeFunction: 'polynomial'
+                  }
+                ]
+              }}
+              onRegionTipShow={(e, el, code) => {
+                const count = mapData[code] || 0;
+                el.html(el.html() + ` - ${count} Users`);
+              }}
+            />
+          </div>
+        </div>
+
       </div>
     </div>
   );

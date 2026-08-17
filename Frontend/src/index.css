@@ -233,8 +233,9 @@ layer(base);
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
-  body {
+  html, body {
     @apply relative font-normal font-outfit z-1 bg-gray-50;
+    min-height: 100vh;
   }
 
   @keyframes search-anim {
@@ -245,6 +246,23 @@ layer(base);
     50% {
       transform: translateY(calc(-50% - 5px)) scale(1.1);
     }
+  }
+
+  /* Global Dark Mode Trick for full website */
+  html.dark {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  html.dark img, 
+  html.dark video, 
+  html.dark .theme,
+  html.dark iframe {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  /* Prevent double inversion on specific elements if needed */
+  html.dark .no-invert {
+    filter: none !important;
   }
 }
 

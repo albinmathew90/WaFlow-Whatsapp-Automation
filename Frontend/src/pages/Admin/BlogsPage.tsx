@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link } from 'react-router';
+import { AdminAPI } from '../../api/admin';
 import BlockEditor from '../../components/form/BlockEditor';
 import MediaPickerModal, { MediaData } from '../../components/ui/MediaPickerModal';
+import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal';
 
 type BlogData = {
   id: number;
@@ -157,30 +159,16 @@ type FilterRule = {
   value: string;
 };
 
-const INITIAL_BLOGS: BlogData[] = [
-  { 
-    id: 1, 
-    title: 'How to use WhatsApp API', 
-    topic: 'API', 
-    author: 'Admin', 
-    date: 'August 12th 2026', 
-    readMinutes: '5', 
-    slug: 'how-to-use-whatsapp-api',
-    description: 'Learn how to integrate WhatsApp API in your app.',
-    content: 'Full content goes here...',
-    image: 'https://via.placeholder.com/150',
-    updatedAt: 'August 12th 2026, 11:13 PM', 
-    createdAt: 'August 12th 2026, 7:50 AM' 
-  },
-];
+const INITIAL_BLOGS: BlogData[] = [];
 
 const BlogsPage: React.FC = () => {
-  const [blogs, setBlogs] = useState<BlogData[]>(INITIAL_BLOGS);
+  const [blogs, setBlogs] = useState<BlogData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBlogs, setSelectedBlogs] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState<'none' | 'columns' | 'filters'>('none');
   const [filters, setFilters] = useState<FilterRule[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCreateTopicModalOpen, setIsCreateTopicModalOpen] = useState(false);
   const [topics, setTopics] = useState([
     { id: 'api', name: 'API' },
@@ -191,24 +179,61 @@ const BlogsPage: React.FC = () => {
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   
+  const [editingBlogId, setEditingBlogId] = useState<number | null>(null);
+  const [warningMessage, setWarningMessage] = useState('');
+  
+  const [title, setTitle] = useState('');
+  const [slug, setSlug] = useState('');
+  const [description, setDescription] = useState('');
+  const [content, setContent] = useState('');
+  const [topic, setTopic] = useState('');
+  const [date, setDate] = useState('');
+  const [readMinutes, setReadMinutes] = useState('');
+  const [author, setAuthor] = useState('');
+  
   const [visibleColumns, setVisibleColumns] = useState({
-    title: true,
-    topic: true,
-    author: true,
-    date: true,
-    readMinutes: true,
-    id: false,
-    slug: false,
-    description: false,
-    content: false,
-    image: false,
-    updatedAt: false,
-    createdAt: false,
+      title: true,
+      topic: true,
+      author: true,
+      date: true,
+      readMinutes: true,
+      id: false,
+      slug: false,
+      description: false,
+      content: false,
+      image: false,
+      createdAt: false,
+      updatedAt: false,
   });
 
   const toggleTab = (tab: 'columns' | 'filters') => {
     setActiveTab(prev => prev === tab ? 'none' : tab);
   };
+
+  const fetchBlogs = async () => {
+    try {
+      const data = await AdminAPI.getBlogs();
+      setBlogs(data);
+    } catch (err) {
+      console.error('Error fetching blogs:', err);
+    }
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const data = await AdminAPI.getSettings();
+      if (data.uiPreferences?.blogsTableColumns) {
+        setVisibleColumns(prev => ({ ...prev, ...data.uiPreferences.blogsTableColumns }));
+      }
+    } catch (err) {
+      console.error('Error fetching settings:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlogs();
+    fetchSettings();
+  }, []);
 
   const addFilter = (logic: 'and' | 'or' = 'and') => {
     setFilters([...filters, { id: Math.random().toString(), logic, column: 'title', operator: 'contains', value: '' }]);
@@ -292,23 +317,77 @@ const BlogsPage: React.FC = () => {
     }
   };
 
-  const handleDeleteSelected = () => {
-    setBlogs(blogs.filter(b => !selectedBlogs.includes(b.id)));
+  const executeDeleteSelected = async () => {
+    for (const id of selectedBlogs) {
+      await AdminAPI.deleteBlog(id);
+    }
+    fetchBlogs();
     setSelectedBlogs([]);
   };
 
-  const handleEditSelected = () => {
-    alert(`Editing mode would activate for Blog IDs: ${selectedBlogs.join(', ')}`);
+  const handleDeleteSelected = () => {
+    if (selectedBlogs.length === 0) return;
+    setIsDeleteModalOpen(true);
   };
 
-  const toggleColumn = (key: keyof typeof visibleColumns) => {
-    setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }));
+  const handleEditSelected = () => {
+    if (selectedBlogs.length > 1) {
+      setWarningMessage('Only 1 item can be edited at once.');
+      return;
+    }
+    if (selectedBlogs.length === 1) {
+      const blogToEdit = blogs.find(b => b.id === selectedBlogs[0]);
+      if (blogToEdit) {
+        setEditingBlogId(blogToEdit.id);
+        setTitle(blogToEdit.title || '');
+        setSlug(blogToEdit.slug || '');
+        setDescription(blogToEdit.description || '');
+        setContent(blogToEdit.content || '');
+        setTopic(blogToEdit.topic || '');
+        setDate(blogToEdit.date || '');
+        setReadMinutes(blogToEdit.readMinutes || '');
+        setAuthor(blogToEdit.author || '');
+        setCoverImage(blogToEdit.image || null);
+        setIsCreateModalOpen(true);
+      }
+    }
+  };
+
+  const toggleColumn = async (key: keyof typeof visibleColumns) => {
+    const newCols = { ...visibleColumns, [key]: !visibleColumns[key] };
+    setVisibleColumns(newCols);
+    try {
+      const currentSettings = await AdminAPI.getSettings();
+      await AdminAPI.updateSettings({
+         ...currentSettings,
+         uiPreferences: {
+            ...currentSettings.uiPreferences,
+            blogsTableColumns: newCols
+         }
+      });
+    } catch (err) {
+      console.error('Error saving column preferences:', err);
+    }
   };
 
   const hasSelection = selectedBlogs.length > 0;
 
   return (
     <div className="w-full h-full">
+      {warningMessage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+           <div className="bg-white p-6 rounded shadow-xl max-w-sm w-full text-center border border-gray-100">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Warning</h3>
+              <p className="text-sm text-gray-500 mb-6">{warningMessage}</p>
+              <button onClick={() => setWarningMessage('')} className="px-6 py-2 bg-gray-900 text-white rounded text-sm hover:bg-black transition-colors shadow-sm font-medium">OK</button>
+           </div>
+        </div>
+      )}
       {/* Table Container */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
         
@@ -351,8 +430,23 @@ const BlogsPage: React.FC = () => {
           )}
 
           <div className="flex items-center gap-1.5 ml-4">
-            <button onClick={() => setIsCreateModalOpen(true)} className="px-3 py-1 bg-admin-primary text-white border border-transparent rounded text-xs font-medium hover:bg-admin-primary-hover flex items-center gap-1.5 shadow-sm transition-colors mr-2">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+            <button 
+              onClick={() => {
+                setEditingBlogId(null);
+                setTitle('');
+                setSlug('');
+                setDescription('');
+                setContent('');
+                setTopic('');
+                setDate('');
+                setReadMinutes('');
+                setAuthor('');
+                setCoverImage(null);
+                setIsCreateModalOpen(true);
+              }} 
+              className="px-2 py-1 border border-gray-200 rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors bg-white text-gray-700 hover:bg-gray-50 mr-2"
+            >
+              <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
               Create New
             </button>
 
@@ -578,14 +672,14 @@ const BlogsPage: React.FC = () => {
                         {blog.image}
                       </td>
                     )}
-                    {visibleColumns.updatedAt && (
-                      <td className="px-3 py-2 text-[11px] text-gray-500 whitespace-nowrap">
-                        {blog.updatedAt}
-                      </td>
-                    )}
                     {visibleColumns.createdAt && (
                       <td className="px-3 py-2 text-[11px] text-gray-500 whitespace-nowrap">
-                        {blog.createdAt}
+                        {new Date(blog.createdAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                    )}
+                    {visibleColumns.updatedAt && (
+                      <td className="px-3 py-2 text-[11px] text-gray-500 whitespace-nowrap">
+                        {new Date(blog.updatedAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </td>
                     )}
                   </tr>
@@ -610,22 +704,39 @@ const BlogsPage: React.FC = () => {
             
             {/* Modal Header */}
             <div className="px-8 py-5 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
-              <h3 className="font-bold text-gray-900 text-lg tracking-tight">Creating new Blog</h3>
+              <h3 className="font-bold text-gray-900 text-lg tracking-tight">{editingBlogId ? 'Edit Blog' : 'Creating new Blog'}</h3>
               <button onClick={() => setIsCreateModalOpen(false)} className="text-gray-400 hover:text-gray-900 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
             
             {/* Modal Body */}
-            <div className="p-8 overflow-y-auto">
-              <form className="flex flex-col gap-6" onSubmit={(e) => { e.preventDefault(); setIsCreateModalOpen(false); }}>
+            <div className="p-8 overflow-y-auto max-h-[80vh]">
+              <form className="flex flex-col gap-6" onSubmit={async (e) => {
+                e.preventDefault();
+                if (!title || !topic || !author || !date || !slug || !content) return;
+
+                const payload = {
+                  title, topic, author, date, readMinutes, slug, description, content, image: coverImage || ''
+                };
+
+                if (editingBlogId) {
+                  await AdminAPI.updateBlog(editingBlogId, payload);
+                } else {
+                  await AdminAPI.createBlog(payload);
+                }
+                
+                fetchBlogs();
+                setIsCreateModalOpen(false);
+                resetForm();
+              }}>
                 
                 {/* Title */}
                 <div className="flex flex-col">
                   <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
                     Title <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <input type="text" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required />
+                  <input type="text" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required value={title} onChange={(e) => setTitle(e.target.value)} />
                 </div>
 
                 {/* Slug */}
@@ -633,8 +744,8 @@ const BlogsPage: React.FC = () => {
                   <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
                     Slug <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <input type="text" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required />
-                  <p className="text-[11px] text-gray-500 mt-1.5">URL-friendly identifier. Must be unique.</p>
+                  <input type="text" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required value={slug} onChange={(e) => setSlug(e.target.value)} />
+                  <p className="text-[11px] text-gray-500 mt-1.5">The URL-friendly version of the title. Must be unique.</p>
                 </div>
 
                 {/* Description */}
@@ -651,8 +762,8 @@ const BlogsPage: React.FC = () => {
                     Content <span className="text-red-500 ml-1">*</span>
                   </label>
                   <BlockEditor 
-                    value="" 
-                    onChange={(val) => { console.log(val); }} 
+                    value={content} 
+                    onChange={(val) => setContent(val)} 
                   />
                 </div>
 
@@ -662,10 +773,10 @@ const BlogsPage: React.FC = () => {
                     Topic <span className="text-red-500 ml-1">*</span>
                   </label>
                   <div className="flex">
-                    <select className="flex-1 px-3 py-2 bg-white border border-gray-200 border-r-0 text-sm focus:outline-none focus:border-gray-300 rounded-l-sm transition-colors appearance-none" required>
+                    <select className="flex-1 px-3 py-2 bg-white border border-gray-200 border-r-0 text-sm focus:outline-none focus:border-gray-300 rounded-l-sm transition-colors appearance-none" required value={topic} onChange={(e) => setTopic(e.target.value)}>
                       <option value="">Select a value</option>
                       {topics.map(t => (
-                        <option key={t.id} value={t.id}>{t.name}</option>
+                        <option key={t.id} value={t.name}>{t.name}</option>
                       ))}
                     </select>
                     <button type="button" onClick={() => setIsCreateTopicModalOpen(true)} className="px-4 border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center rounded-r-sm text-gray-500 transition-colors">
@@ -687,7 +798,7 @@ const BlogsPage: React.FC = () => {
                   <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
                     Read Minutes <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <input type="number" min="1" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required />
+                  <input type="number" min="1" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required value={readMinutes} onChange={(e) => setReadMinutes(e.target.value)} />
                   <p className="text-[11px] text-gray-500 mt-1.5">Estimated reading time in minutes</p>
                 </div>
 
@@ -696,7 +807,7 @@ const BlogsPage: React.FC = () => {
                   <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
                     Author <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <input type="text" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required />
+                  <input type="text" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required value={author} onChange={(e) => setAuthor(e.target.value)} />
                 </div>
 
                 {/* Image */}
@@ -800,6 +911,13 @@ const BlogsPage: React.FC = () => {
           setCoverImage(media.url);
           setIsMediaPickerOpen(false);
         }} 
+      />
+      {/* Confirm Delete Modal */}
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={executeDeleteSelected}
+        itemCount={selectedBlogs.length}
       />
     </div>
   );

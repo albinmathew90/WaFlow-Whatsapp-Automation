@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { AdminAPI } from '../../api/admin';
+import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal';
 
 type TopicData = {
   id: number;
@@ -15,39 +17,56 @@ type FilterRule = {
   value: string;
 };
 
-const INITIAL_TOPICS: TopicData[] = [
-  { 
-    id: 1, 
-    title: 'API', 
-    updatedAt: 'August 12th 2026, 11:13 PM', 
-    createdAt: 'August 12th 2026, 7:50 AM' 
-  },
-  { 
-    id: 2, 
-    title: 'Updates', 
-    updatedAt: 'August 13th 2026, 10:00 AM', 
-    createdAt: 'August 10th 2026, 9:30 AM' 
-  },
-];
+const INITIAL_TOPICS: TopicData[] = [];
 
 const BlogTopicsPage: React.FC = () => {
-  const [topics, setTopics] = useState<TopicData[]>(INITIAL_TOPICS);
+  const [topics, setTopics] = useState<TopicData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopics, setSelectedTopics] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState<'none' | 'columns' | 'filters'>('none');
   const [filters, setFilters] = useState<FilterRule[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  
+  const [editingTopicId, setEditingTopicId] = useState<number | null>(null);
+  const [warningMessage, setWarningMessage] = useState('');
+  const [title, setTitle] = useState('');
   
   const [visibleColumns, setVisibleColumns] = useState({
-    title: true,
-    createdAt: true,
-    updatedAt: true,
-    id: true,
+      title: true,
+      createdAt: true,
+      updatedAt: true,
+      id: true,
   });
 
   const toggleTab = (tab: 'columns' | 'filters') => {
     setActiveTab(prev => prev === tab ? 'none' : tab);
   };
+
+  const fetchTopics = async () => {
+    try {
+      const data = await AdminAPI.getTopics();
+      setTopics(data);
+    } catch (err) {
+      console.error('Error fetching topics:', err);
+    }
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const data = await AdminAPI.getSettings();
+      if (data.uiPreferences?.blogTopicsTableColumns) {
+        setVisibleColumns(prev => ({ ...prev, ...data.uiPreferences.blogTopicsTableColumns }));
+      }
+    } catch (err) {
+      console.error('Error fetching settings:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchTopics();
+    fetchSettings();
+  }, []);
 
   const addFilter = (logic: 'and' | 'or' = 'and') => {
     setFilters([...filters, { id: Math.random().toString(), logic, column: 'title', operator: 'contains', value: '' }]);
@@ -124,23 +143,69 @@ const BlogTopicsPage: React.FC = () => {
     }
   };
 
-  const handleDeleteSelected = () => {
-    setTopics(topics.filter(t => !selectedTopics.includes(t.id)));
+  const executeDeleteSelected = async () => {
+    for (const id of selectedTopics) {
+      await AdminAPI.deleteTopic(id);
+    }
+    fetchTopics();
     setSelectedTopics([]);
   };
 
-  const handleEditSelected = () => {
-    alert(`Editing mode would activate for Topic IDs: ${selectedTopics.join(', ')}`);
+  const handleDeleteSelected = () => {
+    if (selectedTopics.length === 0) return;
+    setIsDeleteModalOpen(true);
   };
 
-  const toggleColumn = (key: keyof typeof visibleColumns) => {
-    setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }));
+  const handleEditSelected = () => {
+    if (selectedTopics.length > 1) {
+      setWarningMessage('Only 1 item can be edited at once.');
+      return;
+    }
+    if (selectedTopics.length === 1) {
+      const topicToEdit = topics.find(t => t.id === selectedTopics[0]);
+      if (topicToEdit) {
+        setEditingTopicId(topicToEdit.id);
+        setTitle(topicToEdit.title);
+        setIsCreateModalOpen(true);
+      }
+    }
+  };
+
+  const toggleColumn = async (key: keyof typeof visibleColumns) => {
+    const newCols = { ...visibleColumns, [key]: !visibleColumns[key] };
+    setVisibleColumns(newCols);
+    try {
+      const currentSettings = await AdminAPI.getSettings();
+      await AdminAPI.updateSettings({
+         ...currentSettings,
+         uiPreferences: {
+            ...currentSettings.uiPreferences,
+            blogTopicsTableColumns: newCols
+         }
+      });
+    } catch (err) {
+      console.error('Error saving column preferences:', err);
+    }
   };
 
   const hasSelection = selectedTopics.length > 0;
 
   return (
     <div className="w-full h-full">
+      {warningMessage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+           <div className="bg-white p-6 rounded shadow-xl max-w-sm w-full text-center border border-gray-100">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Warning</h3>
+              <p className="text-sm text-gray-500 mb-6">{warningMessage}</p>
+              <button onClick={() => setWarningMessage('')} className="px-6 py-2 bg-gray-900 text-white rounded text-sm hover:bg-black transition-colors shadow-sm font-medium">OK</button>
+           </div>
+        </div>
+      )}
       {/* Table Container */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
         
@@ -183,8 +248,15 @@ const BlogTopicsPage: React.FC = () => {
           )}
 
           <div className="flex items-center gap-1.5 ml-4">
-            <button onClick={() => setIsCreateModalOpen(true)} className="px-3 py-1 bg-admin-primary text-white border border-transparent rounded text-xs font-medium hover:bg-admin-primary-hover flex items-center gap-1.5 shadow-sm transition-colors mr-2">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+            <button 
+              onClick={() => {
+                setEditingTopicId(null);
+                setTitle('');
+                setIsCreateModalOpen(true);
+              }} 
+              className="px-2 py-1 border border-gray-200 rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors bg-white text-gray-700 hover:bg-gray-50 mr-2"
+            >
+              <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
               Create New
             </button>
 
@@ -365,12 +437,12 @@ const BlogTopicsPage: React.FC = () => {
                     )}
                     {visibleColumns.createdAt && (
                       <td className="px-3 py-2 text-[11px] text-gray-500 whitespace-nowrap">
-                        {topic.createdAt}
+                        {new Date(topic.createdAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </td>
                     )}
                     {visibleColumns.updatedAt && (
                       <td className="px-3 py-2 text-[11px] text-gray-500 whitespace-nowrap">
-                        {topic.updatedAt}
+                        {new Date(topic.updatedAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </td>
                     )}
                     {visibleColumns.id && (
@@ -400,7 +472,7 @@ const BlogTopicsPage: React.FC = () => {
             
             {/* Modal Header */}
             <div className="px-8 py-5 border-b border-gray-100 flex justify-between items-center bg-white">
-              <h3 className="font-bold text-gray-900 text-lg tracking-tight">Create New Topic</h3>
+              <h3 className="font-bold text-gray-900 text-lg tracking-tight">{editingTopicId ? 'Edit Topic' : 'Create New Topic'}</h3>
               <button onClick={() => setIsCreateModalOpen(false)} className="text-gray-400 hover:text-gray-900 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
@@ -408,19 +480,27 @@ const BlogTopicsPage: React.FC = () => {
             
             {/* Modal Body */}
             <div className="p-8">
-              <form 
-                className="flex flex-col gap-6" 
-                onSubmit={(e) => { 
-                  e.preventDefault(); 
-                  setIsCreateModalOpen(false);
-                }}
-              >
+              <form className="flex flex-col gap-6" onSubmit={async (e) => {
+                e.preventDefault();
+                if (!title) return;
+
+                if (editingTopicId) {
+                  await AdminAPI.updateTopic(editingTopicId, { title });
+                } else {
+                  await AdminAPI.createTopic({ title });
+                }
+                
+                fetchTopics();
+                setIsCreateModalOpen(false);
+                setTitle('');
+                setEditingTopicId(null);
+              }}>
                 {/* Title */}
                 <div className="flex flex-col">
                   <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
                     Title <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <input type="text" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required />
+                  <input type="text" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required value={title} onChange={(e) => setTitle(e.target.value)} />
                 </div>
                 
                 {/* Save Button */}
@@ -434,6 +514,13 @@ const BlogTopicsPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Confirm Delete Modal */}
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={executeDeleteSelected}
+        itemCount={selectedTopics.length}
+      />
     </div>
   );
 };

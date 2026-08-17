@@ -1,9 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router';
+import { AdminAPI } from '../../api/admin';
+import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal';
 
 type UserData = {
   id: number;
   email: string;
+  name?: string;
+  phoneNumber?: string;
+  subscriptionStatus?: string;
+  renewalDate?: string;
+  lastRenewedOn?: string;
   updatedAt: string;
   createdAt: string;
 };
@@ -16,29 +23,63 @@ type FilterRule = {
   value: string;
 };
 
-const INITIAL_USERS: UserData[] = [
-  { id: 1, email: 'fxlaunchpad.global@gmail.com', updatedAt: 'August 8th 2026, 11:13 PM', createdAt: 'August 5th 2026, 7:50 AM' },
-  { id: 2, email: 'admin@convoreach.com', updatedAt: 'August 10th 2026, 09:00 AM', createdAt: 'August 1st 2026, 10:00 AM' },
-  { id: 3, email: 'support@example.com', updatedAt: 'August 12th 2026, 04:20 PM', createdAt: 'August 2nd 2026, 01:15 PM' },
-];
+const INITIAL_USERS: UserData[] = [];
 
 const UsersPage: React.FC = () => {
-  const [users, setUsers] = useState<UserData[]>(INITIAL_USERS);
+  const [users, setUsers] = useState<UserData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState<'none' | 'columns' | 'filters'>('none');
   const [filters, setFilters] = useState<FilterRule[]>([]);
   
+  const [editingUserId, setEditingUserId] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [warningMessage, setWarningMessage] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  
   const [visibleColumns, setVisibleColumns] = useState({
     email: true,
-    updatedAt: true,
+    name: true,
+    phoneNumber: true,
+    subscriptionStatus: true,
+    renewalDate: false,
+    lastRenewedOn: false,
     createdAt: true,
-    id: true
+    updatedAt: false,
+    id: false
   });
+
+
 
   const toggleTab = (tab: 'columns' | 'filters') => {
     setActiveTab(prev => prev === tab ? 'none' : tab);
   };
+
+  const fetchUsers = async () => {
+    try {
+      const data = await AdminAPI.getUsers();
+      setUsers(data);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+    }
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const data = await AdminAPI.getSettings();
+      if (data.uiPreferences?.usersTableColumns) {
+        setVisibleColumns(prev => ({ ...prev, ...data.uiPreferences.usersTableColumns }));
+      }
+    } catch (err) {
+      console.error('Error fetching settings:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+    fetchSettings();
+  }, []);
 
   const addFilter = (logic: 'and' | 'or' = 'and') => {
     setFilters([...filters, { id: Math.random().toString(), logic, column: 'email', operator: 'contains', value: '' }]);
@@ -123,23 +164,69 @@ const UsersPage: React.FC = () => {
     }
   };
 
-  const handleDeleteSelected = () => {
-    setUsers(users.filter(u => !selectedUsers.includes(u.id)));
+  const executeDeleteSelected = async () => {
+    for (const id of selectedUsers) {
+      await AdminAPI.deleteUser(id);
+    }
+    fetchUsers();
     setSelectedUsers([]);
   };
 
-  const handleEditSelected = () => {
-    alert(`Editing mode would activate for User IDs: ${selectedUsers.join(', ')}`);
+  const handleDeleteSelected = () => {
+    if (selectedUsers.length === 0) return;
+    setIsDeleteModalOpen(true);
   };
 
-  const toggleColumn = (key: keyof typeof visibleColumns) => {
-    setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }));
+  const handleEditSelected = () => {
+    if (selectedUsers.length > 1) {
+      setWarningMessage('Only 1 item can be edited at once.');
+      return;
+    }
+    if (selectedUsers.length === 1) {
+      const userToEdit = users.find(u => u.id === selectedUsers[0]);
+      if (userToEdit) {
+        setEditingUserId(userToEdit.id);
+        setEditEmail(userToEdit.email);
+        setIsModalOpen(true);
+      }
+    }
+  };
+
+  const toggleColumn = async (key: keyof typeof visibleColumns) => {
+    const newCols = { ...visibleColumns, [key]: !visibleColumns[key] };
+    setVisibleColumns(newCols);
+    try {
+      const currentSettings = await AdminAPI.getSettings();
+      await AdminAPI.updateSettings({
+         ...currentSettings,
+         uiPreferences: {
+            ...currentSettings.uiPreferences,
+            usersTableColumns: newCols
+         }
+      });
+    } catch (err) {
+      console.error('Error saving column preferences:', err);
+    }
   };
 
   const hasSelection = selectedUsers.length > 0;
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full relative">
+      {warningMessage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+           <div className="bg-white p-6 rounded shadow-xl max-w-sm w-full text-center border border-gray-100">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Warning</h3>
+              <p className="text-sm text-gray-500 mb-6">{warningMessage}</p>
+              <button onClick={() => setWarningMessage('')} className="px-6 py-2 bg-gray-900 text-white rounded text-sm hover:bg-black transition-colors shadow-sm font-medium">OK</button>
+           </div>
+        </div>
+      )}
       {/* Table Container */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
         
@@ -248,6 +335,11 @@ const UsersPage: React.FC = () => {
                         className="bg-white border border-gray-300 text-[11px] rounded px-1.5 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full sm:w-32"
                       >
                         <option value="email">Email</option>
+                        <option value="name">Name</option>
+                        <option value="phoneNumber">Phone Number</option>
+                        <option value="subscriptionStatus">Subscription</option>
+                        <option value="renewalDate">Renewal Date</option>
+                        <option value="lastRenewedOn">Last Renewed On</option>
                         <option value="updatedAt">Updated At</option>
                         <option value="createdAt">Created At</option>
                         <option value="id">ID</option>
@@ -337,10 +429,50 @@ const UsersPage: React.FC = () => {
                     </div>
                   </th>
                 )}
-                {visibleColumns.updatedAt && (
+                {visibleColumns.name && (
                   <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
                     <div className="flex items-center gap-1">
-                      Updated At
+                      Name
+                      <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
+                      </div>
+                    </div>
+                  </th>
+                )}
+                {visibleColumns.phoneNumber && (
+                  <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
+                    <div className="flex items-center gap-1">
+                      Phone Number
+                      <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
+                      </div>
+                    </div>
+                  </th>
+                )}
+                {visibleColumns.subscriptionStatus && (
+                  <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
+                    <div className="flex items-center gap-1">
+                      Subscription
+                      <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
+                      </div>
+                    </div>
+                  </th>
+                )}
+                {visibleColumns.renewalDate && (
+                  <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
+                    <div className="flex items-center gap-1">
+                      Renewal Date
+                      <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
+                      </div>
+                    </div>
+                  </th>
+                )}
+                {visibleColumns.lastRenewedOn && (
+                  <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
+                    <div className="flex items-center gap-1">
+                      Last Renewed
                       <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
                         <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
                       </div>
@@ -351,6 +483,16 @@ const UsersPage: React.FC = () => {
                   <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
                     <div className="flex items-center gap-1">
                       Created At
+                      <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
+                      </div>
+                    </div>
+                  </th>
+                )}
+                {visibleColumns.updatedAt && (
+                  <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
+                    <div className="flex items-center gap-1">
+                      Updated At
                       <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
                         <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
                       </div>
@@ -388,14 +530,46 @@ const UsersPage: React.FC = () => {
                         </Link>
                       </td>
                     )}
-                    {visibleColumns.updatedAt && (
+                    {visibleColumns.name && (
                       <td className="px-3 py-2 text-xs text-black">
-                        {user.updatedAt}
+                        {user.name || '-'}
+                      </td>
+                    )}
+                    {visibleColumns.phoneNumber && (
+                      <td className="px-3 py-2 text-xs text-gray-500">
+                        {user.phoneNumber || '-'}
+                      </td>
+                    )}
+                    {visibleColumns.subscriptionStatus && (
+                      <td className="px-3 py-2">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                          user.subscriptionStatus === 'yearly' ? 'bg-green-100 text-green-700' :
+                          user.subscriptionStatus === 'monthly' ? 'bg-blue-100 text-blue-700' :
+                          user.subscriptionStatus === 'trial' ? 'bg-orange-100 text-orange-700' :
+                          'bg-gray-100 text-gray-600'
+                        }`}>
+                          {user.subscriptionStatus || 'None'}
+                        </span>
+                      </td>
+                    )}
+                    {visibleColumns.renewalDate && (
+                      <td className="px-3 py-2 text-xs text-gray-500">
+                        {user.renewalDate ? new Date(user.renewalDate).toLocaleDateString() : '-'}
+                      </td>
+                    )}
+                    {visibleColumns.lastRenewedOn && (
+                      <td className="px-3 py-2 text-xs text-gray-500">
+                        {user.lastRenewedOn ? new Date(user.lastRenewedOn).toLocaleDateString() : '-'}
                       </td>
                     )}
                     {visibleColumns.createdAt && (
                       <td className="px-3 py-2 text-xs text-black">
-                        {user.createdAt}
+                        {new Date(user.createdAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                    )}
+                    {visibleColumns.updatedAt && (
+                      <td className="px-3 py-2 text-xs text-black">
+                        {new Date(user.updatedAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </td>
                     )}
                     {visibleColumns.id && (
@@ -417,6 +591,64 @@ const UsersPage: React.FC = () => {
         </div>
         
       </div>
+
+      {/* Edit Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+          <div className="bg-white shadow-2xl w-full max-w-md flex flex-col rounded-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
+              <h3 className="font-bold text-gray-900 text-lg tracking-tight">Edit User</h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-900 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <form 
+                className="flex flex-col gap-6" 
+                onSubmit={(e) => { 
+                  e.preventDefault(); 
+                  const handleSaveUser = async () => {
+                    if (!editEmail) return;
+
+                    if (editingUserId) {
+                      await AdminAPI.updateUser(editingUserId, { email: editEmail });
+                    } else {
+                      await AdminAPI.createUser({ email: editEmail });
+                    }
+                    
+                    fetchUsers();
+                    setIsModalOpen(false);
+                    setEditingUserId(null);
+                    setEditEmail('');
+                  };
+                  handleSaveUser();
+                }}
+              >
+                <div className="flex flex-col">
+                  <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
+                    Email <span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <input type="email" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
+                </div>
+                
+                <div className="mt-2 flex justify-end">
+                  <button type="submit" className="px-6 py-2 bg-gray-900 text-white font-medium rounded-sm hover:bg-black transition-colors text-[13px] shadow-sm">
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Confirm Delete Modal */}
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={executeDeleteSelected}
+        itemCount={selectedUsers.length}
+      />
     </div>
   );
 };

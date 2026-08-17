@@ -31,6 +31,21 @@ export class User {
   @Column({ nullable: true })
   resetPasswordExpires?: Date;
 
+  @Column({ nullable: true })
+  country?: string;
+
+  @Column({ nullable: true })
+  phoneNumber?: string;
+
+  @Column({ nullable: true })
+  subscriptionStatus?: string;
+
+  @Column({ nullable: true })
+  renewalDate?: Date;
+
+  @Column({ nullable: true })
+  lastRenewedOn?: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 

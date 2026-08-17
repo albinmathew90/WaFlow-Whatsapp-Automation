@@ -1,5 +1,36 @@
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
+
+const SEARCH_INDEX = [
+  { title: 'Dashboard', subtitle: 'Overview and stats', path: '/admin', keywords: ['dashboard', 'home', 'stats', 'analytics', 'overview'] },
+  { title: 'Users', subtitle: 'Manage accounts and clients', path: '/admin/collections/users', keywords: ['users', 'clients', 'customers', 'email', 'phone', 'account'] },
+  { title: 'Media', subtitle: 'Manage images and uploads', path: '/admin/collections/media', keywords: ['media', 'images', 'files', 'uploads', 'pictures'] },
+  { title: 'Blogs', subtitle: 'Write and publish posts', path: '/admin/collections/blogs', keywords: ['blogs', 'posts', 'articles', 'content'] },
+  { title: 'Blog Topics', subtitle: 'Organize blog categories', path: '/admin/collections/blog-topics', keywords: ['blog topics', 'categories', 'tags'] },
+  { title: 'SEO', subtitle: 'Search engine optimization', path: '/admin/collections/seo', keywords: ['seo', 'meta', 'tags', 'search engine', 'ranking'] },
+  { title: 'Profile & Security', subtitle: 'Admin account settings', path: '/admin/settings#security', keywords: ['settings', 'profile', 'password', 'security', '2fa', 'email', 'login', 'two factor authentication'] },
+  { title: 'Email & Notifications', subtitle: 'Configure SMTP and alerts', path: '/admin/settings#notifications', keywords: ['settings', 'email', 'notifications', 'smtp', 'templates', 'triggers', 'alert', 'welcome email', 'invoice email', 'whatsapp'] },
+  { title: 'Subscriptions & Billing', subtitle: 'Manage plans and payments', path: '/admin/settings#billing', keywords: ['settings', 'subscription', 'billing', 'invoice', 'payment', 'tax', 'plan', 'gst', 'razorpay', 'stripe', 'cashfree', 'coupon'] },
+];
+
+const HighlightText = ({ text, query }: { text: string; query: string }) => {
+  if (!query) return <>{text}</>;
+  
+  const regex = new RegExp(`(${query})`, 'gi');
+  const parts = text.split(regex);
+  
+  return (
+    <>
+      {parts.map((part, i) => 
+        regex.test(part) ? (
+          <span key={i} className="bg-black text-white px-[2px] rounded-sm">{part}</span>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+};
 
 interface AdminHeaderProps {
   toggleSidebar: () => void;
@@ -7,17 +38,69 @@ interface AdminHeaderProps {
 
 const AdminHeader: React.FC<AdminHeaderProps> = ({ toggleSidebar }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const pathParts = location.pathname.split('/').filter(Boolean);
   const currentPage = pathParts.length > 1 ? pathParts[pathParts.length - 1].replace(/-/g, ' ') : 'Dashboard';
 
   const [currentTime, setCurrentTime] = useState(new Date());
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 10000);
+    setSelectedIndex(0);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setIsDropdownOpen(true);
+  };
+
+  const filteredResults = SEARCH_INDEX.filter(item => 
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.keywords.some(k => k.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isDropdownOpen) return;
+    
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev < filteredResults.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev > 0 ? prev - 1 : filteredResults.length - 1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (filteredResults[selectedIndex]) {
+        navigate(filteredResults[selectedIndex].path);
+        setIsDropdownOpen(false);
+        setSearchQuery('');
+      }
+    } else if (e.key === 'Escape') {
+      setIsDropdownOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const formattedTime = currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const formattedTime = currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
   const formattedDay = currentTime.toLocaleDateString('en-US', { weekday: 'long' });
   const formattedDate = currentTime.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
@@ -44,7 +127,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ toggleSidebar }) => {
 
         {/* Middle: Search Bar */}
         <div className="flex-1 flex justify-center px-4 hidden md:flex">
-          <div className="input-container group">
+          <div className="input-container group" ref={searchRef}>
             <style>{`
               .input-container {
                 width: 320px;
@@ -92,7 +175,16 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ toggleSidebar }) => {
                 }
               }
             `}</style>
-            <input type="text" name="text" className="input-custom" placeholder="search..." />
+            <input 
+              type="text" 
+              name="text" 
+              className="input-custom" 
+              placeholder="search..." 
+              value={searchQuery}
+              onChange={handleSearchChange}
+              onFocus={() => setIsDropdownOpen(true)}
+              onKeyDown={handleKeyDown}
+            />
             <span className="search-icon-custom"> 
               <svg width="19px" height="19px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g id="SVGRepo_bgCarrier" strokeWidth={0} />
@@ -105,21 +197,63 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ toggleSidebar }) => {
                 </g>
               </svg>
             </span>
+
+            {isDropdownOpen && searchQuery.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-black shadow-[-5px_5px_0px_black] z-50 flex flex-col">
+                {filteredResults.length > 0 ? (
+                  <>
+                    <ul className="max-h-64 overflow-y-auto flex-1">
+                      {filteredResults.map((result, idx) => (
+                        <li key={idx}>
+                          <button
+                            onClick={() => {
+                              navigate(result.path);
+                              setIsDropdownOpen(false);
+                              setSearchQuery('');
+                            }}
+                            onMouseEnter={() => setSelectedIndex(idx)}
+                            className={`w-full flex items-center justify-between px-4 py-3 transition-colors border-b border-gray-200 last:border-b-0 group ${idx === selectedIndex ? 'bg-gray-100' : 'bg-white'}`}
+                          >
+                            <div className="flex flex-col items-start text-left">
+                              <span className="text-[12px] font-bold uppercase tracking-widest text-black mb-0.5">
+                                <HighlightText text={result.title} query={searchQuery} />
+                              </span>
+                              <span className="text-[10px] text-gray-500 font-medium tracking-wide">
+                                <HighlightText text={result.subtitle} query={searchQuery} />
+                              </span>
+                            </div>
+                            <svg className={`w-4 h-4 transition-colors ${idx === selectedIndex ? 'text-black' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="bg-gray-50 border-t border-gray-200 px-4 py-2 flex items-center justify-start gap-4 text-[10px] text-gray-400 font-medium uppercase tracking-wider shrink-0">
+                      <span className="flex items-center gap-1.5"><kbd className="bg-white border border-gray-200 rounded px-1.5 py-0.5 shadow-[1px_1px_0px_rgba(0,0,0,0.2)] text-gray-600 font-sans text-[9px] font-bold">↑↓</kbd> navigate</span>
+                      <span className="flex items-center gap-1.5"><kbd className="bg-white border border-gray-200 rounded px-1.5 py-0.5 shadow-[1px_1px_0px_rgba(0,0,0,0.2)] text-gray-600 font-sans text-[9px] font-bold">↵</kbd> go</span>
+                      <span className="flex items-center gap-1.5"><kbd className="bg-white border border-gray-200 rounded px-1.5 py-0.5 shadow-[1px_1px_0px_rgba(0,0,0,0.2)] text-gray-600 font-sans text-[9px] font-bold">ESC</kbd> close</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="p-4 text-[11px] text-gray-500 uppercase tracking-widest font-bold text-center">
+                    No results found
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Right: Date/Time Card & Mobile Toggle */}
         <div className="flex items-center justify-end min-w-[150px]">
-          <div className="flex items-center justify-between bg-[#eef1f6] border border-gray-300 rounded-lg p-2.5 min-w-[200px] shadow-sm">
-            <div className="flex flex-col">
-              <span className="font-bold text-gray-900 text-sm leading-none mb-1.5">{formattedDay}</span>
-              <span className="text-[11px] text-gray-600 font-medium leading-none">{formattedDate}</span>
+          <div className="flex flex-col bg-[#eef1f6] border border-gray-300 rounded-lg px-3 py-2 min-w-[180px] shadow-sm">
+            <div className="flex justify-center mb-1 border-b border-gray-200 pb-1">
+              <span className="font-bold text-gray-900 text-sm tracking-wider">{formattedTime}</span>
             </div>
-            <div className="flex flex-col items-end">
-              <span className="font-bold text-gray-900 text-sm leading-none mb-1.5">{formattedTime}</span>
-              <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
+            <div className="flex justify-between items-center w-full mt-0.5">
+              <span className="text-[11px] text-gray-600 font-bold">{formattedDate}</span>
+              <span className="text-[11px] text-gray-600 font-bold">{formattedDay}</span>
             </div>
           </div>
           

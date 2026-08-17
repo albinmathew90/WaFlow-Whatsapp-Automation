@@ -24,6 +24,5 @@ const GenericPagePlaceholder: React.FC<{ title: string, subtitle: string }> = ({
 
 export const BlogTopicsPage: React.FC = () => <GenericPagePlaceholder title="Blog Topics" subtitle="Manage topics for your blog content." />;
 export const CategoriesPage: React.FC = () => <GenericPagePlaceholder title="Categories" subtitle="Manage case study categories." />;
-export const SEOPage: React.FC = () => <GenericPagePlaceholder title="SEO Management" subtitle="Manage global SEO and metadata records." />;
 export const ContactsPage: React.FC = () => <GenericPagePlaceholder title="Contacts" subtitle="View and manage user messages and inquiries." />;
 export const SubscribersPage: React.FC = () => <GenericPagePlaceholder title="Subscribers" subtitle="Manage newsletter and updates subscribers." />;

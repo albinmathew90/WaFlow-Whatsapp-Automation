@@ -22,7 +22,7 @@ const AdminLayout: React.FC = () => {
         ></div>
       )}
       
-      <main className="relative h-full max-h-screen transition-all duration-200 ease-in-out xl:ml-68 rounded-xl">
+      <main className="relative h-full max-h-screen transition-all duration-200 ease-in-out xl:ml-64 rounded-xl">
         <AdminHeader toggleSidebar={toggleSidebar} />
         
         <div className="p-4 sm:p-6 lg:p-8 w-full mx-auto">

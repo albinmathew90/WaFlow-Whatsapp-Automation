@@ -9,11 +9,14 @@ import UserProfiles from "./pages/UserProfiles";
 import AppLayout from "./layout/AppLayout";
 import AdminLayout from "./layout/AdminLayout";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
+import SettingsPage from "./pages/Admin/SettingsPage";
 import UsersPage from "./pages/Admin/UsersPage";
 import MediaPage from "./pages/Admin/MediaPage";
 import BlogsPage from "./pages/Admin/BlogsPage";
 import BlogTopicsPage from "./pages/Admin/BlogTopicsPage";
-import { CategoriesPage, SEOPage, ContactsPage, SubscribersPage } from "./pages/Admin/PlaceholderPages";
+import { CategoriesPage, ContactsPage, SubscribersPage } from "./pages/Admin/PlaceholderPages";
+import SEOPage from "./pages/Admin/SEOPage";
+import AdminLogin from './pages/Admin/AdminLogin';
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import Contacts from "./pages/Contacts";
@@ -68,6 +71,14 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
+const ProtectedAdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const token = localStorage.getItem('adminToken');
+  if (!token) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  return <>{children}</>;
+};
+
 function PublicRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useUser();
 
@@ -120,14 +131,18 @@ export default function App() {
               <Route path="/settings/contact-fields" element={<Settings />} />
             </Route>
 
+            {/* Admin Login Route */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+
             {/* Admin Dashboard Layout */}
             <Route
               path="/admin"
               element={
-                // Temporarily made public for testing UI. Add <ProtectedRoute> back when ready!
-                <ErrorBoundary>
-                  <AdminLayout />
-                </ErrorBoundary>
+                <ProtectedAdminRoute>
+                  <ErrorBoundary>
+                    <AdminLayout />
+                  </ErrorBoundary>
+                </ProtectedAdminRoute>
               }
             >
               <Route index element={<AdminDashboard />} />
@@ -139,6 +154,7 @@ export default function App() {
               <Route path="collections/seo" element={<SEOPage />} />
               <Route path="collections/contact" element={<ContactsPage />} />
               <Route path="collections/subscriber" element={<SubscribersPage />} />
+              <Route path="settings" element={<SettingsPage />} />
             </Route>
 
             {/* Public Auth pages — redirect to dashboard if already logged in */}

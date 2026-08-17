@@ -43,6 +43,7 @@ import { InboxModule } from './modules/inbox/inbox.module';
 import { CrmModule } from './modules/crm/crm.module';
 import { BroadcastModule } from './modules/broadcast/broadcast.module';
 import { OtpModule } from './modules/otp/otp.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 // Only import QueueModule if explicitly enabled to avoid Redis connection errors
 const queueModules: Array<Type | DynamicModule> = [];
@@ -154,6 +155,7 @@ if (dashboardServingEnabled && dashboardBuildPresent) {
             __dirname + '/modules/crm/**/*.entity{.ts,.js}',
             __dirname + '/modules/broadcast/**/*.entity{.ts,.js}',
             __dirname + '/modules/otp/**/*.entity{.ts,.js}',
+            __dirname + '/modules/admin/**/*.entity{.ts,.js}',
           ],
           migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
           logging: configService.get<boolean>('dataDatabase.logging', false),
@@ -299,6 +301,7 @@ if (dashboardServingEnabled && dashboardBuildPresent) {
     CrmModule, // CRM data entities (Contacts, Segments, Tags)
     BroadcastModule, // Broadcast campaigns with scheduling, batching and retry
     OtpModule, // OTP Builder
+    AdminModule, // Admin Dashboard
     ...serveStaticModules, // Bundled dashboard SPA (production single-port setup)
   ],
 })

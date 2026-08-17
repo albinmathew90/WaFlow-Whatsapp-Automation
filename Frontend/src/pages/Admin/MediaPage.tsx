@@ -1,5 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router';
+import { AdminAPI } from '../../api/admin';
+import { ConfirmDeleteModal } from '../../components/ui/ConfirmDeleteModal';
 
 type MediaData = {
   id: number;
@@ -21,13 +23,10 @@ type FilterRule = {
   value: string;
 };
 
-const INITIAL_MEDIA: MediaData[] = [
-  { id: 1, fileName: '5.png', thumbnail: 'https://via.placeholder.com/40?text=FX', alt: 'Logo', url: 'https://example.com/media/5.png', thumbnailUrl: 'https://example.com/media/thumb_5.png', fileSize: '1.2 MB', updatedAt: 'August 5th 2026, 8:00 AM', createdAt: 'August 5th 2026, 8:00 AM' },
-  { id: 2, fileName: 'hero-banner.jpg', thumbnail: 'https://via.placeholder.com/40?text=Hero', alt: 'Hero Banner', url: 'https://example.com/media/hero-banner.jpg', thumbnailUrl: 'https://example.com/media/thumb_hero-banner.jpg', fileSize: '2.8 MB', updatedAt: 'August 10th 2026, 9:30 AM', createdAt: 'August 9th 2026, 1:15 PM' },
-];
+const INITIAL_MEDIA: MediaData[] = [];
 
 const MediaPage: React.FC = () => {
-  const [media, setMedia] = useState<MediaData[]>(INITIAL_MEDIA);
+  const [media, setMedia] = useState<MediaData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMedia, setSelectedMedia] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState<'none' | 'columns' | 'filters'>('none');
@@ -40,6 +39,7 @@ const MediaPage: React.FC = () => {
   const [createUrl, setCreateUrl] = useState('');
   const [createAlt, setCreateAlt] = useState('');
   const [createError, setCreateError] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const [bulkFiles, setBulkFiles] = useState<File[]>([]);
   const [bulkError, setBulkError] = useState<string | null>(null);
@@ -47,19 +47,44 @@ const MediaPage: React.FC = () => {
   const [previewMedia, setPreviewMedia] = useState<MediaData | null>(null);
   
   const [visibleColumns, setVisibleColumns] = useState({
-    fileName: true,
-    alt: true,
-    updatedAt: true,
-    createdAt: true,
-    id: false,
-    url: false,
-    thumbnailUrl: false,
-    fileSize: false,
+      fileName: true,
+      alt: true,
+      createdAt: true,
+      updatedAt: true,
+      id: false,
+      url: false,
+      thumbnailUrl: false,
+      fileSize: false,
   });
 
   const toggleTab = (tab: 'columns' | 'filters') => {
     setActiveTab(prev => prev === tab ? 'none' : tab);
   };
+
+  const fetchMedia = async () => {
+    try {
+      const data = await AdminAPI.getMedia();
+      setMedia(data);
+    } catch (err) {
+      console.error('Error fetching media:', err);
+    }
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const data = await AdminAPI.getSettings();
+      if (data.uiPreferences?.mediaTableColumns) {
+        setVisibleColumns(prev => ({ ...prev, ...data.uiPreferences.mediaTableColumns }));
+      }
+    } catch (err) {
+      console.error('Error fetching settings:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchMedia();
+    fetchSettings();
+  }, []);
 
   const addFilter = (logic: 'and' | 'or' = 'and') => {
     setFilters([...filters, { id: Math.random().toString(), logic, column: 'fileName', operator: 'contains', value: '' }]);
@@ -143,16 +168,37 @@ const MediaPage: React.FC = () => {
     }
   };
 
-  const handleDeleteSelected = () => {
-    setMedia(media.filter(m => !selectedMedia.includes(m.id)));
+  const executeDeleteSelected = async () => {
+    for (const id of selectedMedia) {
+      await AdminAPI.deleteMedia(id);
+    }
+    fetchMedia();
     setSelectedMedia([]);
   };
 
-  const toggleColumn = (key: keyof typeof visibleColumns) => {
-    setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }));
+  const handleDeleteSelected = () => {
+    if (selectedMedia.length === 0) return;
+    setIsDeleteModalOpen(true);
   };
 
-  const handleCreateSubmit = (e: React.FormEvent) => {
+  const toggleColumn = async (key: keyof typeof visibleColumns) => {
+    const newCols = { ...visibleColumns, [key]: !visibleColumns[key] };
+    setVisibleColumns(newCols);
+    try {
+      const currentSettings = await AdminAPI.getSettings();
+      await AdminAPI.updateSettings({
+         ...currentSettings,
+         uiPreferences: {
+            ...currentSettings.uiPreferences,
+            mediaTableColumns: newCols
+         }
+      });
+    } catch (err) {
+      console.error('Error saving column preferences:', err);
+    }
+  };
+
+  const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreateError(null);
     
@@ -175,26 +221,25 @@ const MediaPage: React.FC = () => {
       }
     }
 
-    const newMedia: MediaData = {
-      id: Math.max(0, ...media.map(m => m.id)) + 1,
+    const payload = {
       fileName: createFile ? createFile.name : createUrl.split('/').pop() || 'url-image',
       thumbnail: createUrl || (createFile && createFile.type.startsWith('image/') ? URL.createObjectURL(createFile) : 'https://via.placeholder.com/40?text=File'),
       alt: createAlt || (createFile ? createFile.name : 'Uploaded Media'),
       url: createUrl || (createFile ? URL.createObjectURL(createFile) : ''),
       thumbnailUrl: createUrl || (createFile && createFile.type.startsWith('image/') ? URL.createObjectURL(createFile) : ''),
       fileSize: createFile ? `${(createFile.size / (1024 * 1024)).toFixed(2)} MB` : 'Unknown',
-      updatedAt: new Date().toLocaleString(),
-      createdAt: new Date().toLocaleString(),
     };
     
-    setMedia([newMedia, ...media]);
+    await AdminAPI.createMedia(payload);
+    fetchMedia();
+    
     setIsCreateModalOpen(false);
     setCreateFile(null);
     setCreateUrl('');
     setCreateAlt('');
   };
 
-  const handleBulkSubmit = (e: React.FormEvent) => {
+  const handleBulkSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBulkError(null);
     
@@ -215,19 +260,19 @@ const MediaPage: React.FC = () => {
       }
     }
     
-    const newMediaItems = bulkFiles.map((file, index) => ({
-      id: Math.max(0, ...media.map(m => m.id)) + 1 + index,
-      fileName: file.name,
-      thumbnail: file.type.startsWith('image/') ? URL.createObjectURL(file) : 'https://via.placeholder.com/40?text=File',
-      alt: file.name,
-      url: URL.createObjectURL(file),
-      thumbnailUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : '',
-      fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
-      updatedAt: new Date().toLocaleString(),
-      createdAt: new Date().toLocaleString(),
-    }));
+    for (const file of bulkFiles) {
+      const payload = {
+        fileName: file.name,
+        thumbnail: file.type.startsWith('image/') ? URL.createObjectURL(file) : 'https://via.placeholder.com/40?text=File',
+        alt: file.name,
+        url: URL.createObjectURL(file),
+        thumbnailUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : '',
+        fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+      };
+      await AdminAPI.createMedia(payload);
+    }
     
-    setMedia([...newMediaItems, ...media]);
+    fetchMedia();
     setIsBulkModalOpen(false);
     setBulkFiles([]);
   };
@@ -235,7 +280,7 @@ const MediaPage: React.FC = () => {
   const hasSelection = selectedMedia.length > 0;
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full relative">
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
         
         {/* Toolbar */}
@@ -271,7 +316,12 @@ const MediaPage: React.FC = () => {
 
           <div className="flex items-center gap-1.5">
             <button 
-              onClick={() => setIsCreateModalOpen(true)}
+              onClick={() => {
+                setCreateUrl('');
+                setCreateAlt('');
+                setCreateFile(null);
+                setIsCreateModalOpen(true);
+              }}
               className="px-2 py-1 border border-gray-200 rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors bg-white text-gray-700 hover:bg-gray-50"
             >
               <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
@@ -454,20 +504,20 @@ const MediaPage: React.FC = () => {
                     </div>
                   </th>
                 )}
-                {visibleColumns.updatedAt && (
+                {visibleColumns.createdAt && (
                   <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
                     <div className="flex items-center gap-1">
-                      Updated At
+                      Created At
                       <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
                         <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
                       </div>
                     </div>
                   </th>
                 )}
-                {visibleColumns.createdAt && (
+                {visibleColumns.updatedAt && (
                   <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
                     <div className="flex items-center gap-1">
-                      Created At
+                      Updated At
                       <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
                         <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
                       </div>
@@ -536,14 +586,14 @@ const MediaPage: React.FC = () => {
                         {item.alt}
                       </td>
                     )}
-                    {visibleColumns.updatedAt && (
-                      <td className="px-3 py-2 text-xs text-black">
-                        {item.updatedAt}
-                      </td>
-                    )}
                     {visibleColumns.createdAt && (
                       <td className="px-3 py-2 text-xs text-black">
-                        {item.createdAt}
+                        {new Date(item.createdAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                    )}
+                    {visibleColumns.updatedAt && (
+                      <td className="px-3 py-2 text-xs text-black">
+                        {new Date(item.updatedAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </td>
                     )}
                     {visibleColumns.id && <td className="px-3 py-2 text-xs text-black">{item.id}</td>}
@@ -570,9 +620,9 @@ const MediaPage: React.FC = () => {
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <h3 className="font-semibold text-gray-900">Upload New Media</h3>
-              <button onClick={() => { setIsCreateModalOpen(false); setCreateError(null); setCreateFile(null); setCreateUrl(''); setCreateAlt(''); }} className="text-gray-400 hover:text-gray-600 transition-colors">
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
+              <h3 className="font-bold text-gray-900 text-lg tracking-tight">Upload New Media</h3>
+              <button onClick={() => { setIsCreateModalOpen(false); setCreateError(null); setCreateFile(null); setCreateUrl(''); setCreateAlt(''); }} className="text-gray-400 hover:text-gray-900 transition-colors flex-shrink-0">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
@@ -714,6 +764,13 @@ const MediaPage: React.FC = () => {
         </div>
       )}
 
+      {/* Confirm Delete Modal */}
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={executeDeleteSelected}
+        itemCount={selectedMedia.length}
+      />
     </div>
   );
 };
