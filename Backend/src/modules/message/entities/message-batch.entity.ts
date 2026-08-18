@@ -5,6 +5,7 @@ import { jsonColumnType, dateColumnType } from '../../../common/utils/column-typ
 export enum BatchStatus {
   PENDING = 'pending',
   PROCESSING = 'processing',
+  PAUSED = 'paused',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',
   FAILED = 'failed',
@@ -52,6 +53,9 @@ export class MessageBatch {
 
   @Column({ type: 'varchar', default: BatchStatus.PENDING })
   status: BatchStatus;
+
+  @Column({ name: 'status_message', type: 'varchar', nullable: true })
+  statusMessage: string | null;
 
   @Column({ type: jsonColumnType() })
   messages: Array<{

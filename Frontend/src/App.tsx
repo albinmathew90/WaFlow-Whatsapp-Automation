@@ -14,6 +14,7 @@ import UsersPage from "./pages/Admin/UsersPage";
 import MediaPage from "./pages/Admin/MediaPage";
 import BlogsPage from "./pages/Admin/BlogsPage";
 import BlogTopicsPage from "./pages/Admin/BlogTopicsPage";
+import HealthMonitor from "./pages/HealthMonitor";
 import { CategoriesPage, ContactsPage, SubscribersPage } from "./pages/Admin/PlaceholderPages";
 import SEOPage from "./pages/Admin/SEOPage";
 import AdminLogin from './pages/Admin/AdminLogin';
@@ -114,6 +115,7 @@ export default function App() {
               </Route>
               <Route path="/flows" element={<Flows />} />
               <Route path="/activity-log" element={<ActivityLog />} />
+              <Route path="/health-monitor" element={<HealthMonitor />} />
               <Route path="/otp-builder">
                 <Route path="applications" element={<Applications />} />
                 <Route path="applications/:appId/integration" element={<DeveloperIntegration />} />

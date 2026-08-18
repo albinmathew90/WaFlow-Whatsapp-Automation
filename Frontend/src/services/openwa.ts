@@ -152,3 +152,49 @@ export const sendTemplateMessage = (sessionId: string, chatId: string, templateI
     method: 'POST',
     body: JSON.stringify({ chatId, templateId }),
   });
+// ---- Monitor APIs (System-level via API Key) ----
+
+export interface HealthSummary {
+  deliveryRate: number;
+  readRate: number;
+  stuckRate: number;
+  replyRate: number;
+  accountStatus: 'good' | 'warning' | 'critical';
+  rawCounts: {
+    totalOutgoing: number;
+    delivered: number;
+    read: number;
+    stuck: number;
+  };
+  chartData: Array<{ name: string; Sent: number; Delivered: number; Read: number }>;
+}
+
+export interface StuckContact {
+  chatId: string;
+  contactName: string;
+  contactStatus: string;
+  lastMessageId: string;
+  messageContent: string;
+  stuckSinceHours: number;
+  optedOut: boolean;
+}
+
+export const getHealthSummary = (sessionId: string, timeRange?: string, customDate?: string) => {
+  const query = new URLSearchParams();
+  if (timeRange) query.append('timeRange', timeRange);
+  if (customDate) query.append('customDate', customDate);
+  return apiFetch<HealthSummary>(`/monitor/${sessionId}/summary?${query.toString()}`);
+};
+
+export const getStuckContacts = (sessionId: string, timeRange?: string, customDate?: string) => {
+  const query = new URLSearchParams();
+  if (timeRange) query.append('timeRange', timeRange);
+  if (customDate) query.append('customDate', customDate);
+  return apiFetch<StuckContact[]>(`/monitor/${sessionId}/stuck-contacts?${query.toString()}`);
+};
+
+export const executeContactAction = (sessionId: string, action: 'opt-out' | 'ignore', chatIds: string[]) =>
+  apiFetch<{ success: boolean }>(`/monitor/${sessionId}/contacts/action`, {
+    method: 'POST',
+    body: JSON.stringify({ action, chatIds }),
+  });

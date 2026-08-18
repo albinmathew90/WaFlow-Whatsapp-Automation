@@ -1,4 +1,8 @@
 import { Injectable, Logger, BadRequestException, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
+import { parsePhoneNumber } from 'libphonenumber-js';
+import { getCountry } from 'countries-and-timezones';
+import { Between } from 'typeorm';
+import { Message } from './entities/message.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { randomUUID } from 'crypto';
@@ -10,7 +14,7 @@ import {
   BatchMessageResult,
 } from './entities/message-batch.entity';
 import { SendBulkMessageDto } from './dto/bulk-message.dto';
-import { MessageStatus } from './entities/message.entity';
+import { MessageStatus, MessageDirection } from './entities/message.entity';
 import { SessionService } from '../session/session.service';
 import { MessageService } from './message.service';
 import { HookManager } from '../../core/hooks';
@@ -80,6 +84,8 @@ export class BulkMessageService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(MessageBatch, 'data')
     private readonly batchRepository: Repository<MessageBatch>,
+    @InjectRepository(Message, 'data')
+    private readonly messageRepository: Repository<Message>,
     private readonly sessionService: SessionService,
     private readonly messageService: MessageService,
     private readonly hookManager: HookManager,
@@ -91,17 +97,22 @@ export class BulkMessageService implements OnApplicationBootstrap {
    * otherwise be stuck in PROCESSING forever. Mark it FAILED. Auto-resume is intentionally NOT
    * done here: resuming risks re-sending messages already delivered before the crash.
    */
-  async onApplicationBootstrap(): Promise<void> {
-    const orphaned = await this.batchRepository.find({ where: { status: BatchStatus.PROCESSING } });
+    async onApplicationBootstrap(): Promise<void> {
+    const orphaned = await this.batchRepository.find({ where: [{ status: BatchStatus.PROCESSING }, { status: BatchStatus.PAUSED }] });
     for (const batch of orphaned) {
-      batch.status = BatchStatus.FAILED;
-      this.stripBatchMediaPayloads(batch.messages);
-      await this.batchRepository.save(batch);
-    }
-    if (orphaned.length > 0) {
-      this.logger.warn(
-        `Marked ${orphaned.length} orphaned PROCESSING batch(es) FAILED on startup (interrupted by a restart)`,
-      );
+      if (batch.status === BatchStatus.PAUSED && batch.statusMessage === "Manually paused by user") {
+        this.logger.log(`Skipping manually paused batch ${batch.batchId}`);
+        continue;
+      }
+      if (batch.status === BatchStatus.PAUSED) {
+        batch.status = BatchStatus.PROCESSING;
+        batch.statusMessage = null;
+        await this.batchRepository.save(batch);
+      }
+      this.logger.log(`Resuming orphaned batch ${batch.batchId} from index ${batch.currentIndex}`);
+      this.processBatch(batch.id, false).catch(err => {
+        this.logger.error(`Batch ${batch.batchId} processing error on resume: ${String(err)}`);
+      });
     }
   }
 
@@ -197,6 +208,60 @@ export class BulkMessageService implements OnApplicationBootstrap {
     return batch;
   }
 
+  
+  async pauseBatch(sessionId: string, batchId: string): Promise<MessageBatch> {
+    const batch = await this.batchRepository.findOne({
+      where: { batchId, sessionId },
+    });
+
+    if (!batch) {
+      throw new NotFoundException(`Batch '${batchId}' not found`);
+    }
+
+    if (batch.status === BatchStatus.COMPLETED || batch.status === BatchStatus.CANCELLED || batch.status === BatchStatus.FAILED) {
+      throw new BadRequestException(`Batch '${batchId}' is already ${batch.status}`);
+    }
+
+    // Signal cancellation of current loops
+    this.processingBatches.set(batch.id, false);
+
+    // Update status
+    batch.status = BatchStatus.PAUSED;
+    batch.statusMessage = "Manually paused by user";
+    await this.batchRepository.save(batch);
+    
+    this.logger.log(`Manually paused batch ${batchId}`);
+
+    return batch;
+  }
+
+  async resumeBatch(sessionId: string, batchId: string): Promise<MessageBatch> {
+    const batch = await this.batchRepository.findOne({
+      where: { batchId, sessionId },
+    });
+
+    if (!batch) {
+      throw new NotFoundException(`Batch '${batchId}' not found`);
+    }
+
+    if (batch.status !== BatchStatus.PAUSED) {
+      throw new BadRequestException(`Batch '${batchId}' is not paused`);
+    }
+
+    batch.status = BatchStatus.PROCESSING;
+    batch.statusMessage = null;
+    await this.batchRepository.save(batch);
+    
+    this.logger.log(`Resumed batch ${batchId} manually`);
+    
+    // Start processing asynchronously
+    this.processBatch(batch.id, false).catch(err => {
+      this.logger.error(`Batch ${batchId} resume error: ${String(err)}`);
+    });
+
+    return batch;
+  }
+
   async cancelBatch(sessionId: string, batchId: string): Promise<MessageBatch> {
     const batch = await this.batchRepository.findOne({
       where: { batchId, sessionId },
@@ -241,7 +306,73 @@ export class BulkMessageService implements OnApplicationBootstrap {
     }
   }
 
+  
+  private async sleepInterruptible(ms: number, batchId: string): Promise<boolean> {
+    const step = 2000;
+    for (let i = 0; i < ms; i += step) {
+      if (!this.processingBatches.get(batchId)) return false; // Cancelled
+      await new Promise(resolve => setTimeout(resolve, Math.min(step, ms - i)));
+    }
+    return true;
+  }
+
+  private async getDailySentCount(sessionId: string): Promise<number> {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+    
+    return this.messageRepository.count({
+      where: {
+        sessionId,
+        direction: MessageDirection.OUTGOING,
+        createdAt: Between(startOfDay, endOfDay)
+      }
+    });
+  }
+
+  private isWithinBusinessHours(phone: string): { isBusinessHours: boolean; nextResumeMs: number } {
+    try {
+      // Basic phone parsing, assuming it's a number starting with country code
+      const parsed = parsePhoneNumber('+' + phone.split('@')[0].replace(/\D/g, ''));
+      if (parsed && parsed.country) {
+        const countryInfo = getCountry(parsed.country);
+        if (countryInfo && countryInfo.timezones.length > 0) {
+          const tz = countryInfo.timezones[0];
+          const localTimeStr = new Date().toLocaleString('en-US', { timeZone: tz });
+          const localTime = new Date(localTimeStr);
+          const hours = localTime.getHours();
+          
+          if (hours >= 9 && hours < 22) {
+            return { isBusinessHours: true, nextResumeMs: 0 };
+          }
+          
+          const resumeTime = new Date(localTime);
+          if (hours >= 22) {
+            resumeTime.setDate(resumeTime.getDate() + 1);
+          }
+          resumeTime.setHours(9, 0, 0, 0);
+          return { isBusinessHours: false, nextResumeMs: resumeTime.getTime() - localTime.getTime() };
+        }
+      }
+    } catch (e) {
+      // fallback if not a valid number
+    }
+    
+    const localTime = new Date();
+    const hours = localTime.getHours();
+    if (hours >= 9 && hours < 22) return { isBusinessHours: true, nextResumeMs: 0 };
+    
+    const resumeTime = new Date(localTime);
+    if (hours >= 22) resumeTime.setDate(resumeTime.getDate() + 1);
+    resumeTime.setHours(9, 0, 0, 0);
+    return { isBusinessHours: false, nextResumeMs: resumeTime.getTime() - localTime.getTime() };
+  }
+
   private async executeBatch(batch: MessageBatch): Promise<void> {
+    let currentChunkSent = 0;
+    const chunkSize = Math.floor(Math.random() * 11) + 20; // 20-30
+
     // Update status to processing
     batch.status = BatchStatus.PROCESSING;
     batch.startedAt = new Date();
@@ -267,7 +398,62 @@ export class BulkMessageService implements OnApplicationBootstrap {
         break;
       }
 
+      // 1. Daily Limit Check
+      const dailySent = await this.getDailySentCount(batch.sessionId);
+      if (dailySent >= 250) {
+         batch.status = BatchStatus.PAUSED;
+         batch.statusMessage = "Daily limit of 250 messages reached. Paused until tomorrow 9 AM.";
+         batch.currentIndex = i;
+         await this.batchRepository.save(batch);
+         
+         const now = new Date();
+         const tomorrow = new Date(now);
+         tomorrow.setDate(tomorrow.getDate() + 1);
+         tomorrow.setHours(9, 0, 0, 0);
+         const sleepMs = tomorrow.getTime() - now.getTime();
+         
+         const ok = await this.sleepInterruptible(sleepMs, batch.id);
+         if (!ok) break;
+         
+         batch.status = BatchStatus.PROCESSING;
+         batch.statusMessage = null;
+         await this.batchRepository.save(batch);
+      }
+
+      // 2. Chunk Pause Check
+      if (currentChunkSent >= chunkSize) {
+         batch.status = BatchStatus.PAUSED;
+         batch.statusMessage = "Batch chunk size reached. Pausing for 10 minutes.";
+         batch.currentIndex = i;
+         await this.batchRepository.save(batch);
+         
+         const ok = await this.sleepInterruptible(10 * 60 * 1000, batch.id);
+         if (!ok) break;
+         
+         batch.status = BatchStatus.PROCESSING;
+         batch.statusMessage = null;
+         await this.batchRepository.save(batch);
+         currentChunkSent = 0;
+      }
+
       const msg = batch.messages[i];
+      
+      // 3. Business Hours Check
+      const hoursCheck = this.isWithinBusinessHours(msg.chatId);
+      if (!hoursCheck.isBusinessHours) {
+         batch.status = BatchStatus.PAUSED;
+         batch.statusMessage = "Paused until 9 AM in contact's timezone.";
+         batch.currentIndex = i;
+         await this.batchRepository.save(batch);
+         
+         const ok = await this.sleepInterruptible(hoursCheck.nextResumeMs, batch.id);
+         if (!ok) break;
+         
+         batch.status = BatchStatus.PROCESSING;
+         batch.statusMessage = null;
+         await this.batchRepository.save(batch);
+      }
+
       const result: BatchMessageResult = {
         chatId: msg.chatId,
         status: BatchMessageStatus.PENDING,
@@ -305,6 +491,7 @@ export class BulkMessageService implements OnApplicationBootstrap {
         result.messageId = messageResult.id;
         result.sentAt = new Date();
         batch.progress.sent++;
+        currentChunkSent++;
         batch.progress.pending--;
 
         // Persist like a single send so the message shows in chat history + stats. The engine echo
@@ -518,11 +705,10 @@ export class BulkMessageService implements OnApplicationBootstrap {
   }
 
   private calculateDelay(options: { delayBetweenMessages: number; randomizeDelay: boolean }): number {
-    let delay = options.delayBetweenMessages;
-    if (options.randomizeDelay) {
-      delay += Math.random() * 2000; // Add 0-2 seconds random
-    }
-    return delay;
+    // Override delay for anti-ban compliance (30s - 60s randomized)
+    const base = 30000;
+    const random = Math.random() * 30000;
+    return base + random;
   }
 
   private sleep(ms: number): Promise<void> {

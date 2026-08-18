@@ -50,6 +50,12 @@ export class CrmContact {
   @Column({ type: 'datetime', nullable: true })
   lastActive?: Date;
 
+  @Column({ type: 'datetime', nullable: true })
+  lastRepliedAt?: Date;
+
+  @Column({ type: 'int', default: 0 })
+  stuckCount: number;
+
   @Column({ type: 'uuid', nullable: true })
   segmentId?: string;
 

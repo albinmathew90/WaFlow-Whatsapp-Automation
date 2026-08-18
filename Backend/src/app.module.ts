@@ -44,6 +44,7 @@ import { CrmModule } from './modules/crm/crm.module';
 import { BroadcastModule } from './modules/broadcast/broadcast.module';
 import { OtpModule } from './modules/otp/otp.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { MonitorModule } from './modules/monitor/monitor.module';
 
 // Only import QueueModule if explicitly enabled to avoid Redis connection errors
 const queueModules: Array<Type | DynamicModule> = [];
@@ -302,6 +303,7 @@ if (dashboardServingEnabled && dashboardBuildPresent) {
     BroadcastModule, // Broadcast campaigns with scheduling, batching and retry
     OtpModule, // OTP Builder
     AdminModule, // Admin Dashboard
+    MonitorModule, // Health Monitor
     ...serveStaticModules, // Bundled dashboard SPA (production single-port setup)
   ],
 })

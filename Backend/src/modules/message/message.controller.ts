@@ -436,6 +436,63 @@ export class MessageController {
     status: 404,
     description: 'Batch not found',
   })
+  
+  @Post('batch/:batchId/pause')
+  @RequireRole(ApiKeyRole.OPERATOR)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Manually pause a running batch' })
+  @ApiParam({ name: 'sessionId', description: 'Session ID' })
+  @ApiParam({ name: 'batchId', description: 'Batch ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Batch paused',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Batch already completed or cancelled',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Batch not found',
+  })
+  async pauseBatch(@Param('sessionId') sessionId: string, @Param('batchId') batchId: string) {
+    const batch = await this.bulkMessageService.pauseBatch(sessionId, batchId);
+    return {
+      batchId: batch.batchId,
+      status: batch.status,
+      progress: batch.progress,
+      statusMessage: batch.statusMessage,
+    };
+  }
+
+  @Post('batch/:batchId/resume')
+  @RequireRole(ApiKeyRole.OPERATOR)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Manually resume a paused batch' })
+  @ApiParam({ name: 'sessionId', description: 'Session ID' })
+  @ApiParam({ name: 'batchId', description: 'Batch ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Batch resumed',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Batch is not paused',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Batch not found',
+  })
+  async resumeBatch(@Param('sessionId') sessionId: string, @Param('batchId') batchId: string) {
+    const batch = await this.bulkMessageService.resumeBatch(sessionId, batchId);
+    return {
+      batchId: batch.batchId,
+      status: batch.status,
+      progress: batch.progress,
+      statusMessage: batch.statusMessage,
+    };
+  }
+
   async cancelBatch(@Param('sessionId') sessionId: string, @Param('batchId') batchId: string) {
     const batch = await this.bulkMessageService.cancelBatch(sessionId, batchId);
     return {
