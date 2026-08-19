@@ -45,7 +45,7 @@ Return ONLY valid JSON. Do not include markdown code blocks.`;
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: 'llama-3.1-70b-versatile',
+            model: 'openai/gpt-oss-120b',
             messages: [
               { role: 'system', content: systemPrompt },
               { role: 'user', content: prompt }
