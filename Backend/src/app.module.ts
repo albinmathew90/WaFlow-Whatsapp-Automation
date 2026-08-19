@@ -45,6 +45,7 @@ import { BroadcastModule } from './modules/broadcast/broadcast.module';
 import { OtpModule } from './modules/otp/otp.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { MonitorModule } from './modules/monitor/monitor.module';
+import { ChatbotModule } from './modules/chatbot/chatbot.module';
 
 // Only import QueueModule if explicitly enabled to avoid Redis connection errors
 const queueModules: Array<Type | DynamicModule> = [];
@@ -157,6 +158,7 @@ if (dashboardServingEnabled && dashboardBuildPresent) {
             __dirname + '/modules/broadcast/**/*.entity{.ts,.js}',
             __dirname + '/modules/otp/**/*.entity{.ts,.js}',
             __dirname + '/modules/admin/**/*.entity{.ts,.js}',
+            __dirname + '/modules/chatbot/**/*.entity{.ts,.js}',
           ],
           migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
           logging: configService.get<boolean>('dataDatabase.logging', false),
@@ -304,6 +306,7 @@ if (dashboardServingEnabled && dashboardBuildPresent) {
     OtpModule, // OTP Builder
     AdminModule, // Admin Dashboard
     MonitorModule, // Health Monitor
+    ChatbotModule, // Chatbot & Leads
     ...serveStaticModules, // Bundled dashboard SPA (production single-port setup)
   ],
 })

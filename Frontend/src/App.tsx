@@ -37,6 +37,8 @@ import TemplateEditor from './pages/OTPBuilder/TemplateEditor';
 import ApiKeys from "./pages/OTPBuilder/ApiKeys";
 import Webhooks from "./pages/OTPBuilder/Webhooks";
 import AnalyticsAndLogs from "./pages/OTPBuilder/AnalyticsAndLogs/AnalyticsAndLogs";
+import Chatbot from "./pages/Chatbot/Chatbot";
+import ChatbotLeads from "./pages/Chatbot/ChatbotLeads";
 
 // ---- Full-page loading spinner (inline styles so it always renders) ----
 function LoadingScreen() {
@@ -131,6 +133,10 @@ export default function App() {
               <Route path="/settings/tags" element={<Settings />} />
               <Route path="/settings/media" element={<Settings />} />
               <Route path="/settings/contact-fields" element={<Settings />} />
+              <Route path="/chatbot">
+                <Route index element={<Chatbot />} />
+                <Route path="leads" element={<ChatbotLeads />} />
+              </Route>
             </Route>
 
             {/* Admin Login Route */}

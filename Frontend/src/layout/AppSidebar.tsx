@@ -13,6 +13,7 @@ import {
   PlugInIcon,
   UserCircleIcon,
 } from "../icons";
+import { BotIcon } from "lucide-react";
 import { useSidebar } from "../context/SidebarContext";
 
 type NavItem = {
@@ -55,6 +56,14 @@ const navItems: NavItem[] = [
     icon: <ListIcon />,
     name: "Flows",
     path: "/flows",
+  },
+  {
+    icon: <BotIcon size={20} />,
+    name: "Chatbot",
+    subItems: [
+      { name: "Bot Settings", path: "/chatbot" },
+      { name: "Chatbot Leads", path: "/chatbot/leads", new: true },
+    ],
   },
   {
     icon: (
