@@ -324,7 +324,7 @@ export class BroadcastQueueService implements OnModuleInit, OnModuleDestroy {
           recipient.retryCount += 1;
           let errorMsg = err.message || String(err);
           // WhatsApp web minified errors usually appear as single letters or generic evaluation failures
-          if (errorMsg === 't' || errorMsg === 'e' || errorMsg === 'Error: t' || errorMsg === 'Error: e' || errorMsg.includes('Evaluation failed')) {
+          if (errorMsg === 't' || errorMsg === 'e' || errorMsg === 'Error: t' || errorMsg === 'Error: e' || errorMsg.includes('Evaluation failed') || errorMsg.includes('No LID for user')) {
             errorMsg = 'Invalid number format or not registered on WhatsApp. Ensure it includes the country code (e.g., 91...)';
           }
           recipient.errorReason = errorMsg;
