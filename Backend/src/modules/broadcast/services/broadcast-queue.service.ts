@@ -277,6 +277,9 @@ export class BroadcastQueueService implements OnModuleInit, OnModuleDestroy {
             }
             
             const vars = bc.templateVariables ? this.personalizeObject(bc.templateVariables, recipient) : {};
+            if (!vars.name) {
+              vars.name = recipient.name || 'there';
+            }
 
             const res = await this.messageService.sendTemplate(bc.sessionId, {
               chatId,
