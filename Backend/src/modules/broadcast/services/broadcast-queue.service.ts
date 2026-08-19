@@ -33,6 +33,23 @@ export class BroadcastQueueService implements OnModuleInit, OnModuleDestroy {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
+  private personalizeMessage(template: string, contact: BroadcastRecipient): string {
+    if (!template) return template;
+    const name = contact.name || 'there';
+    return template.replace(/{{name}}/g, name);
+  }
+
+  private personalizeObject(obj: any, contact: BroadcastRecipient): any {
+    if (!obj) return obj;
+    try {
+      const stringified = JSON.stringify(obj);
+      const personalized = this.personalizeMessage(stringified, contact);
+      return JSON.parse(personalized);
+    } catch {
+      return obj;
+    }
+  }
+
   onModuleDestroy() {
     if (this.timer) {
       clearInterval(this.timer);
@@ -259,16 +276,19 @@ export class BroadcastQueueService implements OnModuleInit, OnModuleDestroy {
               this.logger.warn(`Could not resolve template name for broadcast ${bc.id}, using broadcast name as fallback.`);
             }
             
+            const vars = bc.templateVariables ? this.personalizeObject(bc.templateVariables, recipient) : {};
+
             const res = await this.messageService.sendTemplate(bc.sessionId, {
               chatId,
               templateId: bc.templateId,
-              vars: bc.templateVariables || {},
+              vars,
             });
             messageId = res.messageId;
           } else if (bc.messageType === 'text' && bc.simpleText) {
+            const personalizedText = this.personalizeMessage(bc.simpleText, recipient);
             const res = await this.messageService.sendText(bc.sessionId, {
               chatId,
-              text: bc.simpleText,
+              text: personalizedText,
             });
             messageId = res.messageId;
           } else if (['image', 'video', 'document', 'audio', 'file'].includes(bc.messageType) && bc.mediaUrl) {
@@ -292,7 +312,7 @@ export class BroadcastQueueService implements OnModuleInit, OnModuleDestroy {
               templateName: realTemplateName,
               contactName: recipient.name || cleanPhone,
               contactPhone: cleanPhone,
-              initialMessageBody: bc.messageType === 'template' ? `[Template: ${realTemplateName}]` : (bc.simpleText || ''),
+              initialMessageBody: bc.messageType === 'template' ? `[Template: ${realTemplateName}]` : (this.personalizeMessage(bc.simpleText || '', recipient)),
             });
           } catch (e) {
             this.logger.error(`Failed to create conversation in inbox for recipient ${recipient.id}`, e);

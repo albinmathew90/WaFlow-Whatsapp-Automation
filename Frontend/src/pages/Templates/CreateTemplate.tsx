@@ -6,7 +6,6 @@ import Input from "../../components/form/input/InputField";
 import Button from "../../components/ui/button/Button";
 
 import WhatsAppPreview from "../../components/Templates/WhatsAppPreview";
-import VariableMapper from "../../components/Templates/VariableMapper";
 import AiGeneratorTab from "../../components/Templates/AiGeneratorTab";
 import LocationPicker from "../../components/common/LocationPicker";
 import MediaSelectorModal from "../../components/common/MediaSelectorModal";
@@ -39,9 +38,6 @@ export default function CreateTemplate() {
   const [buttons, setButtons] = useState<ButtonData[]>([]);
   
   const [popupMessage, setPopupMessage] = useState<{ title: string; message: string; type?: 'error' | 'success' } | null>(null);
-
-  // Variable Mapping State
-  const [mappings, setMappings] = useState<Record<string, string>>({});
 
   // Interactive Actions State
   const [actionType, setActionType] = useState('none'); // none, cta, quick_reply, all
@@ -112,10 +108,6 @@ export default function CreateTemplate() {
     }
   }, [editId]);
 
-  const handleMappingChange = (variable: string, column: string) => {
-    setMappings(prev => ({ ...prev, [variable]: column }));
-  };
-
   const addAction = (btnType: 'url' | 'phone' | 'quick_reply') => {
     setButtons(prev => [...prev, { type: btnType, text: '', value: '' }]);
   };
@@ -157,7 +149,6 @@ export default function CreateTemplate() {
         footer,
         mediaUrl,
         buttons,
-        mappings,
         ...(type === 'Location' && { locationName, locationAddress, locationLat, locationLong }),
         ...(type === 'Carousel' && { carouselCards }),
         ...(type === 'Catalog' && { catalogId, catalogThumbnail })
@@ -613,7 +604,6 @@ export default function CreateTemplate() {
                 <div>
                   <div className="flex justify-between">
                     <Label>Body Message *</Label>
-                    <span className="text-xs text-gray-400">Supports variables like {'{{name}}'} or {'{{1}}'}</span>
                   </div>
                   <textarea
                     value={body}
@@ -621,6 +611,9 @@ export default function CreateTemplate() {
                     placeholder="Enter your message here..."
                     className="mt-2 w-full h-40 rounded-xl border border-gray-200 bg-transparent px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white placeholder:text-gray-400 resize-none"
                   />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+                    Enter the message content. Use <b className="text-brand-600 dark:text-brand-400">{"{{name}}"}</b> to personalize the message with each contact's name.
+                  </p>
                 </div>
 
                 {/* Footer Text */}
@@ -637,12 +630,7 @@ export default function CreateTemplate() {
 
               </div>
 
-              <VariableMapper
-                textContexts={[header, body, footer]}
-                mappings={mappings}
-                onMappingChange={handleMappingChange}
-              />
-
+              {/* Action Buttons */}
               {interactiveActionsJSX}
             </div>
           )}

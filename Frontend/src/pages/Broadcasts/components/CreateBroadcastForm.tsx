@@ -503,7 +503,9 @@ export default function CreateBroadcastForm({ onCreated, onCancel }: Props) {
                         placeholder="Type your message here..."
                         className="mt-1 w-full h-32 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 resize-none"
                       />
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Enter the message content you want to send in the broadcast.</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+                        Enter the message content. Use <b className="text-brand-600 dark:text-brand-400">{"{{name}}"}</b> to personalize the message with each contact's name.
+                      </p>
                     </div>
                   )}
 
@@ -758,7 +760,7 @@ export default function CreateBroadcastForm({ onCreated, onCancel }: Props) {
         </div>
 
         {/* Live Preview Panel */}
-        <div className="hidden lg:block">
+        <div className="hidden lg:block" style={{ alignSelf: 'start' }}>
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-5 sticky top-24">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Live Preview</h4>
             <WhatsAppPreview
