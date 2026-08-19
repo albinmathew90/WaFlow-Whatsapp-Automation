@@ -80,7 +80,6 @@ export default function CreateTemplate() {
               setFooter(found.footer || found.content?.footer || '');
               setMediaUrl(found.content?.mediaUrl || '');
               setButtons(found.content?.buttons || []);
-              setMappings(found.content?.mappings || {});
               
               setLocationName(found.content?.locationName || '');
               setLocationAddress(found.content?.locationAddress || '');
