@@ -7,6 +7,7 @@ interface Props {
   onSend: (payload: SendReplyPayload) => Promise<boolean>;
   sending: boolean;
   disabled?: boolean;
+  contactName?: string | null;
 }
 
 function fileToBase64(file: File): Promise<string> {
@@ -31,7 +32,7 @@ function getReplyType(file: File): SendReplyPayload['type'] {
   return 'document';
 }
 
-export default function ReplyArea({ onSend, sending, disabled = false }: Props) {
+export default function ReplyArea({ onSend, sending, disabled = false, contactName }: Props) {
   const [text, setText] = useState('');
   const [showEmoji, setShowEmoji] = useState(false);
   const [showTemplate, setShowTemplate] = useState(false);
@@ -95,7 +96,8 @@ export default function ReplyArea({ onSend, sending, disabled = false }: Props) 
     const numberEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
 
     const segments: string[] = [template.header, template.body, template.footer]
-      .filter((s): s is string => s != null && s.trim().length > 0);
+      .filter((s): s is string => s != null && s.trim().length > 0)
+      .map(s => contactName ? s.replace(/\{\{\s*name\s*\}\}/g, contactName) : s);
     let text = segments.join('\n\n');
 
     const rawButtons = template.content?.buttons || template.buttons || [];
@@ -154,11 +156,17 @@ export default function ReplyArea({ onSend, sending, disabled = false }: Props) 
 
     const fullText = `[Template: ${template.name}]\n\n${text}`;
 
+    const vars: Record<string, string> = {};
+    if (contactName) {
+      vars['name'] = contactName;
+    }
+
     await onSend({
       type: 'template',
       templateId: template.id,
       templateName: template.name,
-      text: fullText
+      text: fullText,
+      vars
     });
   };
 

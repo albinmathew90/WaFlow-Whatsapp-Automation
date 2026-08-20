@@ -290,6 +290,7 @@ export default function ChatWindow({
         onSend={handleSend}
         sending={sending}
         disabled={conversation.isBlocked || selectionMode}
+        contactName={conversation.contactName}
       />
 
       <TemplateViewerModal

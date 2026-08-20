@@ -557,16 +557,23 @@ export class InboxService implements OnModuleInit {
         // Race condition mitigation:
         // If we sent this via our API recently, a PENDING message might exist WITHOUT a waMessageId yet.
         // We match by conversationId, direction OUTGOING, and body, created in the last 15 seconds.
-        const recentPending = await this.messageRepo.findOne({
+        // For templates, the pending message body has a '[Template: name]' prefix, 
+        // while the webhook body does not. So we fetch recent pending messages and do a fuzzy match.
+        const pendingMessages = await this.messageRepo.find({
           where: {
             sessionId: sid,
             conversationId: conv.id,
             waMessageId: IsNull(),
             direction: InboxMessageDirection.OUTGOING,
-            body: body ? body : IsNull(),
           },
-          order: { createdAt: 'DESC' }
+          order: { createdAt: 'DESC' },
+          take: 5
         });
+
+        const recentPending = pendingMessages.find(m => 
+          m.body === body || 
+          (m.body && body && (m.body.includes(body) || body.includes(m.body)))
+        );
 
         if (recentPending && (Date.now() - recentPending.createdAt.getTime() < 15000)) {
           // This is the same message! Update the waMessageId and exit so we don't duplicate.
