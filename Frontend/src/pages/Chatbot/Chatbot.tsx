@@ -157,9 +157,7 @@ export default function ChatbotPage() {
   }>>([]);
   const testEndRef = useRef<HTMLDivElement>(null);
 
-  const backendUrl = import.meta.env.VITE_API_URL || (typeof window !== 'undefined'
-    ? `${window.location.protocol}//${window.location.hostname}:2785`
-    : 'http://localhost:2785');
+  const backendUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:2785';
 
   
 
@@ -1024,8 +1022,8 @@ export default function ChatbotPage() {
                   {rules.map((rule, idx) => (
                     <div key={idx} className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-6" style={{ background: '', padding: '14px 16px', display: 'grid', gridTemplateColumns: '1fr 130px 1fr auto', gap: 10, alignItems: 'start' }}>
                       <div>
-                        <label className="text-[12px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block" style={{ fontSize: 9, marginBottom: 4, letterSpacing: 1 }}>KEYWORD</label>
-                        <input type="text" className="w-full text-sm px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 outline-none focus:border-brand-500 transition-all" placeholder="e.g. price, hours" value={rule.keyword} onChange={e => handleRuleChange(idx, 'keyword', e.target.value)} />
+                        <label className="text-[12px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block" style={{ fontSize: 9, marginBottom: 4, letterSpacing: 1 }}>KEYWORD (comma-separated)</label>
+                        <input type="text" className="w-full text-sm px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 outline-none focus:border-brand-500 transition-all" placeholder="e.g. hi, hello, hey" value={rule.keyword} onChange={e => handleRuleChange(idx, 'keyword', e.target.value)} />
                       </div>
                       <div>
                         <label className="text-[12px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5 block" style={{ fontSize: 9, marginBottom: 4, letterSpacing: 1 }}>MATCH TYPE</label>

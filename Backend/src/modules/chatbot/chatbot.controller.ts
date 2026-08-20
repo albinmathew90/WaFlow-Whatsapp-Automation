@@ -48,6 +48,7 @@ export class ChatbotController {
   @Get('leads')
   @ApiOperation({ summary: 'Get chatbot leads' })
   async getLeads(@Req() req: any) {
+    console.log('User in getLeads:', req.user);
     return this.chatbotService.getLeads(req.user.id);
   }
 
@@ -59,6 +60,12 @@ export class ChatbotController {
     @Body('text') text: string,
   ) {
     return this.chatbotService.replyToLead(req.user.id, leadId, text);
+  }
+
+  @Delete('leads/:leadId')
+  @ApiOperation({ summary: 'Delete a chatbot lead' })
+  async deleteLead(@Req() req: any, @Param('leadId') leadId: string) {
+    return this.chatbotService.deleteLead(req.user.id, leadId);
   }
 
   // ─── Knowledge Base ───────────────────────────────────────────────────────

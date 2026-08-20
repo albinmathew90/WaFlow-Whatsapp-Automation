@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException, BadRequestException, NotFoundExcepti
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { randomInt } from 'crypto';
 import { OtpRequest } from '../entities/otp-request.entity';
 import { OtpApplication } from '../entities/otp-application.entity';
 import { OtpApiKeyLog } from '../entities/otp-api-key-log.entity';
@@ -80,7 +81,7 @@ export class OtpPublicService {
       }
 
       const otpLength = app.otpLength || 4;
-      const otp = Math.floor(Math.random() * Math.pow(10, otpLength)).toString().padStart(otpLength, '0');
+      const otp = randomInt(0, Math.pow(10, otpLength)).toString().padStart(otpLength, '0');
       const hashedOtp = await bcrypt.hash(otp, 10);
       
       // Expiry calculation
@@ -306,7 +307,7 @@ export class OtpPublicService {
 
       // Generate new OTP (similar to sendOtp logic)
       const senderSession = app.defaultWhatsappSessionId;
-      const otp = Math.floor(Math.random() * Math.pow(10, app.otpLength)).toString().padStart(app.otpLength, '0');
+      const otp = randomInt(0, Math.pow(10, app.otpLength)).toString().padStart(app.otpLength, '0');
       const hashedOtp = await bcrypt.hash(otp, 10);
 
       const expiresInSeconds = resolvedExpiry * 60;

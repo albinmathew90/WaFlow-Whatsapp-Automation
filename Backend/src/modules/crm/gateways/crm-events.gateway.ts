@@ -98,7 +98,7 @@ export class CrmEventsGateway implements OnGatewayConnection, OnGatewayDisconnec
       const decoded = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET || 'fallback_secret_for_crm_openwa',
       });
-      const userId = decoded.id;
+      const userId = decoded.sub || decoded.id;
       
       // Store user id in socket data
       client.data.userId = userId;

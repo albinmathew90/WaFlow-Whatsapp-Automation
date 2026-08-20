@@ -62,7 +62,7 @@ const navItems: NavItem[] = [
     name: "Chatbot",
     subItems: [
       { name: "Bot Settings", path: "/chatbot" },
-      { name: "Chatbot Leads", path: "/chatbot/leads", new: true },
+      { name: "Chatbot Leads", path: "/chatbot/leads" },
     ],
   },
   {
@@ -147,6 +147,58 @@ const othersItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
+
+  const [allLeads, setAllLeads] = useState<any[]>([]);
+  const [leadCount, setLeadCount] = useState<number>(0);
+
+  useEffect(() => {
+    let socket: any;
+    const token = sessionStorage.getItem('crm_token');
+    if (!token) return;
+
+    const fetchLeads = () => {
+      fetch('/openwa-api/crm/chatbot/leads', { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(res => res.json())
+        .then(data => {
+          const leads = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : []);
+          setAllLeads(leads);
+        })
+        .catch(() => {});
+    };
+
+    fetchLeads();
+    
+    import("socket.io-client").then(({ io }) => {
+      socket = io("/crm-events", {
+        auth: { token },
+        transports: ["websocket", "polling"],
+      });
+      socket.on('chatbot:lead:message', () => {
+        fetchLeads();
+      });
+    });
+
+    const handleReceiptUpdate = () => {
+      setAllLeads(prev => [...prev]);
+    };
+    window.addEventListener('chatbot_read_receipt_updated', handleReceiptUpdate);
+
+    return () => {
+      if (socket) socket.disconnect();
+      window.removeEventListener('chatbot_read_receipt_updated', handleReceiptUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
+    const receipts = JSON.parse(localStorage.getItem('chatbot_read_receipts') || '{}');
+    const unreadCount = allLeads.filter(l => {
+      if (!l.messages || l.messages.length === 0) return false;
+      const receipt = receipts[l.id];
+      if (!receipt) return true;
+      return new Date(l.updatedAt).getTime() > new Date(receipt).getTime();
+    }).length;
+    setLeadCount(unreadCount);
+  }, [allLeads]);
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others";
@@ -294,6 +346,16 @@ const AppSidebar: React.FC = () => {
                     >
                       {subItem.name}
                       <span className="flex items-center gap-1 ml-auto">
+                        {subItem.name === "Chatbot Leads" && leadCount > 0 && (
+                          <span
+                            className={`ml-auto px-2 py-0.5 rounded-full text-[10.5px] font-bold shadow-sm transition-colors ${isActive(subItem.path)
+                              ? "bg-indigo-500/20 text-indigo-700 dark:text-indigo-200"
+                              : "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400"
+                              }`}
+                          >
+                            {leadCount}
+                          </span>
+                        )}
                         {subItem.new && (
                           <span
                             className={`ml-auto ${isActive(subItem.path)

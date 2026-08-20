@@ -59,12 +59,30 @@ export class FlowRunnerService implements OnModuleInit {
 
         if (body) {
           const sid = ctx.sessionId ?? 'default';
+          let actualUserId = sid;
+
+          if (sid !== 'default') {
+            try {
+              const sessionRecord = await this.stateRepo.manager
+                .createQueryBuilder()
+                .select('s.userId', 'userId')
+                .from('sessions', 's')
+                .where('s.id = :id', { id: sid })
+                .getRawOne();
+              
+              if (sessionRecord && sessionRecord.userId) {
+                actualUserId = sessionRecord.userId;
+              }
+            } catch (e) {
+              this.logger.error('Failed to resolve actual userId for session', e);
+            }
+          }
           
           const contactData = data['contact'] as Record<string, unknown> | undefined;
           const fallbackName = (contactData?.name ?? contactData?.pushName ?? contactData?.shortName ?? data['pushName'] ?? data['notifyName'] ?? data['name']) as string | undefined;
 
           await this.handle({
-            userId: sid,
+            userId: actualUserId,
             sessionId: sid,
             chatId,
             messageBody: body,

@@ -5,7 +5,7 @@ import { Chatbot } from '../entities/chatbot.entity';
 import { ChatbotLead } from '../entities/chatbot-lead.entity';
 import { ChatbotKnowledge } from '../entities/chatbot-knowledge.entity';
 import { KnowledgeEngineService } from './knowledge-engine.service';
-import { EventsGateway } from '../../events/events.gateway';
+import { CrmEventsGateway } from '../../crm/gateways/crm-events.gateway';
 
 @Injectable()
 export class ChatbotService {
@@ -17,7 +17,7 @@ export class ChatbotService {
     @InjectRepository(ChatbotKnowledge, 'data')
     private readonly chatbotKnowledgeRepo: Repository<ChatbotKnowledge>,
     private readonly knowledgeEngineService: KnowledgeEngineService,
-    private readonly eventsGateway: EventsGateway,
+    private readonly eventsGateway: CrmEventsGateway,
   ) {}
 
   // ─── Chatbot Settings ──────────────────────────────────────────────────────────
@@ -46,7 +46,8 @@ export class ChatbotService {
 
     // The widget-script uses 'sessionId' to pass the visitor's local tracking ID
     const visitorSessionId = payload.sessionId;
-    const { message, domain, pageUrl, capturedData } = payload;
+    const domain = payload.domain || payload.origin || '';
+    const { message, pageUrl, capturedData } = payload;
     
     // Find or Create Lead (we must link to the chatbot's true owner session, i.e., chatbot.sessionId)
     let lead = await this.chatbotLeadRepo.findOne({ where: { visitorSessionId, sessionId: chatbot.sessionId } });
@@ -76,11 +77,14 @@ export class ChatbotService {
       // 1. Check exact/contains rules
       const ruleMatch = (chatbot.rules || []).find((rule: any) => {
         const text = message.toLowerCase();
-        const kw = rule.keyword.toLowerCase();
-        if (rule.matchType === 'exact') return text === kw;
-        if (rule.matchType === 'contains') return text.includes(kw);
-        if (rule.matchType === 'startsWith') return text.startsWith(kw);
-        return false;
+        // Support comma-separated keywords: "hi, hello, hey"
+        const keywords = rule.keyword.split(',').map((k: string) => k.trim().toLowerCase()).filter(Boolean);
+        return keywords.some((kw: string) => {
+          if (rule.matchType === 'exact') return text === kw;
+          if (rule.matchType === 'contains') return text.includes(kw);
+          if (rule.matchType === 'startsWith') return text.startsWith(kw);
+          return false;
+        });
       });
 
       if (ruleMatch) {
@@ -97,11 +101,13 @@ export class ChatbotService {
       lead.messages.push(botMsg);
       await this.chatbotLeadRepo.save(lead);
 
-      // Emit WebSocket event to Dashboard via EventsGateway
-      // In ConvoReach, standard events might be scoped. Let's emit a global event for now.
-      this.eventsGateway.server.to(`session_${chatbot.sessionId}`).emit('chatbot:new_message', {
+      // Emit WebSocket event to Dashboard via CrmEventsGateway
+      this.eventsGateway.server.to(`user:${chatbot.sessionId}`).emit('chatbot:lead:message', {
         leadId: lead.id,
+        sessionId: chatbot.sessionId,
         visitorSessionId,
+        domain,
+        capturedData: lead.capturedData,
         message: userMsg,
         reply: botMsg,
       });
@@ -111,6 +117,17 @@ export class ChatbotService {
 
     // Just creating/updating session (no message)
     await this.chatbotLeadRepo.save(lead);
+    
+    this.eventsGateway.server.to(`user:${chatbot.sessionId}`).emit('chatbot:lead:message', {
+      leadId: lead.id,
+      sessionId: chatbot.sessionId,
+      visitorSessionId,
+      domain,
+      capturedData: lead.capturedData,
+      message: null,
+      reply: null,
+    });
+    
     return { success: true };
   }
 
@@ -136,6 +153,13 @@ export class ChatbotService {
     });
 
     return lead;
+  }
+
+  async deleteLead(sessionId: string, leadId: string): Promise<{ success: boolean }> {
+    const lead = await this.chatbotLeadRepo.findOne({ where: { id: leadId, sessionId } });
+    if (!lead) throw new NotFoundException('Lead not found');
+    await this.chatbotLeadRepo.remove(lead);
+    return { success: true };
   }
 
   // ─── Knowledge Base ─────────────────────────────────────────────────────────────
