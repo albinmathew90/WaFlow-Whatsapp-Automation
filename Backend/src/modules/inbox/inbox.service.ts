@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { EventEmitter } from 'events';
 import {
   InboxConversation,
@@ -553,6 +553,29 @@ export class InboxService implements OnModuleInit {
       if (waMessageId) {
         const exists = await this.messageRepo.findOne({ where: { waMessageId, sessionId: sid } });
         if (exists) return;
+
+        // Race condition mitigation:
+        // If we sent this via our API recently, a PENDING message might exist WITHOUT a waMessageId yet.
+        // We match by conversationId, direction OUTGOING, and body, created in the last 15 seconds.
+        const recentPending = await this.messageRepo.findOne({
+          where: {
+            sessionId: sid,
+            conversationId: conv.id,
+            waMessageId: IsNull(),
+            direction: InboxMessageDirection.OUTGOING,
+            body: body ?? null,
+          },
+          order: { createdAt: 'DESC' }
+        });
+
+        if (recentPending && (Date.now() - recentPending.createdAt.getTime() < 15000)) {
+          // This is the same message! Update the waMessageId and exit so we don't duplicate.
+          recentPending.waMessageId = waMessageId;
+          recentPending.status = InboxMessageStatus.SENT;
+          if (timestamp) recentPending.timestamp = timestamp;
+          await this.messageRepo.save(recentPending);
+          return;
+        }
       }
 
       const msg = await this.messageRepo.save(
