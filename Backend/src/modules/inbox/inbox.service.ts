@@ -737,8 +737,9 @@ export class InboxService implements OnModuleInit {
 
   async handleMessageAck(data: Record<string, unknown>, sessionId?: string): Promise<void> {
     try {
-      const waMessageId = data['id'] as string | undefined;
+      const waMessageId = (data['messageId'] ?? data['id']) as string | undefined;
       const ack = data['ack'] as number | undefined;
+      const statusStr = data['status'] as string | undefined;
       const sid = sessionId ?? (data['sessionId'] as string | undefined);
 
       if (!waMessageId || !sid) return;
@@ -753,7 +754,12 @@ export class InboxService implements OnModuleInit {
         4: InboxMessageStatus.READ,
       };
 
-      const newStatus = ack !== undefined ? statusMap[ack] : undefined;
+      let newStatus: InboxMessageStatus | undefined;
+      if (statusStr === 'sent') newStatus = InboxMessageStatus.SENT;
+      else if (statusStr === 'delivered') newStatus = InboxMessageStatus.DELIVERED;
+      else if (statusStr === 'read') newStatus = InboxMessageStatus.READ;
+      else if (statusStr === 'failed') newStatus = InboxMessageStatus.FAILED;
+      else if (ack !== undefined) newStatus = statusMap[ack];
       if (newStatus && msg.status !== newStatus) {
         msg.status = newStatus;
         await this.messageRepo.save(msg);
