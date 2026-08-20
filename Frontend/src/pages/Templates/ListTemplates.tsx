@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import ConfirmDeleteModal from "../../components/common/ConfirmDeleteModal";
+import { Pagination } from "../../components/Pagination";
 
 export interface Template {
   id: string;
@@ -62,6 +63,16 @@ export default function ListTemplates() {
     const matchesType = filterType === 'All' || t.type === filterType;
     return matchesSearch && matchesCategory && matchesType;
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterCategory, filterType]);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedTemplates = filteredTemplates.slice(startIndex, startIndex + itemsPerPage);
 
 
   const deleteTemplate = async (id: string) => {
@@ -191,7 +202,7 @@ export default function ListTemplates() {
           </div>
         ) : (
           <div className="divide-y divide-gray-100 dark:divide-gray-800">
-            {filteredTemplates.map(template => (
+            {paginatedTemplates.map(template => (
               <div key={template.id} className="group grid grid-cols-12 gap-4 px-5 py-4 items-center transition-colors hover:bg-gray-50/80 dark:hover:bg-gray-800/30">
                 <div className="col-span-3">
                   <p className="text-sm font-bold text-gray-900 dark:text-white truncate" title={template.name}>{template.name}</p>
@@ -240,6 +251,14 @@ export default function ListTemplates() {
             ))}
           </div>
         )}
+        
+        <Pagination
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemsPerPage={itemsPerPage}
+          setItemsPerPage={setItemsPerPage}
+          totalItems={filteredTemplates.length}
+        />
       </div>
     </>
   );

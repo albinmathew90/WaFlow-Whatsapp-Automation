@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import ConfirmDeleteModal from "../../components/common/ConfirmDeleteModal";
+import { Pagination } from "../../components/Pagination";
 
 export interface OtpTemplate {
   id: string;
@@ -117,6 +118,16 @@ export default function Templates() {
     const matchesStatus = filterStatus === 'All' || t.status === filterStatus.toLowerCase();
     return matchesSearch && matchesStatus;
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterStatus, selectedApp]);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedTemplates = filteredTemplates.slice(startIndex, startIndex + itemsPerPage);
 
   const totalTemplates = templates.length;
   const activeTemplates = templates.filter(t => t.status === 'active').length;
@@ -246,7 +257,7 @@ export default function Templates() {
           </div>
         ) : (
           <div className="divide-y divide-gray-100 dark:divide-gray-800">
-            {filteredTemplates.map(t => (
+            {paginatedTemplates.map(t => (
               <div key={t.id} className="group grid grid-cols-12 gap-4 px-6 py-5 items-center transition-colors hover:bg-gray-50/80 dark:hover:bg-gray-800/30">
                 <div className="col-span-3 flex items-center gap-3">
                   <div className="h-10 w-10 flex-shrink-0 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center dark:bg-gray-800 dark:text-gray-400">
@@ -307,6 +318,14 @@ export default function Templates() {
             ))}
           </div>
         )}
+
+        <Pagination
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemsPerPage={itemsPerPage}
+          setItemsPerPage={setItemsPerPage}
+          totalItems={filteredTemplates.length}
+        />
       </div>
     </>
   );

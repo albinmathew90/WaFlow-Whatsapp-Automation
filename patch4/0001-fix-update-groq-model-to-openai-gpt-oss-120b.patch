@@ -1,0 +1,25 @@
+From db4778ce8a85f7217655b40de3bb5a55c04c396b Mon Sep 17 00:00:00 2001
+From: Albin Mathew <albinmathew452@gmail>
+Date: Wed, 19 Aug 2026 21:54:18 +0530
+Subject: [PATCH] fix: update groq model to openai/gpt-oss-120b
+
+---
+ Backend/src/modules/template/ai.service.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Backend/src/modules/template/ai.service.ts b/Backend/src/modules/template/ai.service.ts
+index 48fc129..337dea3 100644
+--- a/Backend/src/modules/template/ai.service.ts
++++ b/Backend/src/modules/template/ai.service.ts
+@@ -45,7 +45,7 @@ Return ONLY valid JSON. Do not include markdown code blocks.`;
+             'Content-Type': 'application/json'
+           },
+           body: JSON.stringify({
+-            model: 'llama-3.1-70b-versatile',
++            model: 'openai/gpt-oss-120b',
+             messages: [
+               { role: 'system', content: systemPrompt },
+               { role: 'user', content: prompt }
+-- 
+2.52.0.windows.1
+

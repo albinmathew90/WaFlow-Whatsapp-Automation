@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Flow } from './types/flow.types';
 import ConfirmDeleteModal from '../../components/common/ConfirmDeleteModal';
+import { Pagination } from '../../components/Pagination';
 
 const API = '/openwa-api/crm/flows';
 const getToken = () => sessionStorage.getItem('crm_token');
@@ -33,6 +34,12 @@ export default function FlowList({ onEdit, onCreateNew, refreshKey }: Props) {
       setLoading(false);
     }
   }, []);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedFlows = flows.slice(startIndex, startIndex + itemsPerPage);
 
   useEffect(() => { fetchFlows(); }, [fetchFlows, refreshKey]);
 
@@ -107,7 +114,7 @@ export default function FlowList({ onEdit, onCreateNew, refreshKey }: Props) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-          {flows.map((flow) => {
+          {paginatedFlows.map((flow) => {
             const nodeCount = Object.keys(flow.nodes || {}).length;
             const createdDate = flow.createdAt ? new Date(flow.createdAt).toLocaleDateString() : 'N/A';
             return (
@@ -175,6 +182,16 @@ export default function FlowList({ onEdit, onCreateNew, refreshKey }: Props) {
           })}
         </tbody>
       </table>
+
+      {flows.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemsPerPage={itemsPerPage}
+          setItemsPerPage={setItemsPerPage}
+          totalItems={flows.length}
+        />
+      )}
 
       {deleteModalConfig && (
         <ConfirmDeleteModal

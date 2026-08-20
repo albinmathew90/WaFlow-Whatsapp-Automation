@@ -1,0 +1,25 @@
+From 0bf0b4e92efe21c6a3477e75aa5046bd052a5e79 Mon Sep 17 00:00:00 2001
+From: Albin Mathew <albinmathew452@gmail>
+Date: Wed, 19 Aug 2026 21:43:56 +0530
+Subject: [PATCH] fix: update groq model to llama-3.1-70b-versatile
+
+---
+ Backend/src/modules/template/ai.service.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Backend/src/modules/template/ai.service.ts b/Backend/src/modules/template/ai.service.ts
+index b825b5a..48fc129 100644
+--- a/Backend/src/modules/template/ai.service.ts
++++ b/Backend/src/modules/template/ai.service.ts
+@@ -45,7 +45,7 @@ Return ONLY valid JSON. Do not include markdown code blocks.`;
+             'Content-Type': 'application/json'
+           },
+           body: JSON.stringify({
+-            model: 'llama3-70b-8192',
++            model: 'llama-3.1-70b-versatile',
+             messages: [
+               { role: 'system', content: systemPrompt },
+               { role: 'user', content: prompt }
+-- 
+2.52.0.windows.1
+

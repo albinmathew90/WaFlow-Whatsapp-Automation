@@ -12,16 +12,16 @@ const getAuthHeaders = () => {
 };
 
 const chatbotApi = {
-  get: async () => fetch(API_BASE + '/sessions/default/chatbot/settings', { headers: getAuthHeaders() }).then(r => r.json()).then(data => ({ data })),
-  update: async (payload) => fetch(API_BASE + '/sessions/default/chatbot/settings', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload) }).then(r => r.json())
+  get: async () => fetch(API_BASE + '/crm/chatbot/settings', { headers: getAuthHeaders() }).then(r => r.json()).then(data => ({ data })),
+  update: async (payload) => fetch(API_BASE + '/crm/chatbot/settings', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload) }).then(r => r.json())
 };
 
 const knowledgeApi = {
-  list: async () => fetch(API_BASE + '/sessions/default/chatbot/knowledge', { headers: getAuthHeaders() }).then(r => r.json()),
-  create: async (payload) => fetch(API_BASE + '/sessions/default/chatbot/knowledge', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload) }).then(r => r.json()),
-  update: async (id, payload) => fetch(API_BASE + '/sessions/default/chatbot/knowledge/' + id, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(payload) }).then(r => r.json()),
-  delete: async (id) => fetch(API_BASE + '/sessions/default/chatbot/knowledge/' + id, { method: 'DELETE', headers: getAuthHeaders() }),
-  test: async (text) => fetch(API_BASE + '/api/v1/chatbot/widget/message', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId: 'default', message: text }) }).then(r => r.json()).then(data => ({ data }))
+  list: async () => fetch(API_BASE + '/crm/chatbot/knowledge', { headers: getAuthHeaders() }).then(r => r.json()),
+  create: async (payload) => fetch(API_BASE + '/crm/chatbot/knowledge', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload) }).then(r => r.json()),
+  update: async (id, payload) => fetch(API_BASE + '/crm/chatbot/knowledge/' + id, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(payload) }).then(r => r.json()),
+  delete: async (id) => fetch(API_BASE + '/crm/chatbot/knowledge/' + id, { method: 'DELETE', headers: getAuthHeaders() }),
+  test: async (text, chatbotId) => fetch(API_BASE + '/api/v1/chatbot/widget/message', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chatbotId: chatbotId, sessionId: 'test-session-123', message: text }) }).then(r => r.json()).then(data => ({ data }))
 };
 import {
   Bot, Plus, Trash2, Save, Copy, CheckCheck, ToggleLeft, ToggleRight,
@@ -157,9 +157,9 @@ export default function ChatbotPage() {
   }>>([]);
   const testEndRef = useRef<HTMLDivElement>(null);
 
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined'
-    ? `${window.location.protocol}//${window.location.hostname}:3001`
-    : 'http://localhost:3001');
+  const backendUrl = import.meta.env.VITE_API_URL || (typeof window !== 'undefined'
+    ? `${window.location.protocol}//${window.location.hostname}:2785`
+    : 'http://localhost:2785');
 
   
 
@@ -182,7 +182,7 @@ export default function ChatbotPage() {
         setGradientAngle(d.gradientAngle !== undefined ? d.gradientAngle : 135);
         setPosition(d.position || 'bottom-right');
         setTheme(d.theme || 'glassmorphic');
-        setChatbotId(d._id || '');
+        setChatbotId(d.id || d._id || '');
         setRules(d.rules || []);
         setCollectLeads(d.collectLeads || false);
         setLeadFields(d.leadFields || ['name', 'email']);
@@ -205,11 +205,25 @@ export default function ChatbotPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await chatbotApi.update({
+      const payload = {
         enabled, botName, botIcon, welcomeMessage, fallbackMessage, offlineMessage,
         headerText, subHeaderText, buttonLabel,
         primaryColor, secondaryColor, gradient, gradientAngle, position, theme,
-        rules, collectLeads, leadFields });
+        rules, collectLeads, leadFields };
+      const res = await chatbotApi.update(payload);
+      
+      if (res && res.data && (res.data.id || res.data._id)) {
+        setChatbotId(res.data.id || res.data._id);
+      } else if (res && (res.id || res._id)) {
+        setChatbotId(res.id || res._id);
+      } else {
+        // Fallback to fetch
+        const fresh = await chatbotApi.get();
+        if (fresh && fresh.data && (fresh.data.id || fresh.data._id)) {
+          setChatbotId(fresh.data.id || fresh.data._id);
+        }
+      }
+
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch {
@@ -354,7 +368,7 @@ export default function ChatbotPage() {
     setTestMessages(p => [...p, { role: 'user', text: msg }]);
     setTestLoading(true);
     try {
-      const res = await knowledgeApi.test(msg, 'admin_test_session');
+      const res = await knowledgeApi.test(msg, chatbotId);
       const d = res.data;
       setTestMessages(p => [...p, {
         role: 'bot', text: d.reply,

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { Pagination } from "../components/Pagination";
 import { Link } from "react-router";
 import { useGoogleLogin } from "@react-oauth/google";
 import PageMeta from "../components/common/PageMeta";
@@ -180,6 +181,15 @@ export default function Contacts() {
     return () => clearInterval(interval);
   }, []);
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery, activeSegment, filterImporting, filterIncoming, filter24Hours]);
+
   // No longer saving to localStorage
 
   // Google Contact Sync
@@ -301,6 +311,29 @@ export default function Contacts() {
       return true;
     });
   }, [contacts, activeTab, searchQuery, activeSegment, filterImporting, filterIncoming, filter24Hours]);
+
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredContacts.length / itemsPerPage);
+  const paginatedContacts = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredContacts.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredContacts, currentPage, itemsPerPage]);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 4) {
+        pages.push(1, 2, 3, 4, 5, '...', totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+    return pages;
+  };
 
   // Handlers
   const handleSaveContact = async () => {
@@ -426,9 +459,11 @@ export default function Contacts() {
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      setSelectedIds(filteredContacts.map(c => c.id));
+      const visibleIds = paginatedContacts.map(c => c.id);
+      setSelectedIds(prev => Array.from(new Set([...prev, ...visibleIds])));
     } else {
-      setSelectedIds([]);
+      const visibleIds = new Set(paginatedContacts.map(c => c.id));
+      setSelectedIds(prev => prev.filter(id => !visibleIds.has(id)));
     }
   };
 
@@ -983,7 +1018,7 @@ export default function Contacts() {
                 <div className="w-8 shrink-0">
                   <input 
                     type="checkbox" 
-                    checked={selectedIds.length === filteredContacts.length && filteredContacts.length > 0}
+                    checked={paginatedContacts.length > 0 && paginatedContacts.every(c => selectedIds.includes(c.id))}
                     onChange={handleSelectAll}
                     className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-600" 
                   />
@@ -1020,7 +1055,7 @@ export default function Contacts() {
                 <div className="w-8 shrink-0">
                   <input 
                     type="checkbox" 
-                    checked={filteredContacts.length > 0 && selectedIds.length === filteredContacts.length}
+                    checked={paginatedContacts.length > 0 && paginatedContacts.every(c => selectedIds.includes(c.id))}
                     onChange={handleSelectAll}
                     className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-600" 
                   />
@@ -1061,7 +1096,7 @@ export default function Contacts() {
             </div>
           ) : (
             <div className="divide-y divide-gray-100 dark:divide-gray-800">
-              {filteredContacts.map(contact => (
+              {paginatedContacts.map(contact => (
                 <div 
                   key={contact.id} 
                   onClick={() => toggleSelection(contact.id)}
@@ -1121,6 +1156,15 @@ export default function Contacts() {
               ))}
             </div>
           )}
+          
+          {/* Pagination UI */}
+          <Pagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
+            totalItems={filteredContacts.length}
+          />
         </div>
       </div>
 

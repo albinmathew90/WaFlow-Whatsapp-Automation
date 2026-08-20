@@ -1,95 +1,93 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, HttpCode, HttpStatus, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, HttpCode, HttpStatus, NotFoundException, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ChatbotService } from './services/chatbot.service';
-import { RequireRole } from '../auth/decorators/auth.decorators';
+import { RequireRole, Public } from '../auth/decorators/auth.decorators';
 import { ApiKeyRole } from '../auth/entities/api-key.entity';
 
 @ApiTags('chatbot-widget')
-@Controller('api/v1/chatbot/widget')
+@Controller('v1/chatbot/widget')
 export class ChatbotPublicController {
   constructor(private readonly chatbotService: ChatbotService) {}
 
   @Post('message')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Public endpoint for website widget to send messages' })
   async handleWidgetMessage(@Body() body: any) {
-    if (!body.sessionId) {
-      throw new NotFoundException('Session ID is required for the widget to connect.');
+    if (!body.chatbotId) {
+      throw new NotFoundException('Chatbot ID is required for the widget to connect.');
     }
-    return this.chatbotService.handleWidgetMessage(body.sessionId, body);
+    return this.chatbotService.handleWidgetMessage(body.chatbotId, body);
   }
 }
 
-@ApiTags('chatbot')
-@Controller('sessions/:sessionId/chatbot')
+import { JwtAuthGuard } from '../crm/guards/jwt-auth.guard';
+import { UseGuards } from '@nestjs/common';
+
+@ApiTags('crm-chatbot')
+@Controller('crm/chatbot')
+@Public()
+@UseGuards(JwtAuthGuard)
 export class ChatbotController {
   constructor(private readonly chatbotService: ChatbotService) {}
 
   // ─── Settings ─────────────────────────────────────────────────────────────
   @Get('settings')
-  @RequireRole(ApiKeyRole.OPERATOR)
-  @ApiOperation({ summary: 'Get chatbot settings for a session' })
-  async getSettings(@Param('sessionId') sessionId: string) {
-    return this.chatbotService.getSettings(sessionId);
+  @ApiOperation({ summary: 'Get chatbot settings for a user session' })
+  async getSettings(@Req() req: any) {
+    return this.chatbotService.getSettings(req.user.id);
   }
 
   @Post('settings')
-  @RequireRole(ApiKeyRole.OPERATOR)
   @ApiOperation({ summary: 'Update chatbot settings' })
-  async updateSettings(@Param('sessionId') sessionId: string, @Body() data: any) {
-    return this.chatbotService.updateSettings(sessionId, data);
+  async updateSettings(@Req() req: any, @Body() data: any) {
+    return this.chatbotService.updateSettings(req.user.id, data);
   }
 
   // ─── Leads ────────────────────────────────────────────────────────────────
   @Get('leads')
-  @RequireRole(ApiKeyRole.OPERATOR)
   @ApiOperation({ summary: 'Get chatbot leads' })
-  async getLeads(@Param('sessionId') sessionId: string) {
-    return this.chatbotService.getLeads(sessionId);
+  async getLeads(@Req() req: any) {
+    return this.chatbotService.getLeads(req.user.id);
   }
 
   @Post('leads/:leadId/reply')
-  @RequireRole(ApiKeyRole.OPERATOR)
   @ApiOperation({ summary: 'Reply to a lead (human agent)' })
   async replyToLead(
-    @Param('sessionId') sessionId: string,
+    @Req() req: any,
     @Param('leadId') leadId: string,
     @Body('text') text: string,
   ) {
-    return this.chatbotService.replyToLead(sessionId, leadId, text);
+    return this.chatbotService.replyToLead(req.user.id, leadId, text);
   }
 
   // ─── Knowledge Base ───────────────────────────────────────────────────────
   @Get('knowledge')
-  @RequireRole(ApiKeyRole.OPERATOR)
   @ApiOperation({ summary: 'Get knowledge base items' })
-  async getKnowledge(@Param('sessionId') sessionId: string) {
-    return this.chatbotService.getKnowledge(sessionId);
+  async getKnowledge(@Req() req: any) {
+    return this.chatbotService.getKnowledge(req.user.id);
   }
 
   @Post('knowledge')
-  @RequireRole(ApiKeyRole.OPERATOR)
   @ApiOperation({ summary: 'Create a knowledge base item' })
-  async createKnowledge(@Param('sessionId') sessionId: string, @Body() data: any) {
-    return this.chatbotService.createKnowledge(sessionId, data);
+  async createKnowledge(@Req() req: any, @Body() data: any) {
+    return this.chatbotService.createKnowledge(req.user.id, data);
   }
 
   @Put('knowledge/:id')
-  @RequireRole(ApiKeyRole.OPERATOR)
   @ApiOperation({ summary: 'Update a knowledge base item' })
   async updateKnowledge(
-    @Param('sessionId') sessionId: string,
+    @Req() req: any,
     @Param('id') id: string,
     @Body() data: any,
   ) {
-    return this.chatbotService.updateKnowledge(sessionId, id, data);
+    return this.chatbotService.updateKnowledge(req.user.id, id, data);
   }
 
   @Delete('knowledge/:id')
-  @RequireRole(ApiKeyRole.OPERATOR)
   @ApiOperation({ summary: 'Delete a knowledge base item' })
-  async deleteKnowledge(@Param('sessionId') sessionId: string, @Param('id') id: string) {
-    await this.chatbotService.deleteKnowledge(sessionId, id);
+  async deleteKnowledge(@Req() req: any, @Param('id') id: string) {
+    await this.chatbotService.deleteKnowledge(req.user.id, id);
     return { success: true };
   }
 }

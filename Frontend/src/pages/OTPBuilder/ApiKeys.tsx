@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PageMeta from '../../components/common/PageMeta';
 import CopyButton from '../../components/common/CopyButton';
+import { Pagination } from '../../components/Pagination';
 
 interface Application {
   id: string;
@@ -27,6 +28,16 @@ export default function ApiKeys() {
   const [newWebhookSecret, setNewWebhookSecret] = useState<string | null>(null);
   const [rotateConfirm, setRotateConfirm] = useState<'api' | 'secret' | 'webhook' | null>(null);
   const [isRotating, setIsRotating] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedAppId]);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedLogs = logs.slice(startIndex, startIndex + itemsPerPage);
 
   useEffect(() => {
     fetchApplications();
@@ -277,7 +288,7 @@ export default function ApiKeys() {
                             No authentication requests logged yet.
                           </td>
                         </tr>
-                      ) : logs.map(log => (
+                      ) : paginatedLogs.map(log => (
                         <tr key={log.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20">
                           <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-300">
                             {new Date(log.createdAt).toLocaleString()}
@@ -301,6 +312,17 @@ export default function ApiKeys() {
                     </tbody>
                   </table>
                 </div>
+                {logs.length > 0 && (
+                  <div className="mt-4">
+                    <Pagination
+                      currentPage={currentPage}
+                      setCurrentPage={setCurrentPage}
+                      itemsPerPage={itemsPerPage}
+                      setItemsPerPage={setItemsPerPage}
+                      totalItems={logs.length}
+                    />
+                  </div>
+                )}
              </div>
           </div>
 

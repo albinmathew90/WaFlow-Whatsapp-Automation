@@ -37,20 +37,22 @@ export class ChatbotService {
   }
 
   // ─── Chatbot Widget API (Public) ────────────────────────────────────────────────
-  async handleWidgetMessage(sessionId: string, payload: any): Promise<any> {
-    const chatbot = await this.chatbotRepo.findOne({ where: { sessionId } });
-    if (!chatbot) throw new NotFoundException('Chatbot not found for this session');
+  async handleWidgetMessage(chatbotId: string, payload: any): Promise<any> {
+    const chatbot = await this.chatbotRepo.findOne({ where: { id: chatbotId } });
+    if (!chatbot) throw new NotFoundException('Chatbot not found');
     if (!chatbot.enabled) {
       return { reply: chatbot.offlineMessage || "We're currently offline.", suggestions: [] };
     }
 
-    const { visitorSessionId, message, domain, pageUrl, capturedData } = payload;
+    // The widget-script uses 'sessionId' to pass the visitor's local tracking ID
+    const visitorSessionId = payload.sessionId;
+    const { message, domain, pageUrl, capturedData } = payload;
     
-    // Find or Create Lead
-    let lead = await this.chatbotLeadRepo.findOne({ where: { visitorSessionId, sessionId } });
+    // Find or Create Lead (we must link to the chatbot's true owner session, i.e., chatbot.sessionId)
+    let lead = await this.chatbotLeadRepo.findOne({ where: { visitorSessionId, sessionId: chatbot.sessionId } });
     if (!lead) {
       lead = this.chatbotLeadRepo.create({
-        sessionId,
+        sessionId: chatbot.sessionId,
         visitorSessionId,
         domain,
         pageUrl,
@@ -85,7 +87,7 @@ export class ChatbotService {
         botReply = ruleMatch.response;
       } else {
         // 2. Use Knowledge Engine NLP
-        const knowledgeItems = await this.chatbotKnowledgeRepo.find({ where: { sessionId } });
+        const knowledgeItems = await this.chatbotKnowledgeRepo.find({ where: { sessionId: chatbot.sessionId } });
         const result = await this.knowledgeEngineService.query(message, knowledgeItems, visitorSessionId, chatbot.fallbackMessage);
         botReply = result.reply;
         suggestions = result.suggestions;
@@ -97,7 +99,7 @@ export class ChatbotService {
 
       // Emit WebSocket event to Dashboard via EventsGateway
       // In ConvoReach, standard events might be scoped. Let's emit a global event for now.
-      this.eventsGateway.server.to(`session_${sessionId}`).emit('chatbot:new_message', {
+      this.eventsGateway.server.to(`session_${chatbot.sessionId}`).emit('chatbot:new_message', {
         leadId: lead.id,
         visitorSessionId,
         message: userMsg,

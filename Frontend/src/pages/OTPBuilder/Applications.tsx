@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import ConfirmDeleteModal from "../../components/common/ConfirmDeleteModal";
+import { Pagination } from "../../components/Pagination";
 
 export interface Application {
   id: string;
@@ -183,6 +184,16 @@ export default function Applications() {
     const matchesStatus = filterStatus === 'All' || app.status === filterStatus.toLowerCase();
     return matchesSearch && matchesStatus;
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterStatus]);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedApplications = filteredApplications.slice(startIndex, startIndex + itemsPerPage);
 
   // Calculate Top Cards metrics
   const totalApps = applications.length;
@@ -539,8 +550,8 @@ export default function Applications() {
           </div>
         ) : (
           <div className="divide-y divide-gray-100 dark:divide-gray-800">
-            {filteredApplications.map(app => (
-              <div key={app.id} className="group grid grid-cols-12 gap-4 px-6 py-5 items-center transition-colors hover:bg-gray-50/80 dark:hover:bg-gray-800/30">
+            {paginatedApplications.map(app => (
+              <div key={app.id} className="group grid grid-cols-12 gap-4 px-5 py-4 items-center transition-colors hover:bg-gray-50/80 dark:hover:bg-gray-800/30">
                 <div className="col-span-4 flex items-center gap-4">
                   <div className="h-10 w-10 flex-shrink-0 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center font-bold text-lg dark:bg-brand-900/30 dark:text-brand-400">
                     {app.company.charAt(0).toUpperCase()}
@@ -617,6 +628,14 @@ export default function Applications() {
             ))}
           </div>
         )}
+
+        <Pagination
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemsPerPage={itemsPerPage}
+          setItemsPerPage={setItemsPerPage}
+          totalItems={filteredApplications.length}
+        />
       </div>
     </>
   );

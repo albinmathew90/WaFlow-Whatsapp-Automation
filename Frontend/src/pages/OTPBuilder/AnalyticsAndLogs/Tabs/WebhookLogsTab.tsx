@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '../../../../context/UserContext';
+import { Pagination } from '../../../../components/Pagination';
 
 interface WebhookLogsTabProps {
   appId: string;
@@ -11,11 +12,11 @@ export default function WebhookLogsTab({ appId }: WebhookLogsTabProps) {
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const limit = 20;
+  const [limit, setLimit] = useState(20);
 
   useEffect(() => {
     fetchLogs();
-  }, [appId, page]);
+  }, [appId, page, limit]);
 
   const fetchLogs = async () => {
     setIsLoading(true);
@@ -107,29 +108,13 @@ export default function WebhookLogsTab({ appId }: WebhookLogsTabProps) {
         </table>
       </div>
 
-      {total > limit && (
-        <div className="flex justify-between items-center mt-4">
-          <p className="text-sm text-gray-500">
-            Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, total)} of {total} logs
-          </p>
-          <div className="flex gap-2">
-            <button
-              disabled={page === 1}
-              onClick={() => setPage(p => p - 1)}
-              className="px-3 py-1 rounded-md bg-gray-100 text-gray-700 disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <button
-              disabled={page * limit >= total}
-              onClick={() => setPage(p => p + 1)}
-              className="px-3 py-1 rounded-md bg-gray-100 text-gray-700 disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        currentPage={page}
+        setCurrentPage={setPage}
+        itemsPerPage={limit}
+        setItemsPerPage={setLimit}
+        totalItems={total}
+      />
     </div>
   );
 }

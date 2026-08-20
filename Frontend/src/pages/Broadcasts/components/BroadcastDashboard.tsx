@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Badge from '../../../components/ui/badge/Badge';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../../../components/ui/table';
+import { Pagination } from '../../../components/Pagination';
 import { Broadcast } from '../index';
 
 interface Props {
@@ -71,6 +72,16 @@ export default function BroadcastDashboard({ broadcasts, stats, loading, onViewD
   const filtered = broadcasts.filter(b =>
     b.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedBroadcasts = filtered.slice(startIndex, startIndex + itemsPerPage);
 
   const doAction = async (id: string, action: string) => {
     const token = getToken();
@@ -228,7 +239,7 @@ export default function BroadcastDashboard({ broadcasts, stats, loading, onViewD
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map(bc => (
+                {paginatedBroadcasts.map(bc => (
                   <TableRow key={bc.id} className="border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition">
                     <TableCell className="px-4 py-3">
                       {bc.isSleeping ? (
@@ -348,6 +359,15 @@ export default function BroadcastDashboard({ broadcasts, stats, loading, onViewD
               </TableBody>
             </Table>
           </div>
+        )}
+        {!loading && (
+          <Pagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
+            totalItems={filtered.length}
+          />
         )}
       </div>
 

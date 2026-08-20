@@ -8,6 +8,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Legend, Cell
 } from 'recharts';
+import { Pagination } from '../components/Pagination';
 
 type TimeRange = '24h' | '7d' | '30d' | 'custom';
 
@@ -29,6 +30,16 @@ export default function HealthMonitor() {
   const [chartData, setChartData] = useState<any[]>([]);
   const [stuckContacts, setStuckContacts] = useState<any[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [timeRange, selectedDate]);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedContacts = stuckContacts.slice(startIndex, startIndex + itemsPerPage);
 
   // Trigger re-animation when time range changes
   useEffect(() => {
@@ -340,7 +351,7 @@ export default function HealthMonitor() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
-                {stuckContacts.map((contact) => (
+                {paginatedContacts.map((contact) => (
                   <tr key={contact.chatId} className="hover:bg-gray-50/80 dark:hover:bg-gray-700/50 transition-colors">
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-4">
@@ -392,6 +403,14 @@ export default function HealthMonitor() {
             </table>
           </div>
         )}
+        
+        <Pagination
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemsPerPage={itemsPerPage}
+          setItemsPerPage={setItemsPerPage}
+          totalItems={stuckContacts.length}
+        />
       </div>
 
     </div>
