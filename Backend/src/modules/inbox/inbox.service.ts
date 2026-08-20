@@ -563,7 +563,7 @@ export class InboxService implements OnModuleInit {
             conversationId: conv.id,
             waMessageId: IsNull(),
             direction: InboxMessageDirection.OUTGOING,
-            body: body ?? null,
+            body: body ? body : IsNull(),
           },
           order: { createdAt: 'DESC' }
         });
