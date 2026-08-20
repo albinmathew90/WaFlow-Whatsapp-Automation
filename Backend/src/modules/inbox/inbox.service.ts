@@ -466,7 +466,8 @@ export class InboxService implements OnModuleInit {
       }
 
       pendingMsg.status = InboxMessageStatus.SENT;
-      if (result?.waMessageId) pendingMsg.waMessageId = result.waMessageId as string;
+      const waMsgId = (result?.messageId ?? result?.waMessageId) as string | undefined;
+      if (waMsgId) pendingMsg.waMessageId = waMsgId;
       await this.messageRepo.save(pendingMsg);
 
       await this.conversationRepo.update(conversationId, {
