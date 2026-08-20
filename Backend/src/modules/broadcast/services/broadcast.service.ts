@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, OnModuleInit, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import {
@@ -11,9 +11,12 @@ import { CreateBroadcastDto, UpdateBroadcastDto } from '../dto/broadcast.dto';
 import { CrmContact } from '../../crm/entities/crm-contact.entity';
 import { CrmSegment } from '../../crm/entities/crm-segment.entity';
 import { InboxService } from '../../inbox/inbox.service';
+import { HookManager, HookContext } from '../../../core/hooks';
 
 @Injectable()
-export class BroadcastService {
+export class BroadcastService implements OnModuleInit {
+  private readonly logger = new Logger(BroadcastService.name);
+
   constructor(
     @InjectRepository(Broadcast, 'data')
     private broadcastRepo: Repository<Broadcast>,
@@ -26,7 +29,20 @@ export class BroadcastService {
     @InjectRepository(CrmSegment, 'data')
     private segmentRepo: Repository<CrmSegment>,
     private inboxService: InboxService,
+    private hookManager: HookManager,
   ) {}
+
+  onModuleInit() {
+    this.hookManager.register(
+      'broadcast-service',
+      'message:ack',
+      async (ctx: HookContext) => {
+        await this.handleMessageAck(ctx.data as Record<string, unknown>, ctx.sessionId);
+        return { continue: true };
+      },
+      200,
+    );
+  }
 
   // ── CRUD ──────────────────────────────────────────────────────────────────
 
@@ -337,6 +353,37 @@ export class BroadcastService {
   }
 
   // ── Private Helpers ───────────────────────────────────────────────────────
+
+  async handleMessageAck(data: Record<string, unknown>, sessionId?: string) {
+    if (!sessionId) return;
+    const { messageId, status } = data;
+    if (!messageId || !status || typeof messageId !== 'string' || typeof status !== 'string') return;
+    if (!['delivered', 'read', 'failed'].includes(status)) return; // Only care about these statuses
+
+    const recipient = await this.recipientRepo.findOne({
+      where: { messageId },
+      relations: ['broadcast']
+    });
+
+    if (!recipient) return;
+    
+    // Only update if it's from the same session
+    if (recipient.broadcast.sessionId !== sessionId) return;
+
+    // Don't downgrade status (e.g. read -> delivered is invalid)
+    if (recipient.status === 'read') return;
+    if (recipient.status === 'delivered' && status !== 'read') return;
+    if (recipient.status === 'failed') return;
+
+    recipient.status = status as 'delivered' | 'read' | 'failed';
+    if (status === 'delivered') recipient.deliveredAt = new Date().toISOString();
+    if (status === 'read') recipient.readAt = new Date().toISOString();
+    
+    await this.recipientRepo.save(recipient);
+    
+    // Update broadcast stats
+    await this.refreshStats(recipient.broadcastId);
+  }
 
   private async logActivity(broadcastId: string, action: string, userId?: string, detail?: string) {
     const log = this.activityRepo.create({ broadcastId, action, userId, detail });

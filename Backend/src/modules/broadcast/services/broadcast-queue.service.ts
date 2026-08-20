@@ -102,6 +102,14 @@ export class BroadcastQueueService implements OnModuleInit, OnModuleDestroy {
           break;
         }
 
+        // Auto-heal stuck sleep state from process restarts
+        if (bc.isSleeping && (!bc.sleepUntil || new Date(bc.sleepUntil).getTime() <= Date.now())) {
+          bc.isSleeping = false;
+          bc.sleepReason = '';
+          bc.sleepUntil = '';
+          await this.broadcastRepo.save(bc);
+        }
+
         if (!bc.sessionId) {
           this.logger.warn(`Broadcast ${bc.id} has no sessionId. Pausing.`);
           bc.status = 'paused';

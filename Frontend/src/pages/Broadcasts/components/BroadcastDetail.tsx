@@ -50,14 +50,13 @@ export default function BroadcastDetail({ broadcastId, onBack }: Props) {
   const [tab, setTab] = useState<'overview' | 'recipients' | 'activity'>('overview');
   const [loading, setLoading] = useState(true);
 
-  const authHeaders = { Authorization: `Bearer ${getToken()}` };
-
   const fetchData = useCallback(async () => {
     try {
+      const headers = { Authorization: `Bearer ${getToken()}` };
       const [reportRes, recipientsRes, activityRes] = await Promise.all([
-        fetch(`${API}/${broadcastId}/report`, { headers: authHeaders }),
-        fetch(`${API}/${broadcastId}/recipients?page=${recipientPage}&limit=20`, { headers: authHeaders }),
-        fetch(`${API}/${broadcastId}/activity`, { headers: authHeaders }),
+        fetch(`${API}/${broadcastId}/report`, { headers }),
+        fetch(`${API}/${broadcastId}/recipients?page=${recipientPage}&limit=20`, { headers }),
+        fetch(`${API}/${broadcastId}/activity`, { headers }),
       ]);
       if (reportRes.ok) setReport(await reportRes.json());
       if (recipientsRes.ok) {
@@ -68,7 +67,7 @@ export default function BroadcastDetail({ broadcastId, onBack }: Props) {
       if (activityRes.ok) setActivity(await activityRes.json());
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
-  }, [broadcastId, recipientPage, authHeaders]);
+  }, [broadcastId, recipientPage]);
 
   useEffect(() => { 
     fetchData(); 

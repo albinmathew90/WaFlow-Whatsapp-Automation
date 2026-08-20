@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Badge from '../../../components/ui/badge/Badge';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../../../components/ui/table';
 import { Broadcast } from '../index';
