@@ -363,7 +363,7 @@ export default function Home() {
   useEffect(() => {
     if (userLoading) return; // wait for auth context to resolve
     fetchData();
-    const interval = setInterval(fetchData, 1000); // refresh every 1s
+    const interval = setInterval(fetchData, 10000); // refresh every 10s
     return () => clearInterval(interval);
   }, [fetchData, userLoading]);
 
