@@ -70,9 +70,21 @@ export default function BroadcastDetail({ broadcastId, onBack }: Props) {
   }, [broadcastId, recipientPage]);
 
   useEffect(() => { 
-    fetchData(); 
-    const interval = setInterval(fetchData, 1000); // Poll every second for real-time updates
-    return () => clearInterval(interval);
+    let mounted = true;
+    let timeoutId: NodeJS.Timeout;
+
+    const poll = async () => {
+      await fetchData();
+      if (mounted) {
+        timeoutId = setTimeout(poll, 2500); // Wait 2.5s before next poll
+      }
+    };
+
+    poll();
+    return () => { 
+      mounted = false;
+      clearTimeout(timeoutId); 
+    };
   }, [fetchData]);
 
   const exportCSV = () => {
