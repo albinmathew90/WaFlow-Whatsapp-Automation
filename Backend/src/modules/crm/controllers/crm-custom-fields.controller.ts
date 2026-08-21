@@ -5,7 +5,6 @@ import { CrmCustomFieldsService } from '../services/crm-custom-fields.service';
 import { CreateCrmCustomFieldDto, UpdateCrmCustomFieldDto } from '../dto/crm.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
-@Public()
 @ApiTags('crm-custom-fields')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

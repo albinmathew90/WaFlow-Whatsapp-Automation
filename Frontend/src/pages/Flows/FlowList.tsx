@@ -127,7 +127,7 @@ export default function FlowList({ onEdit, onCreateNew, refreshKey }: Props) {
                     title={flow.enabled ? 'Disable flow' : 'Enable flow'}
                     className={`relative w-10 h-5 rounded-full flex-shrink-0 transition-colors duration-200 focus:outline-none ${flow.enabled ? 'bg-success-500' : 'bg-gray-300 dark:bg-gray-700'} ${togglingId === flow.id ? 'opacity-50' : ''}`}
                   >
-                    <span className={`absolute top-[2px] left-[2px] w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${flow.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                    <span className={`absolute top-[2px] left-[2px] w-4 h-4 rounded-full bg-white dark:bg-gray-900 shadow transition-transform duration-200 ${flow.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
                   </button>
                 </td>
                 <td className="py-4 px-4 align-middle">

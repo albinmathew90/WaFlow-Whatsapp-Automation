@@ -551,7 +551,7 @@ export default function BlockEditor({ value, onChange }: { value?: string, onCha
 
   return (
     <>
-      <div className="editor-shell bg-white text-gray-900 border-gray-300 shadow-sm" ref={editorRef} onClick={(e) => {
+      <div className="editor-shell bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 shadow-sm" ref={editorRef} onClick={(e) => {
         if (e.target === editorRef.current) {
           const last = blocks[blocks.length - 1];
           if (last) focusBlock(last.id);
@@ -606,7 +606,7 @@ export default function BlockEditor({ value, onChange }: { value?: string, onCha
                 
                 <div className="block-body flex items-start gap-2 flex-1 relative">
                   {block.type === 'hr' ? (
-                    <div className="w-full py-2.5"><hr className="border-gray-200 m-0" /></div>
+                    <div className="w-full py-2.5"><hr className="border-gray-200 dark:border-gray-700 m-0" /></div>
                   ) : block.type === 'image' ? (
                     <div className="w-full">
                       {block.image ? (
@@ -620,12 +620,12 @@ export default function BlockEditor({ value, onChange }: { value?: string, onCha
                           />
 
                           <div className="image-actions mt-1.5 flex gap-2">
-                            <button onClick={() => openMediaPicker(block.id)} className="text-xs bg-gray-100 px-2 py-1 rounded">Replace</button>
+                            <button onClick={() => openMediaPicker(block.id)} className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">Replace</button>
                             <button onClick={() => {
                               const newBlocks = [...blocks];
                               newBlocks.splice(index, 1);
                               updateBlocks(newBlocks);
-                            }} className="text-xs bg-gray-100 px-2 py-1 rounded text-red-500">Remove</button>
+                            }} className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-red-500">Remove</button>
                           </div>
                           <ContentEditable 
                             className="image-caption mt-1.5 text-xs text-gray-400 italic outline-none" 
@@ -651,7 +651,7 @@ export default function BlockEditor({ value, onChange }: { value?: string, onCha
                         </div>
                       ) : (
                         <div className="image-dropzone-wrap w-full">
-                          <div className="border border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-between bg-white">
+                          <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 flex items-center justify-between bg-white dark:bg-gray-900">
                             <button 
                               onClick={() => openMediaPicker(block.id)}
                               className="bg-[#1c2434] text-white px-4 py-2 rounded text-sm font-medium hover:bg-opacity-90"
@@ -669,7 +669,7 @@ export default function BlockEditor({ value, onChange }: { value?: string, onCha
                         <div className="flex-none pt-1">
                           {isChecklist ? (
                             <div 
-                              className={`w-4 h-4 rounded border flex items-center justify-center cursor-pointer ${block.checked ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-300'}`}
+                              className={`w-4 h-4 rounded border flex items-center justify-center cursor-pointer ${block.checked ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-300 dark:border-gray-600'}`}
                               onClick={() => {
                                 const newBlocks = [...blocks];
                                 newBlocks[index] = { ...block, checked: !block.checked };
@@ -679,9 +679,9 @@ export default function BlockEditor({ value, onChange }: { value?: string, onCha
                               {block.checked && <span className="text-[10px]">✓</span>}
                             </div>
                           ) : isOrdered ? (
-                            <span className="text-gray-500">{listCount}.</span>
+                            <span className="text-gray-500 dark:text-gray-400">{listCount}.</span>
                           ) : (
-                            <span className="text-gray-500">•</span>
+                            <span className="text-gray-500 dark:text-gray-400">•</span>
                           )}
                         </div>
                       )}

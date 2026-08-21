@@ -11,7 +11,7 @@ const AdminLayout: React.FC = () => {
   };
 
   return (
-    <div className="bg-admin-bg font-outfit text-admin-text min-h-screen">
+    <div className="bg-gray-100 dark:bg-gray-950 font-outfit text-gray-800 dark:text-gray-200 h-screen overflow-hidden">
       <AdminSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       
       {/* Backdrop for mobile */}
@@ -22,7 +22,7 @@ const AdminLayout: React.FC = () => {
         ></div>
       )}
       
-      <main className="relative h-full max-h-screen transition-all duration-200 ease-in-out xl:ml-64 rounded-xl">
+      <main className="relative h-full overflow-y-auto transition-all duration-200 ease-in-out xl:ml-64 rounded-xl">
         <AdminHeader toggleSidebar={toggleSidebar} />
         
         <div className="p-4 sm:p-6 lg:p-8 w-full mx-auto">

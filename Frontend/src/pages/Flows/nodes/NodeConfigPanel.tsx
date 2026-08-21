@@ -81,7 +81,7 @@ export default function NodeConfigPanel({ nodeId, node, templates, onChange, onD
         );
       case 'end_flow':
         return (
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+          <div className="rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-800 dark:border-gray-700 p-3 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
             The flow ends here. No further messages will be sent automatically.
           </div>
         );
@@ -89,7 +89,7 @@ export default function NodeConfigPanel({ nodeId, node, templates, onChange, onD
     }
   };
 
-  const inputCls = 'w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-brand-400 dark:focus:border-brand-500 transition resize-none';
+  const inputCls = 'w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-brand-400 dark:focus:border-brand-500 transition resize-none';
 
   return (
     <div className="w-80 bg-white dark:bg-gray-900 border-l border-gray-100 dark:border-gray-800 flex flex-col overflow-hidden shadow-2xl">

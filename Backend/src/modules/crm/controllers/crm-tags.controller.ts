@@ -5,7 +5,6 @@ import { CrmTagsService } from '../services/crm-tags.service';
 import { CreateCrmTagDto } from '../dto/crm.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
-@Public()
 @ApiTags('crm-tags')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

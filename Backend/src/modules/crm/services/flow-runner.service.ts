@@ -145,6 +145,48 @@ export class FlowRunnerService implements OnModuleInit {
     }
   }
 
+  async handleWebhook(flowId: string, userId: string, payload: any): Promise<void> {
+    try {
+      const flow = await this.flowsService.findOne(userId, flowId);
+      if (!flow) return;
+      
+      const firstNodeId = this.findFirstNodeId(flow);
+      if (!firstNodeId) return;
+
+      // Flatten payload for easy dot-notation access
+      const flatPayload: Record<string, string> = {};
+      const flatten = (obj: any, prefix = '') => {
+        for (const key in obj) {
+          if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+            flatten(obj[key], `${prefix}${key}.`);
+          } else {
+            flatPayload[`${prefix}${key}`] = String(obj[key]);
+          }
+        }
+      };
+      flatten(payload);
+
+      // Create a transient state for webhook execution
+      // We use a dummy chatId since webhooks don't inherently belong to a single chat until a message node is reached
+      const state = this.stateRepo.create({
+        userId,
+        sessionId: 'webhook',
+        chatId: 'webhook-' + Date.now(),
+        flowId: flow.id,
+        currentNodeId: firstNodeId,
+        vars: flatPayload,
+        waitingForReply: false,
+      });
+      
+      // We don't save this state to the DB because webhook flows are one-off execution without waiting for replies
+      // But we pass it to runNode which might save it if it hits a capture node.
+      // Actually, webhook flows shouldn't have capture nodes, they just execute sequentially.
+      await this.runNode(flow, state, 'webhook', state.chatId);
+    } catch (err) {
+      this.logger.error('FlowRunnerService.handleWebhook error', err);
+    }
+  }
+
   // ─── Trigger Matching ──────────────────────────────────────────────────────
 
   private matchesTrigger(trigger: CrmFlow['trigger'], body: string): boolean {
@@ -350,6 +392,21 @@ export class FlowRunnerService implements OnModuleInit {
           } catch (e) {
             this.logger.warn(`FlowRunner: failed to send template ${templateId}`, e);
           }
+        }
+        await this.advanceTo(flow, state, this.getNextNodeId(flow, state.currentNodeId), sessionId, chatId);
+        break;
+      }
+
+      case 'webhook_message': {
+        const rawPhone = this.interpolate(node.toPhone || '', enrichedVars).trim();
+        if (rawPhone) {
+          const targetPhone = rawPhone.includes('@') ? rawPhone : `${rawPhone}@c.us`;
+          const text = this.interpolate(node.message || '', enrichedVars);
+          if (text) {
+            await this.sendText(sessionId, targetPhone, text);
+          }
+        } else {
+          this.logger.warn(`FlowRunner: Webhook message missing 'toPhone' for flow ${flow.id}`);
         }
         await this.advanceTo(flow, state, this.getNextNodeId(flow, state.currentNodeId), sessionId, chatId);
         break;
@@ -788,6 +845,17 @@ export class FlowRunnerService implements OnModuleInit {
         return vars[key];
       }
       
+      // Fallback for dot notation properties in the payload that might not be in vars directly
+      const parts = key.split('.');
+      let val: any = vars;
+      for (const part of parts) {
+        if (val === undefined || val === null) break;
+        val = val[part];
+      }
+      if (val !== undefined && typeof val !== 'object') {
+        return String(val);
+      }
+
       return `{{${key}}}`;
     });
   }

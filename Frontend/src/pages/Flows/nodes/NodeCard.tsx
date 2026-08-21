@@ -5,6 +5,7 @@ import type { FlowNode, NodeKind } from '../types/flow.types';
 interface Props {
   id: string;
   node: FlowNode;
+  flowId?: string;
   isSelected: boolean;
   isStart: boolean;
   onSelect: (id: string) => void;
@@ -25,10 +26,11 @@ import {
   DelayNodeBody, DefaultNodeBody, CatalogNodeBody, MultiProductNodeBody,
   QuestionNodeBody, MediaQuestionNodeBody, ContactCustomFieldNodeBody,
   AddressNodeBody, LocationNodeBody, APIRequestNodeBody,
-  SingleAIMessageNodeBody, AssignAIAssistantNodeBody, ConnectFlowNodeBody
+  SingleAIMessageNodeBody, AssignAIAssistantNodeBody, ConnectFlowNodeBody,
+  WebhookMessageNodeBody
 } from './NodeBodies';
 
-const NodeCardComponent = ({ id, node, isSelected, isStart, onSelect, onStartEdge, onDragStart, dragging, onChange, onChangeBlock, onAddBlock, onDeleteBlock, onDelete, onDuplicate }: Props) => {
+const NodeCardComponent = ({ id, node, flowId, isSelected, isStart, onSelect, onStartEdge, onDragStart, dragging, onChange, onChangeBlock, onAddBlock, onDeleteBlock, onDelete, onDuplicate }: Props) => {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const typeDef = getNodeTypeDef(node.kind);
   const isMessage = typeDef?.category === 'message';
@@ -56,6 +58,7 @@ const NodeCardComponent = ({ id, node, isSelected, isStart, onSelect, onStartEdg
       case 'single_ai_message': return <SingleAIMessageNodeBody {...bodyProps} />;
       case 'assign_ai': return <AssignAIAssistantNodeBody {...bodyProps} />;
       case 'connect_flow': return <ConnectFlowNodeBody {...bodyProps} />;
+      case 'webhook_message': return <WebhookMessageNodeBody {...bodyProps} flowId={flowId} />;
       default: return <DefaultNodeBody {...bodyProps} />;
     }
   };
@@ -89,7 +92,7 @@ const NodeCardComponent = ({ id, node, isSelected, isStart, onSelect, onStartEdg
 
         {/* Header (Drag Handle) */}
         <div 
-          className="flex items-center gap-2 px-3 py-2 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 cursor-grab active:cursor-grabbing select-none"
+          className="flex items-center gap-2 px-3 py-2 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 cursor-grab active:cursor-grabbing select-none"
           onMouseDown={(e) => {
             if ((e.target as HTMLElement).tagName.toLowerCase() !== 'button' && !(e.target as HTMLElement).closest('button')) {
               onDragStart(e);
@@ -104,7 +107,7 @@ const NodeCardComponent = ({ id, node, isSelected, isStart, onSelect, onStartEdg
           <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={typeDef?.icon} />
           </svg>
-          <span className="text-[13px] font-bold text-gray-800 dark:text-gray-100 flex-1">
+          <span className="text-[13px] font-bold text-gray-800 dark:text-gray-200 dark:text-gray-100 flex-1">
             {node.label || typeDef?.label}
           </span>
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -166,7 +169,7 @@ const NodeCardComponent = ({ id, node, isSelected, isStart, onSelect, onStartEdg
           <div className="px-3 pb-3 relative">
             <button
               onMouseDown={(e) => { e.stopPropagation(); setShowAddMenu(!showAddMenu); }}
-              className="w-full py-1.5 flex justify-center items-center gap-1 text-[12px] font-bold text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50 transition cursor-pointer bg-white dark:bg-gray-800"
+              className="w-full py-1.5 flex justify-center items-center gap-1 text-[12px] font-bold text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50 transition cursor-pointer bg-white dark:bg-gray-900 dark:bg-gray-800"
             >
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4"/></svg>
               Add Content
@@ -174,7 +177,7 @@ const NodeCardComponent = ({ id, node, isSelected, isStart, onSelect, onStartEdg
             
             {showAddMenu && (
               <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
-                <div className="p-2 border-b border-gray-100 dark:border-gray-800 text-[11px] font-bold text-gray-500 uppercase tracking-wide">
+                <div className="p-2 border-b border-gray-100 dark:border-gray-800 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                   Choose Content Type
                 </div>
                 <div className="max-h-64 overflow-y-auto">
@@ -203,14 +206,14 @@ const NodeCardComponent = ({ id, node, isSelected, isStart, onSelect, onStartEdg
         {/* Generic Output Port for non-terminal, non-condition nodes */}
         {!isTerminal && !isCondition && (
           <div className="px-3 pb-3 relative">
-            <div className="w-full py-2 px-3 flex justify-between items-center border border-gray-200 dark:border-gray-800 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+            <div className="w-full py-2 px-3 flex justify-between items-center border border-gray-200 dark:border-gray-700 dark:border-gray-800 rounded-lg bg-gray-50 dark:bg-gray-800/50">
               <span className="text-[12px] font-bold text-gray-700 dark:text-gray-300">Continue Flow</span>
             </div>
             {/* The actual port handle (on the right edge of the card) */}
             <button
               id={`port-${id}-output`}
               onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, undefined, e.clientX, e.clientY); }}
-              className="absolute right-[-7px] bottom-[26px] w-4 h-4 rounded-full border-[2.5px] bg-white hover:scale-125 transition-transform shadow-sm cursor-crosshair z-20"
+              className="absolute right-[-7px] bottom-[26px] w-4 h-4 rounded-full border-[2.5px] bg-white dark:bg-gray-900 hover:scale-125 transition-transform shadow-sm cursor-crosshair z-20"
               style={{ borderColor: color }}
               title="Drag to connect"
             />
@@ -220,7 +223,7 @@ const NodeCardComponent = ({ id, node, isSelected, isStart, onSelect, onStartEdg
         {/* Input port */}
         {!isStart && (
           <div
-            className="absolute top-8 -left-2 w-4 h-4 rounded-full border-[2.5px] bg-white shadow-sm z-20 pointer-events-none"
+            className="absolute top-8 -left-2 w-4 h-4 rounded-full border-[2.5px] bg-white dark:bg-gray-900 shadow-sm z-20 pointer-events-none"
             style={{ borderColor: color }}
           />
         )}

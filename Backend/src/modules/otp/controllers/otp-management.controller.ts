@@ -4,7 +4,6 @@ import { OtpManagementService } from '../services/otp-management.service';
 
 import { Public } from '../../auth/decorators/auth.decorators';
 
-@Public()
 @Controller('otp-management')
 @UseGuards(JwtAuthGuard)
 export class OtpManagementController {

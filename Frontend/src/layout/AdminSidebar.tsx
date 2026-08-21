@@ -34,7 +34,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, toggleSidebar }) =>
       }`}
       aria-label="Sidebar"
     >
-      <div className="relative flex flex-col flex-1 min-h-0 pt-0 bg-white p-5 shadow-md shadow-gray-200/50 rounded-md border-0 overflow-hidden">
+      <div className="relative flex flex-col flex-1 min-h-0 pt-0 bg-white dark:bg-gray-900 p-5 shadow-md shadow-gray-200/50 dark:shadow-none rounded-md border-0 overflow-hidden">
         {/* Header/Logo Area */}
         <div className="flex items-center justify-center pt-8 pb-4">
           <Link to="/admin" className="flex items-center justify-center">
@@ -70,13 +70,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, toggleSidebar }) =>
                       }}
                       className={`flex w-full h-full gap-3 py-3 px-4 group font-semibold rounded-full bg-cover transition-all ease-linear ${
                         active
-                          ? "bg-black text-white shadow-md"
-                          : "text-gray-700 hover:bg-gray-100 hover:shadow-inner"
+                          ? "bg-black dark:bg-gray-800 text-white shadow-md"
+                          : "text-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-inner"
                       }`}
                     >
                       <item.icon
                         className={`w-5 h-5 transition-colors ${
-                          active ? "text-white" : "text-black group-hover:text-black"
+                          active ? "text-white" : "text-black dark:text-gray-300 group-hover:text-black dark:group-hover:text-white"
                         }`}
                       />
                       <span className="truncate text-sm">{item.name}</span>
@@ -101,13 +101,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, toggleSidebar }) =>
                   }}
                   className={`flex w-full h-full gap-3 py-3 px-4 group font-semibold rounded-full bg-cover transition-all ease-linear ${
                     isActive('/admin/settings')
-                      ? "bg-black text-white shadow-md"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-black dark:bg-gray-800 text-white shadow-md"
+                      : "bg-gray-100 dark:bg-transparent text-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800"
                   }`}
                 >
                   <SettingsIcon
                     className={`w-5 h-5 transition-colors ${
-                      isActive('/admin/settings') ? "text-white" : "text-black group-hover:text-black"
+                      isActive('/admin/settings') ? "text-white" : "text-black dark:text-gray-300 group-hover:text-black dark:group-hover:text-white"
                     }`}
                   />
                   <span className="truncate text-sm">Settings</span>

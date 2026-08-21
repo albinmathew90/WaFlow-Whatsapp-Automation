@@ -513,7 +513,6 @@ export default function ChatbotPage() {
             </button>
 
             <button
-              className="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium rounded-lg disabled:opacity-50 transition flex items-center gap-2 justify-center"
               onClick={handleSave}
               disabled={saving}
               className="min-w-[120px] px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium rounded-lg disabled:opacity-50 transition flex items-center justify-center gap-2"

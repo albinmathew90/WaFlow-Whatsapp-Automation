@@ -21,10 +21,9 @@ export default function FlowsPage() {
     setView('canvas');
   };
 
-  const handleSaved = (_flow: Flow) => {
-    setView('list');
+  const handleSaved = (flow: Flow) => {
+    setEditingFlow(flow);
     setRefreshKey((k) => k + 1);
-    setEditingFlow(null);
   };
 
   const handleCancel = () => {

@@ -28,6 +28,9 @@ export class CrmFlow {
   @Column({ type: 'boolean', default: false })
   enabled: boolean;
 
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  webhookToken: string;
+
   @Column({ type: jsonColumnType() })
   trigger: {
     event: string;
@@ -36,6 +39,8 @@ export class CrmFlow {
     regex?: string;
     skipTrigger?: boolean;
     selectedTemplate?: any;
+    triggerEventNames?: string[];
+    detectedFields?: Record<string, string[]>;
   };
 
   @Column({ type: jsonColumnType() })

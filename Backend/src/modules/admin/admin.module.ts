@@ -17,7 +17,7 @@ import { CrmModule } from '../crm/crm.module';
     CrmModule,
     TypeOrmModule.forFeature([AdminUser, AdminBlog, AdminBlogTopic, AdminMedia, AdminSeo, AdminSettings, User], 'data'),
     JwtModule.register({
-      secret: process.env.ADMIN_JWT_SECRET || 'super-secret-admin-key-2026',
+      secret: process.env.JWT_SECRET || 'fallback_secret_for_crm_openwa',
       signOptions: { expiresIn: '1d' },
     }),
   ],

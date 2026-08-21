@@ -20,7 +20,7 @@ export default function NodePalette({ onAddNode }: Props) {
       {/* Toggle Button */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="absolute top-1/2 -translate-y-1/2 w-6 h-9 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-r-lg flex items-center justify-center shadow-md z-50 text-gray-500 hover:text-brand-500 transition-colors cursor-pointer"
+        className="absolute top-1/2 -translate-y-1/2 w-6 h-9 bg-white dark:bg-gray-900 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-r-lg flex items-center justify-center shadow-md z-50 text-gray-500 dark:text-gray-400 hover:text-brand-500 transition-colors cursor-pointer"
         style={{ right: '-25px' }}
         title={isOpen ? 'Collapse panel' : 'Expand panel'}
       >
@@ -31,13 +31,13 @@ export default function NodePalette({ onAddNode }: Props) {
 
       <div className="w-[252px] h-full flex flex-col overflow-hidden opacity-100 transition-opacity duration-300" style={{ opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? 'auto' : 'none' }}>
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
+        <div className="flex border-b border-gray-200 dark:border-gray-700 dark:border-gray-800 flex-shrink-0">
           <button
             onClick={() => setActiveTab('message')}
             className={`flex-1 py-3 text-[12px] font-semibold transition-colors border-b-2 ${
               activeTab === 'message'
                 ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >
             Messages
@@ -47,7 +47,7 @@ export default function NodePalette({ onAddNode }: Props) {
             className={`flex-1 py-3 text-[12px] font-semibold transition-colors border-b-2 ${
               activeTab === 'action'
                 ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >
             Actions
@@ -61,14 +61,14 @@ export default function NodePalette({ onAddNode }: Props) {
               <button
                 key={node.kind}
                 onClick={() => onAddNode(node.kind)}
-                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800 hover:border-brand-200 hover:shadow-md hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all group"
+                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 dark:bg-gray-800 hover:border-brand-200 hover:shadow-md hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all group"
               >
-                <div className="w-8 h-8 mb-1.5 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center group-hover:bg-brand-100 dark:group-hover:bg-brand-900/40 transition-colors">
-                  <svg className="w-4 h-4 text-gray-500 group-hover:text-brand-600 dark:text-gray-400 dark:group-hover:text-brand-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-8 h-8 mb-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 dark:bg-gray-700 flex items-center justify-center group-hover:bg-brand-100 dark:group-hover:bg-brand-900/40 transition-colors">
+                  <svg className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-brand-600 dark:text-gray-400 dark:group-hover:text-brand-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={node.icon} />
                   </svg>
                 </div>
-                <span className="text-[11px] font-medium text-gray-600 dark:text-gray-300 group-hover:text-brand-700 dark:group-hover:text-brand-300 text-center leading-tight transition-colors">
+                <span className="text-[11px] font-medium text-gray-600 dark:text-gray-400 dark:text-gray-300 group-hover:text-brand-700 dark:group-hover:text-brand-300 text-center leading-tight transition-colors">
                   {node.label}
                 </span>
               </button>

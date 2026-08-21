@@ -234,8 +234,15 @@ layer(base);
     cursor: pointer;
   }
   html, body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50;
+    @apply relative font-normal font-outfit z-1 bg-gray-50 dark:bg-gray-950 dark:text-gray-200;
     min-height: 100vh;
+  }
+
+  .canvas-dots {
+    --dot-color: #e2e8f0;
+  }
+  .dark .canvas-dots {
+    --dot-color: #1f2937;
   }
 
   @keyframes search-anim {

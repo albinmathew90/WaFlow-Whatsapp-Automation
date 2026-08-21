@@ -26,7 +26,6 @@ import { MessageService } from '../../message/message.service';
  * All endpoints require a valid JWT (crm_token). Sessions are always scoped to
  * the authenticated user — each user sees and manages ONLY their own sessions.
  */
-@Public()
 @ApiTags('crm-sessions')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

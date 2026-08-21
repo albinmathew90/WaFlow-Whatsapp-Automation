@@ -28,6 +28,15 @@ export class ApiKeyGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest<Request>();
+
+    // Skip API Key auth for CRM, OTP, and Admin routes (they use JWT)
+    if (request.path && (
+      request.path.includes('/crm/') || 
+      request.path.includes('/otp-management/') ||
+      request.path.includes('/admin')
+    )) {
+      return true;
+    }
     try {
       return await this.authorize(request, context);
     } catch (err) {

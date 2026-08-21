@@ -19,7 +19,6 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { CrmMediaService } from '../services/crm-media.service';
 import type { Response } from 'express';
 
-@Public()
 @ApiTags('crm-media')
 @Controller('crm/media')
 export class CrmMediaController {

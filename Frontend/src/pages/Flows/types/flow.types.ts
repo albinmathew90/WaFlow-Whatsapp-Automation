@@ -1,7 +1,7 @@
 // ─── Flow Type Definitions ────────────────────────────────────────────────────
 // These mirror the backend CrmFlow entity / FlowRunnerService node kinds.
 
-export type TriggerEvent = 'keyword' | 'any' | 'template_selected' | 'payment_capture';
+export type TriggerEvent = 'keyword' | 'webhook' | 'any' | 'template_selected' | 'payment_capture';
 
 export interface FlowTrigger {
   event: TriggerEvent;
@@ -34,6 +34,7 @@ export type NodeKind =
   | 'set_custom_field'
   | 'api_request'
   | 'connect_flow'
+  | 'webhook_message'
   | 'end_flow';
 
 export interface ButtonDef {
@@ -100,7 +101,6 @@ export const NODE_TYPES: NodeTypeDef[] = [
   { kind: 'single_product', label: 'Single Product', description: 'Send one product', category: 'message', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4', defaultData: {} },
   { kind: 'multi_product', label: 'Multi Product', description: 'Send multiple products', category: 'message', icon: 'M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z', defaultData: {} },
   { kind: 'template', label: 'Template', description: 'Send approved template', category: 'message', icon: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15', defaultData: {} },
-  { kind: 'whatsapp_pay', label: 'WhatsApp Pay', description: 'Payment request', category: 'message', icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z', defaultData: {} },
 
   // ACTIONS TAB
   { kind: 'condition', label: 'Condition', description: 'If/Else routing', category: 'action', icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4', defaultData: {} },
@@ -111,7 +111,7 @@ export const NODE_TYPES: NodeTypeDef[] = [
   { kind: 'set_custom_field', label: 'Set Custom Field', description: 'Save data to contact', category: 'action', icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', defaultData: {} },
   { kind: 'api_request', label: 'API Request', description: 'Call external webhook', category: 'action', icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1', defaultData: {} },
   { kind: 'connect_flow', label: 'Connect Flow', description: 'Jump to another flow', category: 'action', icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1', defaultData: {} },
-  { kind: 'end_flow', label: 'End Flow', description: 'Stop the conversation flow', category: 'action', icon: 'M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM12 10.5h.008v3.75H12V10.5z', defaultData: {} },
+  { kind: 'webhook_message', label: 'Webhook Message', description: 'Send WA message (Webhook)', category: 'action', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z', defaultData: { text: '' } },
 ];
 
 export function getNodeTypeDef(kind: NodeKind): NodeTypeDef | undefined {

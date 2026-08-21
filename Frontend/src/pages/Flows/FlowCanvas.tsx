@@ -34,6 +34,7 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
   // ── UI State ────────────────────────────────────────────────────────────────
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [templates, setTemplates] = useState<{ id: string; name: string }[]>([]);
 
@@ -449,8 +450,10 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
       const method = initialFlow ? 'PUT' : 'POST';
       const res = await fetch(url, { method, headers: headers(), body: JSON.stringify(payload) });
       if (!res.ok) throw new Error(await res.text());
-      const saved: Flow = await res.json();
-      onSaved(saved);
+      const savedRes: Flow = await res.json();
+      onSaved(savedRes);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
     } catch (e: any) {
       setSaveError(e.message || 'Failed to save flow');
     } finally {
@@ -465,29 +468,38 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
   return (
     <div className="flex flex-col h-full w-full">
       {/* ── Top bar ── */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 flex-shrink-0">
-        <button onClick={onCancel} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 dark:bg-gray-950 flex-shrink-0">
+        <button onClick={onCancel} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:bg-gray-800 transition">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         </button>
-        <div className="flex-1 flex items-center gap-2 group">
-          <input
-            className="text-[15px] font-bold bg-transparent text-gray-900 dark:text-white border-b-2 border-transparent hover:border-gray-200 dark:hover:border-gray-800 focus:border-brand-500 outline-none placeholder-gray-400 transition-colors w-64 px-1"
-            value={flowName}
-            onChange={(e) => setFlowName(e.target.value)}
-            placeholder="Flow name..."
-          />
-          <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-          </svg>
+        <div className="flex-1 flex items-center gap-2">
+          <div className="relative group flex items-center">
+            <input
+              className="text-[15px] font-bold bg-gray-50 dark:bg-gray-800 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-brand-300 focus:border-brand-500 focus:bg-white dark:focus:bg-gray-800 rounded-lg outline-none text-gray-900 dark:text-white placeholder-gray-400 transition-all w-64 px-3 py-1.5 pr-8 shadow-sm"
+              value={flowName}
+              onChange={(e) => setFlowName(e.target.value)}
+              placeholder="Flow name..."
+              title="Click to rename flow"
+            />
+            <svg className="w-4 h-4 text-gray-400 absolute right-2.5 pointer-events-none group-hover:text-brand-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+          </div>
         </div>
         {saveError && <span className="text-xs text-error-500">{saveError}</span>}
         <button
           onClick={save}
-          disabled={saving}
-          className="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-md shadow-brand-500/20"
+          disabled={saving || saved}
+          className={`inline-flex items-center gap-2 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-md ${saved ? 'bg-green-500 shadow-green-500/20' : 'bg-brand-500 hover:bg-brand-600 shadow-brand-500/20 disabled:opacity-60'}`}
         >
-          {saving ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
-          Save Flow
+          {saving ? (
+            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : saved ? (
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+          ) : (
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+          )}
+          {saving ? 'Saving...' : saved ? 'Saved!' : 'Save Flow'}
         </button>
       </div>
 
@@ -499,9 +511,9 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
         {/* Canvas */}
         <div
           ref={canvasRef}
-          className="flex-1 relative overflow-hidden bg-gray-50 dark:bg-gray-950"
+          className="flex-1 relative overflow-hidden bg-gray-50 dark:bg-gray-800 dark:bg-gray-950 canvas-dots"
           style={{
-            backgroundImage: 'radial-gradient(circle, #e2e8f0 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(circle, var(--dot-color) 1px, transparent 1px)',
             backgroundSize: `${28 * scale}px ${28 * scale}px`,
             backgroundPosition: `${pan.x}px ${pan.y}px`,
             cursor: (canvasDragRef.current || draggingId) ? 'grabbing' : 'auto',
@@ -530,13 +542,14 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
 
             {/* Trigger Node */}
             <TriggerNode
-          trigger={trigger}
-          x={triggerPos.x}
-          y={triggerPos.y}
-          dragging={draggingId === 'trigger_node'}
-          onDragStart={(e) => startDrag('trigger_node', e)}
-          onChange={setTrigger}
-          onStartEdge={startEdge}
+            flowId={initialFlow?.id}
+            trigger={trigger}
+            x={triggerPos.x}
+            y={triggerPos.y}
+            dragging={draggingId === 'trigger_node'}
+            onDragStart={(e) => startDrag('trigger_node', e)}
+            onChange={setTrigger}
+            onStartEdge={startEdge}
         />
 
             {/* Nodes */}
@@ -545,6 +558,7 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
                 key={id}
                 id={id}
                 node={node}
+                flowId={initialFlow?.id}
                 isSelected={selectedNodeId === id}
                 isStart={id === startNodeId}
                 dragging={draggingId === id}
@@ -579,14 +593,14 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
           </div>
 
           {/* Zoom Controls Overlay */}
-          <div className="absolute bottom-4 left-4 flex bg-white dark:bg-gray-900 shadow-md rounded-lg border border-gray-200 dark:border-gray-800 p-1 gap-1">
-            <button onClick={() => setScale(s => Math.max(0.2, s - 0.1))} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500">
+          <div className="absolute bottom-4 left-4 flex bg-white dark:bg-gray-900 shadow-md rounded-lg border border-gray-200 dark:border-gray-700 dark:border-gray-800 p-1 gap-1">
+            <button onClick={() => setScale(s => Math.max(0.2, s - 0.1))} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>
             </button>
-            <div className="w-12 text-center text-xs font-medium text-gray-600 dark:text-gray-300 flex items-center justify-center select-none">
+            <div className="w-12 text-center text-xs font-medium text-gray-600 dark:text-gray-400 dark:text-gray-300 flex items-center justify-center select-none">
               {Math.round(scale * 100)}%
             </div>
-            <button onClick={() => setScale(s => Math.min(2, s + 0.1))} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500">
+            <button onClick={() => setScale(s => Math.min(2, s + 0.1))} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             </button>
           </div>

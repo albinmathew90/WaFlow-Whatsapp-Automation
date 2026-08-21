@@ -354,20 +354,20 @@ export default function ChatbotLeadsPage() {
         </div>
       </div>
       
-      <div className="flex bg-white dark:bg-boxdark shadow-xl border border-stroke dark:border-strokedark rounded-2xl overflow-hidden" style={{ height: 'calc(100vh - 210px)', minHeight: '500px' }}>
+      <div className="flex bg-white dark:bg-gray-900 shadow-xl border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden" style={{ height: 'calc(100vh - 210px)', minHeight: '500px' }}>
         
         {/* Left Sidebar */}
-        <div className="w-[380px] border-r border-stroke dark:border-strokedark flex flex-col bg-slate-50 dark:bg-boxdark-2">
+        <div className="w-[380px] border-r border-gray-200 dark:border-gray-800 flex flex-col bg-slate-50 dark:bg-gray-800">
           
           {/* Header & Search */}
-          <div className="p-4 bg-white dark:bg-boxdark border-b border-stroke dark:border-strokedark flex flex-col gap-4">
+          <div className="p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex flex-col gap-4">
             <div className="flex gap-2 items-center">
               <div className="relative flex-1 group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={16} />
                 <input
                   type="text"
                   placeholder="Search leads, emails..."
-                  className="w-full bg-slate-100 dark:bg-meta-4 border-none text-sm rounded-full pl-9 pr-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-slate-700 dark:text-slate-200"
+                  className="w-full bg-slate-100 dark:bg-gray-700 border-none text-sm rounded-full pl-9 pr-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-slate-700 dark:text-slate-200"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                 />
@@ -409,7 +409,7 @@ export default function ChatbotLeadsPage() {
                 <select
                   value={filterDate}
                   onChange={e => setFilterDate(e.target.value)}
-                  className="flex-1 bg-slate-100 dark:bg-meta-4 rounded-md text-[11px] text-slate-600 dark:text-slate-400 outline-none px-2 py-1.5 cursor-pointer"
+                  className="flex-1 bg-slate-100 dark:bg-gray-700 rounded-md text-[11px] text-slate-600 dark:text-slate-400 outline-none px-2 py-1.5 cursor-pointer"
                 >
                   <option value="all">All Time</option>
                   <option value="today">Today</option>
@@ -421,7 +421,7 @@ export default function ChatbotLeadsPage() {
                 <select
                   value={filterType}
                   onChange={e => setFilterType(e.target.value)}
-                  className="flex-1 bg-slate-100 dark:bg-meta-4 rounded-md text-[11px] text-slate-600 dark:text-slate-400 outline-none px-2 py-1.5 cursor-pointer"
+                  className="flex-1 bg-slate-100 dark:bg-gray-700 rounded-md text-[11px] text-slate-600 dark:text-slate-400 outline-none px-2 py-1.5 cursor-pointer"
                 >
                   <option value="all">All Leads</option>
                   <option value="contact">Has Email/Phone</option>
@@ -435,7 +435,7 @@ export default function ChatbotLeadsPage() {
                     type="date"
                     value={customStartDate}
                     onChange={e => setCustomStartDate(e.target.value)}
-                    className="flex-1 bg-slate-100 dark:bg-meta-4 border-none rounded-md text-[11px] text-slate-600 dark:text-slate-400 outline-none px-2 py-1.5"
+                    className="flex-1 bg-slate-100 dark:bg-gray-700 border-none rounded-md text-[11px] text-slate-600 dark:text-slate-400 outline-none px-2 py-1.5"
                     title="Start Date"
                   />
                   <span className="text-slate-400 text-xs">-</span>
@@ -443,7 +443,7 @@ export default function ChatbotLeadsPage() {
                     type="date"
                     value={customEndDate}
                     onChange={e => setCustomEndDate(e.target.value)}
-                    className="flex-1 bg-slate-100 dark:bg-meta-4 border-none rounded-md text-[11px] text-slate-600 dark:text-slate-400 outline-none px-2 py-1.5"
+                    className="flex-1 bg-slate-100 dark:bg-gray-700 border-none rounded-md text-[11px] text-slate-600 dark:text-slate-400 outline-none px-2 py-1.5"
                     title="End Date"
                   />
                 </div>
@@ -460,7 +460,7 @@ export default function ChatbotLeadsPage() {
               </div>
             ) : filteredLeads.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-40 text-slate-400 gap-3 p-8 text-center">
-                <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-meta-4 flex items-center justify-center mb-2">
+                <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-gray-700 flex items-center justify-center mb-2">
                   <Users size={20} />
                 </div>
                 <p className="text-sm">No leads match your search criteria.</p>
@@ -479,11 +479,11 @@ export default function ChatbotLeadsPage() {
                       className={`relative group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
                         isActive 
                           ? 'bg-indigo-50 dark:bg-indigo-500/10 shadow-sm' 
-                          : 'hover:bg-white dark:hover:bg-boxdark hover:shadow-sm'
+                          : 'hover:bg-white dark:hover:bg-gray-900 hover:shadow-sm'
                       }`}
                     >
                       <div className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold shadow-inner ${
-                        isActive ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white' : 'bg-slate-200 dark:bg-meta-4 text-slate-600 dark:text-slate-300'
+                        isActive ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white' : 'bg-slate-200 dark:bg-gray-700 text-slate-600 dark:text-slate-300'
                       }`}>
                         {getInitials(displayName)}
                       </div>
@@ -532,11 +532,11 @@ export default function ChatbotLeadsPage() {
         </div>
 
         {/* Right Pane: Conversation Area */}
-        <div className="flex-1 flex flex-col bg-white dark:bg-boxdark relative">
+        <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 relative">
           {selectedLead ? (
             <>
               {/* Header */}
-              <div className="h-[72px] px-6 border-b border-stroke dark:border-strokedark flex items-center justify-between bg-white dark:bg-boxdark z-10 shadow-sm">
+              <div className="h-[72px] px-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900 z-10 shadow-sm">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-lg font-bold shadow-md">
                     {getInitials(getDisplayName(selectedLead))}
@@ -580,10 +580,10 @@ export default function ChatbotLeadsPage() {
               </div>
 
               {/* Chat Transcript Area */}
-              <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50 dark:bg-meta-4/20 scroll-smooth">
+              <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50 dark:bg-gray-700/20 scroll-smooth">
                 {(!selectedLead.messages || selectedLead.messages.length === 0) ? (
                   <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                    <div className="w-16 h-16 rounded-2xl bg-white dark:bg-meta-4 shadow-sm flex items-center justify-center mb-4 transform -rotate-6">
+                    <div className="w-16 h-16 rounded-2xl bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center mb-4 transform -rotate-6">
                       <MessageSquare size={28} className="text-indigo-300" />
                     </div>
                     <p className="text-sm font-medium text-slate-500">Form filled leads captured, but no conversation happened.</p>
@@ -605,8 +605,8 @@ export default function ChatbotLeadsPage() {
                               isVisitor 
                                 ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-[20px_20px_4px_20px]' 
                                 : isBot 
-                                  ? 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-slate-800 dark:text-slate-200 rounded-[20px_20px_20px_4px]'
-                                  : 'bg-slate-100 dark:bg-meta-4 text-slate-800 dark:text-slate-200 rounded-[20px_20px_20px_4px]'
+                                  ? 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-slate-800 dark:text-slate-200 rounded-[20px_20px_20px_4px]'
+                                  : 'bg-slate-100 dark:bg-gray-700 text-slate-800 dark:text-slate-200 rounded-[20px_20px_20px_4px]'
                             }`}
                           >
                             <div className="text-[13.5px] leading-relaxed whitespace-pre-wrap">
@@ -634,7 +634,7 @@ export default function ChatbotLeadsPage() {
             </>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8">
-              <div className="w-24 h-24 rounded-full bg-slate-50 dark:bg-meta-4 border-2 border-dashed border-slate-200 dark:border-strokedark flex items-center justify-center mb-6">
+              <div className="w-24 h-24 rounded-full bg-slate-50 dark:bg-gray-700 border-2 border-dashed border-slate-200 dark:border-gray-700 flex items-center justify-center mb-6">
                 <Users size={32} className="text-indigo-300" />
               </div>
               <h3 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">Select a Conversation</h3>

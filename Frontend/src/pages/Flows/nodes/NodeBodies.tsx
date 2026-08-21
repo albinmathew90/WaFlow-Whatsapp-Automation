@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { FlowNode } from '../types/flow.types';
 
 interface BodyProps {
@@ -25,12 +25,12 @@ function ButtonConfigModal({ node, onChange, onClose }: { node: FlowNode, onChan
         </div>
       )}
       
-      <div className="text-[14px] font-bold text-gray-800 dark:text-gray-100 mb-4">Add Button</div>
+      <div className="text-[14px] font-bold text-gray-800 dark:text-gray-200 dark:text-gray-100 mb-4">Add Button</div>
       
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <input 
-            className={`w-full text-[13px] border rounded-lg p-2.5 bg-white/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 transition ${
+            className={`w-full text-[13px] border rounded-lg p-2.5 bg-white dark:bg-gray-900/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 transition ${
               errorField === 'name' ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-brand-500'
             }`}
             placeholder="Button Name"
@@ -41,9 +41,9 @@ function ButtonConfigModal({ node, onChange, onClose }: { node: FlowNode, onChan
         </div>
         
         <div className="flex flex-col gap-1 relative">
-          <span className="absolute -top-2 left-2 bg-white dark:bg-gray-900 px-1 text-[10px] font-bold text-gray-800 dark:text-gray-300">Button Type</span>
+          <span className="absolute -top-2 left-2 bg-white dark:bg-gray-900 px-1 text-[10px] font-bold text-gray-800 dark:text-gray-200 dark:text-gray-300">Button Type</span>
           <select 
-            className="w-full text-[13px] border border-gray-800 rounded-lg p-2.5 pt-3 bg-white/50 focus:bg-white font-medium dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600"
+            className="w-full text-[13px] border border-gray-800 rounded-lg p-2.5 pt-3 bg-white dark:bg-gray-900/50 focus:bg-white font-medium dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600"
             value={btnType}
             onChange={e => setBtnType(e.target.value as any)}
           >
@@ -55,9 +55,9 @@ function ButtonConfigModal({ node, onChange, onClose }: { node: FlowNode, onChan
         
         {btnType === 'link' && (
           <div className="flex flex-col gap-1 relative mt-1">
-            <span className="absolute -top-2 left-2 bg-white dark:bg-gray-900 px-1 text-[10px] font-bold text-gray-800 dark:text-gray-300">Link</span>
+            <span className="absolute -top-2 left-2 bg-white dark:bg-gray-900 px-1 text-[10px] font-bold text-gray-800 dark:text-gray-200 dark:text-gray-300">Link</span>
             <input 
-              className={`w-full text-[13px] border rounded-lg p-2.5 pt-3 bg-white/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 transition ${
+              className={`w-full text-[13px] border rounded-lg p-2.5 pt-3 bg-white dark:bg-gray-900/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 transition ${
                 errorField === 'url' ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-800 focus:border-brand-500'
               }`}
               placeholder="https://example.com"
@@ -72,7 +72,7 @@ function ButtonConfigModal({ node, onChange, onClose }: { node: FlowNode, onChan
       <div className="flex justify-end gap-2 mt-5">
         <button 
           onMouseDown={(e) => { e.stopPropagation(); onClose(); }}
-          className="px-4 py-1.5 text-[12px] font-bold text-gray-500 hover:text-gray-700 dark:text-gray-200 transition"
+          className="px-4 py-1.5 text-[12px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-200 transition"
         >
           Cancel
         </button>
@@ -116,9 +116,9 @@ export function TextButtonNodeBody({ id, node, onChange, onStartEdge, color }: B
   return (
     <div className="px-3 py-1.5 flex flex-col gap-2">
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 pt-3">
-        <span className="absolute -top-2 left-2 bg-white dark:bg-gray-900 px-1 text-[10px] font-bold text-gray-800 dark:text-gray-300">Enter Message</span>
+        <span className="absolute -top-2 left-2 bg-white dark:bg-gray-900 px-1 text-[10px] font-bold text-gray-800 dark:text-gray-200 dark:text-gray-300">Enter Message</span>
         <textarea 
-          className="w-full text-[12px] text-gray-800 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all resize-none dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600"
+          className="w-full text-[12px] text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all resize-none dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600"
           rows={3} 
           value={node.message || ''}
           onChange={(e) => onChange({ message: e.target.value })}
@@ -144,7 +144,7 @@ export function TextButtonNodeBody({ id, node, onChange, onStartEdge, color }: B
                   <div 
                     id={`port-${id}-${b.id}`}
                     onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, b.id, e.clientX, e.clientY); }}
-                    className="w-3.5 h-3.5 rounded-full border-[2.5px] bg-white cursor-crosshair hover:bg-brand-50 shadow-sm"
+                    className="w-3.5 h-3.5 rounded-full border-[2.5px] bg-white dark:bg-gray-900 cursor-crosshair hover:bg-brand-50 shadow-sm"
                     style={{ borderColor: '#059669' }}
                     title="Connect Button"
                   />
@@ -192,27 +192,27 @@ export function MediaButtonNodeBody({ id, node, onChange, onStartEdge, color }: 
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select Media Type</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.mediaType || 'image'} onChange={(e) => onChange({ mediaType: e.target.value as any })}>
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.mediaType || 'image'} onChange={(e) => onChange({ mediaType: e.target.value as any })}>
             <option value="image">Image</option>
             <option value="video">Video</option>
             <option value="document">Document</option>
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select media type you want.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select media type you want.</span>
         </div>
         
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter or Paste URL</span>
-          <input className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.mediaUrl || ''} onChange={(e) => onChange({ mediaUrl: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter media URL here.</span>
+          <input className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.mediaUrl || ''} onChange={(e) => onChange({ mediaUrl: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter media URL here.</span>
         </div>
 
         {node.mediaFile ? (
-          <div className="border border-gray-200 rounded-lg p-3 flex items-center justify-between bg-gray-50 dark:bg-gray-800/30">
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 flex items-center justify-between bg-gray-50 dark:bg-gray-800/30">
             <div className="flex items-center gap-2 overflow-hidden">
                <svg className="w-4 h-4 text-brand-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                </svg>
-               <span className="text-[11px] truncate text-gray-700 dark:text-gray-200 font-medium">{node.mediaFile.name}</span>
+               <span className="text-[11px] truncate text-gray-700 dark:text-gray-300 dark:text-gray-200 font-medium">{node.mediaFile.name}</span>
             </div>
             <button onMouseDown={() => onChange({ mediaFile: null })} className="p-1 text-gray-400 hover:text-red-500 transition cursor-pointer" title="Remove file">
                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -221,7 +221,7 @@ export function MediaButtonNodeBody({ id, node, onChange, onStartEdge, color }: 
         ) : (
           <div 
             onClick={() => fileInputRef.current?.click()} 
-            className="border-2 border-dashed border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:bg-gray-50 dark:bg-gray-800/30 hover:border-brand-300 transition"
+            className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-800/30 hover:border-brand-300 transition"
           >
             <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" accept={getAcceptList()} />
             <svg className="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
@@ -231,8 +231,8 @@ export function MediaButtonNodeBody({ id, node, onChange, onStartEdge, color }: 
 
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Caption</span>
-          <input className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.caption || ''} onChange={(e) => onChange({ caption: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter caption text here.</span>
+          <input className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.caption || ''} onChange={(e) => onChange({ caption: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter caption text here.</span>
         </div>
 
         {node.buttons && node.buttons.length > 0 && (
@@ -254,7 +254,7 @@ export function MediaButtonNodeBody({ id, node, onChange, onStartEdge, color }: 
                   <div 
                     id={`port-${id}-${b.id}`}
                     onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, b.id, e.clientX, e.clientY); }}
-                    className="w-3.5 h-3.5 rounded-full border-[2.5px] bg-white cursor-crosshair hover:bg-brand-50 shadow-sm"
+                    className="w-3.5 h-3.5 rounded-full border-[2.5px] bg-white dark:bg-gray-900 cursor-crosshair hover:bg-brand-50 shadow-sm"
                     style={{ borderColor: '#059669' }}
                     title="Connect Button"
                   />
@@ -364,30 +364,30 @@ export function ListNodeBody({ id, node, onChange, onStartEdge, color }: BodyPro
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Body</span>
           <textarea 
-            className={`text-[12px] text-gray-800 dark:text-gray-100 border rounded p-1.5 bg-white/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 transition outline-none resize-none ${errorField === 'body' ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-brand-500'}`} 
+            className={`text-[12px] text-gray-800 dark:text-gray-200 dark:text-gray-100 border rounded p-1.5 bg-white dark:bg-gray-900/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 transition outline-none resize-none ${errorField === 'body' ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-brand-500'}`} 
             rows={3} 
             value={node.message || ''} 
             onChange={(e) => { onChange({ message: e.target.value }); setErrorField(null); }}
             onBlur={(e) => validateAndSetError(e.target.value, 'body', 'Body is required')}
           />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter body here, only {(node.message || '').length}/1024 characters allowed.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter body here, only {(node.message || '').length}/1024 characters allowed.</span>
         </div>
         
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Button Text</span>
           <input 
-            className={`text-[12px] text-gray-800 dark:text-gray-100 border rounded p-1.5 bg-white/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 transition outline-none ${errorField === 'buttonText' ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-brand-500'}`} 
+            className={`text-[12px] text-gray-800 dark:text-gray-200 dark:text-gray-100 border rounded p-1.5 bg-white dark:bg-gray-900/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 transition outline-none ${errorField === 'buttonText' ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-brand-500'}`} 
             value={node.buttonText || ''} 
             placeholder="e.g. View Services"
             onChange={(e) => { onChange({ buttonText: e.target.value }); setErrorField(null); }}
             onBlur={(e) => validateAndSetError(e.target.value, 'buttonText', 'Button Text is required')}
           />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter button text here, only {(node.buttonText || '').length}/20 characters allowed.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter button text here, only {(node.buttonText || '').length}/20 characters allowed.</span>
         </div>
 
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Save Answer to Contact Custom Field (Optional)</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.saveAs || ''} onChange={(e) => onChange({ saveAs: e.target.value })}>
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.saveAs || ''} onChange={(e) => onChange({ saveAs: e.target.value })}>
             <option value="">Default (answer)</option>
             {loadingFields ? (
               <option disabled>Loading...</option>
@@ -397,14 +397,14 @@ export function ListNodeBody({ id, node, onChange, onStartEdge, color }: BodyPro
               ))
             )}
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select contact custom field to store reply.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select contact custom field to store reply.</span>
         </div>
 
         {(node.sections || []).map((s: any) => (
-          <div key={s.id} className="border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3 mt-1 relative bg-white dark:bg-white/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-brand-500/50 transition-all">
+          <div key={s.id} className="border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3 mt-1 relative bg-white dark:bg-gray-900 dark:bg-white/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-brand-500/50 transition-all">
              <div className="flex items-center gap-2">
                <input 
-                 className={`flex-1 text-[12px] text-gray-800 dark:text-gray-100 border rounded p-1.5 bg-white/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 transition outline-none ${errorField === s.id ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-brand-500'}`}
+                 className={`flex-1 text-[12px] text-gray-800 dark:text-gray-200 dark:text-gray-100 border rounded p-1.5 bg-white dark:bg-gray-900/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 transition outline-none ${errorField === s.id ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-brand-500'}`}
                  placeholder="Section Title"
                  value={s.title}
                  onChange={(e) => { updateSection(s.id, { title: e.target.value }); setErrorField(null); }}
@@ -414,21 +414,21 @@ export function ListNodeBody({ id, node, onChange, onStartEdge, color }: BodyPro
                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
                </button>
              </div>
-             <span className="text-[9px] text-gray-500 -mt-2 dark:text-gray-500">Enter section title here, only {(s.title || '').length}/20 characters allowed.</span>
+             <span className="text-[9px] text-gray-500 dark:text-gray-400 -mt-2 dark:text-gray-500">Enter section title here, only {(s.title || '').length}/20 characters allowed.</span>
 
               {(s.items || []).map((item: any) => (
-                <div key={item.id} className="border border-gray-100 dark:border-gray-700/50 rounded-lg p-2 flex flex-col gap-2 relative bg-gray-50 dark:bg-gray-800/30">
+                <div key={item.id} className="border border-gray-100 dark:border-gray-800 dark:border-gray-700/50 rounded-lg p-2 flex flex-col gap-2 relative bg-gray-50 dark:bg-gray-800/30">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 flex flex-col gap-2">
                       <div className="flex flex-col gap-1">
                         <input 
-                          className={`w-full text-[12px] text-gray-800 dark:text-gray-100 border rounded p-1.5 bg-white dark:bg-gray-900 outline-none transition ${errorField === item.id+'-t' ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-brand-500'}`}
+                          className={`w-full text-[12px] text-gray-800 dark:text-gray-200 dark:text-gray-100 border rounded p-1.5 bg-white dark:bg-gray-900 outline-none transition ${errorField === item.id+'-t' ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-brand-500'}`}
                           placeholder="Enter Title"
                           value={item.title}
                           onChange={(e) => { updateItem(s.id, item.id, { title: e.target.value }); setErrorField(null); }}
                           onBlur={(e) => validateAndSetError(e.target.value, item.id+'-t', 'Item Title is required')}
                         />
-                        <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter title here, only {(item.title || '').length}/24 characters allowed.</span>
+                        <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter title here, only {(item.title || '').length}/24 characters allowed.</span>
                       </div>
                     </div>
                    
@@ -436,7 +436,7 @@ export function ListNodeBody({ id, node, onChange, onStartEdge, color }: BodyPro
                      <button onMouseDown={() => removeItem(s.id, item.id)} className="text-gray-400 hover:text-red-500 transition cursor-pointer" title="Remove item">
                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
                      </button>
-                     <button id={`port-${id}-${item.id}`} onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, item.id, e.clientX, e.clientY); }} className="w-3.5 h-3.5 rounded-full border-2 bg-white cursor-pointer hover:scale-110 transition-transform" style={{ borderColor: '#059669' }} title="Connect Item" />
+                     <button id={`port-${id}-${item.id}`} onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, item.id, e.clientX, e.clientY); }} className="w-3.5 h-3.5 rounded-full border-2 bg-white dark:bg-gray-900 cursor-pointer hover:scale-110 transition-transform" style={{ borderColor: '#059669' }} title="Connect Item" />
                    </div>
                  </div>
                </div>
@@ -450,7 +450,7 @@ export function ListNodeBody({ id, node, onChange, onStartEdge, color }: BodyPro
         ))}
 
         <button onMouseDown={addSection} className="w-full py-1.5 text-[12px] font-bold text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50 transition cursor-pointer">Add Section</button>
-        <button className="w-full py-1.5 text-[12px] font-bold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition">Open List</button>
+        <button className="w-full py-1.5 text-[12px] font-bold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition">Open List</button>
       </div>
     </div>
   );
@@ -462,18 +462,18 @@ export function CatalogNodeBody({ id, node, onChange, onStartEdge, color }: Body
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Catalog ID (Optional)</span>
-          <input className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Leave empty to use default" value={node.catalogId || ''} onChange={(e) => onChange({ catalogId: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Paste your Catalog ID here if you have multiple catalogs.</span>
+          <input className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Leave empty to use default" value={node.catalogId || ''} onChange={(e) => onChange({ catalogId: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Paste your Catalog ID here if you have multiple catalogs.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Body</span>
-          <textarea className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} value={node.message || ''} onChange={(e) => onChange({ message: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter body here, only {(node.message || '').length}/1024 characters allowed.</span>
+          <textarea className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} value={node.message || ''} onChange={(e) => onChange({ message: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter body here, only {(node.message || '').length}/1024 characters allowed.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Footer</span>
-          <input className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.footer || ''} onChange={(e) => onChange({ footer: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter footer here, only {(node.footer || '').length}/60 characters allowed.</span>
+          <input className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.footer || ''} onChange={(e) => onChange({ footer: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter footer here, only {(node.footer || '').length}/60 characters allowed.</span>
         </div>
       </div>
       
@@ -487,18 +487,18 @@ export function SingleProductNodeBody({ id, node, onChange, onStartEdge, color }
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Product ID</span>
-          <input className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Enter Product ID" value={node.productId || ''} onChange={(e) => onChange({ productId: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Paste the specific Product ID from your catalog.</span>
+          <input className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Enter Product ID" value={node.productId || ''} onChange={(e) => onChange({ productId: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Paste the specific Product ID from your catalog.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Body</span>
-          <textarea className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} value={node.message || ''} onChange={(e) => onChange({ message: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter body here, only {(node.message || '').length}/1024 characters allowed.</span>
+          <textarea className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} value={node.message || ''} onChange={(e) => onChange({ message: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter body here, only {(node.message || '').length}/1024 characters allowed.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Footer</span>
-          <input className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.footer || ''} onChange={(e) => onChange({ footer: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter footer here, only {(node.footer || '').length}/60 characters allowed.</span>
+          <input className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.footer || ''} onChange={(e) => onChange({ footer: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter footer here, only {(node.footer || '').length}/60 characters allowed.</span>
         </div>
       </div>
     </div>
@@ -511,23 +511,23 @@ export function MultiProductNodeBody({ id, node, onChange, onStartEdge, color }:
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Header</span>
-          <input className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.header || ''} onChange={(e) => onChange({ header: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter header here, only {(node.header || '').length}/20 characters allowed.</span>
+          <input className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.header || ''} onChange={(e) => onChange({ header: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter header here, only {(node.header || '').length}/20 characters allowed.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Body</span>
-          <textarea className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} value={node.message || ''} onChange={(e) => onChange({ message: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter body here, only {(node.message || '').length}/1024 characters allowed.</span>
+          <textarea className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} value={node.message || ''} onChange={(e) => onChange({ message: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter body here, only {(node.message || '').length}/1024 characters allowed.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Footer</span>
-          <input className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.footer || ''} onChange={(e) => onChange({ footer: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter footer here, only {(node.footer || '').length}/60 characters allowed.</span>
+          <input className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.footer || ''} onChange={(e) => onChange({ footer: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter footer here, only {(node.footer || '').length}/60 characters allowed.</span>
         </div>
 
         {(node.sections || []).map((s: any, idx: number) => (
-          <div key={s.id} className="border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2 flex flex-col gap-2 mt-1 relative bg-white dark:bg-white/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-brand-500/50 transition-all">
-             <input className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Section Title" value={s.title} onChange={(e) => {
+          <div key={s.id} className="border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2 flex flex-col gap-2 mt-1 relative bg-white dark:bg-gray-900 dark:bg-white/50 dark:bg-gray-800/50 focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-brand-500/50 transition-all">
+             <input className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Section Title" value={s.title} onChange={(e) => {
                const newSections = [...node.sections];
                newSections[idx].title = e.target.value;
                onChange({ sections: newSections });
@@ -535,7 +535,7 @@ export function MultiProductNodeBody({ id, node, onChange, onStartEdge, color }:
              <div className="flex flex-col gap-1">
                 {(s.products || []).map((pid: string, pidx: number) => (
                   <div key={pidx} className="flex gap-1 items-center">
-                    <input className="flex-1 text-[11px] border border-gray-200 rounded p-1 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Product ID" value={pid} onChange={(e) => {
+                    <input className="flex-1 text-[11px] border border-gray-200 dark:border-gray-700 rounded p-1 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Product ID" value={pid} onChange={(e) => {
                        const newSections = [...node.sections];
                        newSections[idx].products[pidx] = e.target.value;
                        onChange({ sections: newSections });
@@ -555,7 +555,7 @@ export function MultiProductNodeBody({ id, node, onChange, onStartEdge, color }:
              }} className="w-full text-[11px] font-bold text-brand-600 border border-brand-200 rounded py-1 hover:bg-brand-50">Add Product ID</button>
              <button onMouseDown={() => {
                 onChange({ sections: node.sections.filter((_: any, i: number) => i !== idx) });
-             }} className="absolute -top-2 -right-2 w-5 h-5 bg-white border border-red-200 rounded-full text-red-500 text-[10px] flex items-center justify-center cursor-pointer hover:bg-red-50">X</button>
+             }} className="absolute -top-2 -right-2 w-5 h-5 bg-white dark:bg-gray-900 border border-red-200 rounded-full text-red-500 text-[10px] flex items-center justify-center cursor-pointer hover:bg-red-50">X</button>
           </div>
         ))}
         
@@ -608,24 +608,24 @@ export function TemplateSelectorModal({ onSelect, onClose }: { onSelect: (templa
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-xl z-50 p-4 max-h-[400px] flex flex-col">
       <div className="flex justify-between items-center mb-4 shrink-0">
-        <div className="text-[14px] font-bold text-gray-800 dark:text-gray-100">Select Template</div>
-        <button onMouseDown={(e) => { e.stopPropagation(); onClose(); }} className="text-gray-500 hover:text-gray-700 dark:text-gray-200">
+        <div className="text-[14px] font-bold text-gray-800 dark:text-gray-200 dark:text-gray-100">Select Template</div>
+        <button onMouseDown={(e) => { e.stopPropagation(); onClose(); }} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-200">
            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
       </div>
       <div className="flex flex-col gap-3 overflow-y-auto pr-1">
         {loading ? (
-           <div className="text-[12px] text-center text-gray-500 py-4">Loading templates...</div>
+           <div className="text-[12px] text-center text-gray-500 dark:text-gray-400 py-4">Loading templates...</div>
         ) : templates.length === 0 ? (
-           <div className="text-[12px] text-center text-gray-500 py-4">No templates found.</div>
+           <div className="text-[12px] text-center text-gray-500 dark:text-gray-400 py-4">No templates found.</div>
         ) : (
           templates.map(t => (
             <div key={t.id} onMouseDown={(e) => { e.stopPropagation(); onSelect(t); }} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:border-brand-500 cursor-pointer transition shrink-0">
               <div className="font-bold text-[13px] text-gray-800 dark:text-gray-200 mb-1">{t.name}</div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[9px] bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-600 font-medium dark:text-gray-500">{t.type}</span>
+                <span className="text-[9px] bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-600 dark:text-gray-400 font-medium dark:text-gray-500">{t.type}</span>
               </div>
-              <div className="text-[11px] text-gray-500 line-clamp-2 whitespace-pre-wrap">{t.body}</div>
+              <div className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-2 whitespace-pre-wrap">{t.body}</div>
             </div>
           ))
         )}
@@ -665,7 +665,7 @@ export function TemplateNodeBody({ id, node, onChange, onStartEdge, color }: Bod
           
           <div className="flex flex-col gap-2 text-[12px]">
             {t.type === 'Catalog' && (
-              <div className="flex items-center gap-2 bg-white/50 dark:bg-black/20 p-2 rounded">
+              <div className="flex items-center gap-2 bg-white dark:bg-gray-900/50 dark:bg-black/20 p-2 rounded">
                  {t.catalogThumbnail && <img src={t.catalogThumbnail} className="w-10 h-10 object-cover rounded" />}
                  <div>
                    <div className="font-semibold">Catalog</div>
@@ -683,14 +683,14 @@ export function TemplateNodeBody({ id, node, onChange, onStartEdge, color }: Bod
             )}
             
             {(t.type === 'Document' || t.type === 'document' || t.type === 'file') && t.mediaUrl && (
-              <div className="flex items-center gap-2 bg-white/50 dark:bg-black/20 p-2 rounded overflow-hidden">
+              <div className="flex items-center gap-2 bg-white dark:bg-gray-900/50 dark:bg-black/20 p-2 rounded overflow-hidden">
                 <svg className="w-6 h-6 shrink-0 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                 <span className="truncate">{t.mediaUrl.split('/').pop()}</span>
               </div>
             )}
 
             {t.type === 'Location' && (
-              <div className="flex flex-col gap-1 bg-white/50 dark:bg-black/20 p-2 rounded">
+              <div className="flex flex-col gap-1 bg-white dark:bg-gray-900/50 dark:bg-black/20 p-2 rounded">
                 <div className="font-semibold text-[11px]">{t.locationName || 'Location'}</div>
                 <div className="text-[10px] opacity-80">{t.locationAddress}</div>
               </div>
@@ -699,7 +699,7 @@ export function TemplateNodeBody({ id, node, onChange, onStartEdge, color }: Bod
             {t.type === 'Carousel' && t.carouselCards && t.carouselCards.length > 0 && (
               <div className="flex gap-2 overflow-x-auto pb-1 custom-scrollbar snap-x">
                 {t.carouselCards.map((card: any, idx: number) => (
-                  <div key={idx} className="shrink-0 w-32 bg-white/50 dark:bg-black/20 rounded p-1.5 snap-center flex flex-col gap-1">
+                  <div key={idx} className="shrink-0 w-32 bg-white dark:bg-gray-900/50 dark:bg-black/20 rounded p-1.5 snap-center flex flex-col gap-1">
                      {card.mediaUrl && <img src={card.mediaUrl} className="w-full h-16 object-cover rounded" />}
                      <div className="text-[10px] line-clamp-2">{card.body}</div>
                   </div>
@@ -721,7 +721,7 @@ export function TemplateNodeBody({ id, node, onChange, onStartEdge, color }: Bod
                     <div 
                       id={`port-${id}-${b.id}`}
                       onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, b.id, e.clientX, e.clientY); }}
-                      className="w-3.5 h-3.5 rounded-full border-[2.5px] bg-white cursor-crosshair hover:bg-sky-50 shadow-sm"
+                      className="w-3.5 h-3.5 rounded-full border-[2.5px] bg-white dark:bg-gray-900 cursor-crosshair hover:bg-sky-50 shadow-sm"
                       style={{ borderColor: '#0ea5e9' }}
                       title="Connect Button"
                     />
@@ -804,7 +804,7 @@ export function ConditionNodeBody({ id, node, onChange, onStartEdge, color }: Bo
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300">Condition On</span>
           <select 
-            className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" 
+            className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" 
             value={node.conditionOn || ''} 
             onChange={(e) => onChange({ conditionOn: e.target.value, op: '', valueToCompare: '', customFieldId: '' })}
           >
@@ -812,14 +812,14 @@ export function ConditionNodeBody({ id, node, onChange, onStartEdge, color }: Bo
             <option value="user_message">User Message</option>
             <option value="contact_custom_field">Contact Custom Field</option>
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select the condition to apply before proceeding with the flow.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select the condition to apply before proceeding with the flow.</span>
         </div>
 
         {node.conditionOn === 'user_message' && (
           <>
             <div className="flex flex-col gap-1">
               <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300">Select Condition</span>
-              <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.op || ''} onChange={(e) => onChange({ op: e.target.value })}>
+              <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.op || ''} onChange={(e) => onChange({ op: e.target.value })}>
                 <option value="">Select condition here.</option>
                 <option value="eq">Equal</option>
                 <option value="contains">Contains</option>
@@ -841,14 +841,14 @@ export function ConditionNodeBody({ id, node, onChange, onStartEdge, color }: Bo
                   </div>
                 )}
                 <input 
-                  className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" 
+                  className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" 
                   placeholder="Type keyword and press Enter"
                   onKeyDown={handleKeywordChange}
                 />
                 
                 <div className="flex items-center gap-2 mt-1">
                   <input type="checkbox" id={`cs-${id}`} checked={node.caseSensitive || false} onChange={(e) => onChange({ caseSensitive: e.target.checked })} />
-                  <label htmlFor={`cs-${id}`} className="text-[10px] font-medium text-gray-700 dark:text-gray-200 dark:text-gray-300">Case Sensitive</label>
+                  <label htmlFor={`cs-${id}`} className="text-[10px] font-medium text-gray-700 dark:text-gray-300 dark:text-gray-200 dark:text-gray-300">Case Sensitive</label>
                 </div>
               </div>
             )}
@@ -859,7 +859,7 @@ export function ConditionNodeBody({ id, node, onChange, onStartEdge, color }: Bo
           <>
             <div className="flex flex-col gap-1">
               <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300">Select Condition</span>
-              <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.op || ''} onChange={(e) => onChange({ op: e.target.value })}>
+              <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.op || ''} onChange={(e) => onChange({ op: e.target.value })}>
                 <option value="">Select condition here.</option>
                 <option value="eq">Equal</option>
                 <option value="exists">Exists</option>
@@ -872,15 +872,15 @@ export function ConditionNodeBody({ id, node, onChange, onStartEdge, color }: Bo
               {node.op === 'time_in' || node.op === 'date_in' ? (
                 <>
                   <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300">Compare with</span>
-                  <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value="now" disabled>
+                  <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value="now" disabled>
                     <option value="now">Now</option>
                   </select>
-                  <span className="text-[9px] text-gray-500 dark:text-gray-500">Pick a contact custom field to apply this condition.</span>
+                  <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Pick a contact custom field to apply this condition.</span>
                 </>
               ) : (
                 <>
                   <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300">Select Contact Custom Field</span>
-                  <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.customFieldId || ''} onChange={(e) => onChange({ customFieldId: e.target.value })}>
+                  <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.customFieldId || ''} onChange={(e) => onChange({ customFieldId: e.target.value })}>
                     <option value="">Pick a contact custom field...</option>
                     {loadingFields ? (
                       <option disabled>Loading...</option>
@@ -897,7 +897,7 @@ export function ConditionNodeBody({ id, node, onChange, onStartEdge, color }: Bo
             {node.op === 'eq' && (
               <div className="flex flex-col gap-1 mt-1">
                 <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300">Enter Value to Compare</span>
-                <input className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Value..." value={node.valueToCompare || ''} onChange={(e) => onChange({ valueToCompare: e.target.value })} />
+                <input className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Value..." value={node.valueToCompare || ''} onChange={(e) => onChange({ valueToCompare: e.target.value })} />
               </div>
             )}
 
@@ -905,11 +905,11 @@ export function ConditionNodeBody({ id, node, onChange, onStartEdge, color }: Bo
               <div className="flex flex-col gap-2 mt-1">
                 <div className="flex flex-col gap-1">
                   <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300">Start Time</span>
-                  <input type="time" className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white w-full dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.startTime || ''} onChange={(e) => onChange({ startTime: e.target.value })} />
+                  <input type="time" className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white w-full dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.startTime || ''} onChange={(e) => onChange({ startTime: e.target.value })} />
                 </div>
                 <div className="flex flex-col gap-1">
                   <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300">End Time</span>
-                  <input type="time" className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white w-full dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.endTime || ''} onChange={(e) => onChange({ endTime: e.target.value })} />
+                  <input type="time" className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white w-full dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.endTime || ''} onChange={(e) => onChange({ endTime: e.target.value })} />
                 </div>
               </div>
             )}
@@ -918,11 +918,11 @@ export function ConditionNodeBody({ id, node, onChange, onStartEdge, color }: Bo
               <div className="flex flex-col gap-2 mt-1">
                 <div className="flex flex-col gap-1">
                   <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300">Start Date</span>
-                  <input type="date" className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white w-full dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.startDate || ''} onChange={(e) => onChange({ startDate: e.target.value })} />
+                  <input type="date" className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white w-full dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.startDate || ''} onChange={(e) => onChange({ startDate: e.target.value })} />
                 </div>
                 <div className="flex flex-col gap-1">
                   <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300">End Date</span>
-                  <input type="date" className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white w-full dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.endDate || ''} onChange={(e) => onChange({ endDate: e.target.value })} />
+                  <input type="date" className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white w-full dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.endDate || ''} onChange={(e) => onChange({ endDate: e.target.value })} />
                 </div>
               </div>
             )}
@@ -931,11 +931,11 @@ export function ConditionNodeBody({ id, node, onChange, onStartEdge, color }: Bo
 
         <div className="flex items-center justify-between border border-green-200 rounded p-2 mt-2 bg-green-50/50">
           <span className="text-[11px] font-bold text-green-700">True</span>
-          <button id={`port-${id}-true`} onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, 'true', e.clientX, e.clientY); }} className="w-3 h-3 rounded-full border-[2.5px] bg-white cursor-crosshair hover:scale-125 transition-transform shadow-sm" style={{ borderColor: '#10b981' }} title="Connect True path" />
+          <button id={`port-${id}-true`} onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, 'true', e.clientX, e.clientY); }} className="w-3 h-3 rounded-full border-[2.5px] bg-white dark:bg-gray-900 cursor-crosshair hover:scale-125 transition-transform shadow-sm" style={{ borderColor: '#10b981' }} title="Connect True path" />
         </div>
         <div className="flex items-center justify-between border border-red-200 rounded p-2 bg-red-50/50">
           <span className="text-[11px] font-bold text-red-700">False</span>
-          <button id={`port-${id}-false`} onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, 'false', e.clientX, e.clientY); }} className="w-3 h-3 rounded-full border-[2.5px] bg-white cursor-crosshair hover:scale-125 transition-transform shadow-sm" style={{ borderColor: '#ef4444' }} title="Connect False path" />
+          <button id={`port-${id}-false`} onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, 'false', e.clientX, e.clientY); }} className="w-3 h-3 rounded-full border-[2.5px] bg-white dark:bg-gray-900 cursor-crosshair hover:scale-125 transition-transform shadow-sm" style={{ borderColor: '#ef4444' }} title="Connect False path" />
         </div>
       </div>
     </div>
@@ -972,12 +972,12 @@ export function QuestionNodeBody({ id, node, onChange, onStartEdge, color }: Bod
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Message</span>
-          <textarea className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all resize-none dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} value={node.prompt || ''} onChange={(e) => onChange({ prompt: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter message here, only {(node.prompt || '').length}/1024 characters allowed.</span>
+          <textarea className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all resize-none dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} value={node.prompt || ''} onChange={(e) => onChange({ prompt: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter message here, only {(node.prompt || '').length}/1024 characters allowed.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select Contact Custom Field</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.saveAs || ''} onChange={(e) => onChange({ saveAs: e.target.value })}>
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.saveAs || ''} onChange={(e) => onChange({ saveAs: e.target.value })}>
             <option value="">Select contact custom field...</option>
             {loadingFields ? (
               <option disabled>Loading...</option>
@@ -987,11 +987,11 @@ export function QuestionNodeBody({ id, node, onChange, onStartEdge, color }: Bod
               ))
             )}
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select contact custom field to store reply.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select contact custom field to store reply.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select Format</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.format || 'any'} onChange={(e) => onChange({ format: e.target.value })}>
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.format || 'any'} onChange={(e) => onChange({ format: e.target.value })}>
             <option value="any">Any</option>
             <option value="text">Text</option>
             <option value="number">Number</option>
@@ -1000,27 +1000,27 @@ export function QuestionNodeBody({ id, node, onChange, onStartEdge, color }: Bod
             <option value="email">Email</option>
             <option value="regex">Regex</option>
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select format of the reply.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select format of the reply.</span>
         </div>
 
         {node.format === 'number' && (
           <div className="flex gap-2">
             <div className="flex-1 flex flex-col gap-1">
-              <input type="number" className="w-full text-[12px] border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="min" value={node.min ?? ''} onChange={(e) => onChange({ min: e.target.value ? Number(e.target.value) : undefined })} />
+              <input type="number" className="w-full text-[12px] border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="min" value={node.min ?? ''} onChange={(e) => onChange({ min: e.target.value ? Number(e.target.value) : undefined })} />
             </div>
             <div className="flex-1 flex flex-col gap-1">
-              <input type="number" className="w-full text-[12px] border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="max" value={node.max ?? ''} onChange={(e) => onChange({ max: e.target.value ? Number(e.target.value) : undefined })} />
+              <input type="number" className="w-full text-[12px] border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="max" value={node.max ?? ''} onChange={(e) => onChange({ max: e.target.value ? Number(e.target.value) : undefined })} />
             </div>
           </div>
         )}
         {node.format === 'number' && (
-          <span className="text-[9px] text-gray-500 -mt-2 dark:text-gray-500">Enter min and max value here.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 -mt-2 dark:text-gray-500">Enter min and max value here.</span>
         )}
 
         {node.format === 'regex' && (
           <div className="flex flex-col gap-1">
-            <input type="text" className="w-full text-[12px] border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Enter Regex" value={node.regex || ''} onChange={(e) => onChange({ regex: e.target.value })} />
-            <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter or paste regex.</span>
+            <input type="text" className="w-full text-[12px] border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Enter Regex" value={node.regex || ''} onChange={(e) => onChange({ regex: e.target.value })} />
+            <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter or paste regex.</span>
           </div>
         )}
 
@@ -1028,14 +1028,14 @@ export function QuestionNodeBody({ id, node, onChange, onStartEdge, color }: Bod
           <>
             <div className="flex flex-col gap-1">
               <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Number</span>
-              <input type="number" className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.attempts ?? 0} onChange={(e) => onChange({ attempts: e.target.value ? Number(e.target.value) : 0 })} />
-              <span className="text-[9px] text-gray-500 dark:text-gray-500">Number of Attempt.</span>
+              <input type="number" className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.attempts ?? 0} onChange={(e) => onChange({ attempts: e.target.value ? Number(e.target.value) : 0 })} />
+              <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Number of Attempt.</span>
             </div>
 
             <div className="flex flex-col gap-1">
               <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter validation message</span>
-              <textarea className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all resize-none dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} placeholder="Please enter a valid format!" value={node.validationMessage || ''} onChange={(e) => onChange({ validationMessage: e.target.value })} />
-              <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter validation error message here, only {(node.validationError || '').length}/1024 characters allowed.</span>
+              <textarea className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all resize-none dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} placeholder="Please enter a valid format!" value={node.validationMessage || ''} onChange={(e) => onChange({ validationMessage: e.target.value })} />
+              <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter validation error message here, only {(node.validationError || '').length}/1024 characters allowed.</span>
             </div>
           </>
         )}
@@ -1074,12 +1074,12 @@ export function MediaQuestionNodeBody({ id, node, onChange, onStartEdge, color }
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Message</span>
-          <textarea className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all resize-none dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} value={node.prompt || ''} onChange={(e) => onChange({ prompt: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter message here, only {(node.prompt || '').length}/1024 characters allowed.</span>
+          <textarea className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all resize-none dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} value={node.prompt || ''} onChange={(e) => onChange({ prompt: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter message here, only {(node.prompt || '').length}/1024 characters allowed.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select Contact Custom Field</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.saveAs || ''} onChange={(e) => onChange({ saveAs: e.target.value })}>
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.saveAs || ''} onChange={(e) => onChange({ saveAs: e.target.value })}>
             <option value="">Select contact custom field...</option>
             {loadingFields ? (
               <option disabled>Loading...</option>
@@ -1089,31 +1089,31 @@ export function MediaQuestionNodeBody({ id, node, onChange, onStartEdge, color }
               ))
             )}
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select contact custom field to store media.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select contact custom field to store media.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select Media Type</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.format || 'any'} onChange={(e) => onChange({ format: e.target.value })}>
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.format || 'any'} onChange={(e) => onChange({ format: e.target.value })}>
             <option value="any">Any</option>
             <option value="image">Image</option>
             <option value="video">Video</option>
             <option value="document">Document</option>
             <option value="audio">Audio</option>
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select media type of the reply.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select media type of the reply.</span>
         </div>
         {(!node.format || node.format === 'any') ? null : (
           <>
             <div className="flex flex-col gap-1">
               <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Number</span>
-              <input type="number" className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.attempts ?? 0} onChange={(e) => onChange({ attempts: e.target.value ? Number(e.target.value) : 0 })} />
-              <span className="text-[9px] text-gray-500 dark:text-gray-500">Number of Attempt.</span>
+              <input type="number" className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.attempts ?? 0} onChange={(e) => onChange({ attempts: e.target.value ? Number(e.target.value) : 0 })} />
+              <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Number of Attempt.</span>
             </div>
 
             <div className="flex flex-col gap-1">
               <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter validation message</span>
-              <textarea className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all resize-none dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} placeholder="Please enter a valid format!" value={node.validationMessage || ''} onChange={(e) => onChange({ validationMessage: e.target.value })} />
-              <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter validation error message here, only {(node.validationError || '').length}/1024 characters allowed.</span>
+              <textarea className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all resize-none dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} placeholder="Please enter a valid format!" value={node.validationMessage || ''} onChange={(e) => onChange({ validationMessage: e.target.value })} />
+              <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter validation error message here, only {(node.validationError || '').length}/1024 characters allowed.</span>
             </div>
           </>
         )}
@@ -1152,7 +1152,7 @@ export function ContactCustomFieldNodeBody({ id, node, onChange, onStartEdge, co
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select Contact Custom Field</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.field || ''} onChange={(e) => onChange({ field: e.target.value })}>
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.field || ''} onChange={(e) => onChange({ field: e.target.value })}>
             <option value="">Select contact custom field...</option>
             {loadingFields ? (
               <option disabled>Loading...</option>
@@ -1162,12 +1162,12 @@ export function ContactCustomFieldNodeBody({ id, node, onChange, onStartEdge, co
               ))
             )}
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select contact custom field to store value.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select contact custom field to store value.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Enter Value</span>
-          <input className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Value..." value={node.value || ''} onChange={(e) => onChange({ value: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter or paste value.</span>
+          <input className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="Value..." value={node.value || ''} onChange={(e) => onChange({ value: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter or paste value.</span>
         </div>
       </div>
     </div>
@@ -1204,12 +1204,12 @@ export function AddressNodeBody({ id, node, onChange, onStartEdge, color }: Body
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Question Message</span>
-          <textarea className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all resize-none dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} placeholder="Enter question message here." value={node.prompt || ''} onChange={(e) => onChange({ prompt: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter question message here.</span>
+          <textarea className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all resize-none dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} placeholder="Enter question message here." value={node.prompt || ''} onChange={(e) => onChange({ prompt: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter question message here.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select Contact Custom Field</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.saveAs || ''} onChange={(e) => onChange({ saveAs: e.target.value })}>
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.saveAs || ''} onChange={(e) => onChange({ saveAs: e.target.value })}>
             <option value="">Select field...</option>
             {loadingFields ? (
               <option disabled>Loading...</option>
@@ -1219,7 +1219,7 @@ export function AddressNodeBody({ id, node, onChange, onStartEdge, color }: Body
               ))
             )}
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select contact custom field to store address.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select contact custom field to store address.</span>
         </div>
       </div>
     </div>
@@ -1256,13 +1256,13 @@ export function LocationNodeBody({ id, node, onChange, onStartEdge, color }: Bod
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Question Message</span>
-          <textarea className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} value={node.prompt || ''} onChange={(e) => onChange({ prompt: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Enter question message here.</span>
+          <textarea className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" rows={3} value={node.prompt || ''} onChange={(e) => onChange({ prompt: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Enter question message here.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Save As (Custom Field)</span>
           <select
-            className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600"
+            className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600"
             value={node.saveAs || ''}
             onChange={(e) => onChange({ saveAs: e.target.value })}
           >
@@ -1275,7 +1275,7 @@ export function LocationNodeBody({ id, node, onChange, onStartEdge, color }: Bod
               ))
             )}
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select contact custom field to store location reply.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select contact custom field to store location reply.</span>
         </div>
       </div>
     </div>
@@ -1288,14 +1288,14 @@ export function DelayNodeBody({ id, node, onChange, onStartEdge, color }: BodyPr
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Delay Type</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.delayType || 'time'} onChange={(e) => onChange({ delayType: e.target.value as any })}>
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.delayType || 'time'} onChange={(e) => onChange({ delayType: e.target.value as any })}>
             <option value="time">Specific Time</option>
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Set a specific duration to pause the flow.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Set a specific duration to pause the flow.</span>
         </div>
         <div className="flex flex-col gap-1 mt-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Delay Value (Seconds)</span>
-          <input type="number" className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.seconds || 0} onChange={(e) => onChange({ seconds: parseInt(e.target.value) || 0 })} />
+          <input type="number" className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" value={node.seconds || 0} onChange={(e) => onChange({ seconds: parseInt(e.target.value) || 0 })} />
         </div>
       </div>
     </div>
@@ -1363,20 +1363,20 @@ export function APIRequestNodeBody({ id, node, onChange, onStartEdge, color }: B
         
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Method</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900" value={node.method || 'POST'} onChange={(e) => onChange({ method: e.target.value })}>
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900" value={node.method || 'POST'} onChange={(e) => onChange({ method: e.target.value })}>
             <option value="GET">GET</option>
             <option value="POST">POST</option>
             <option value="PUT">PUT</option>
             <option value="PATCH">PATCH</option>
             <option value="DELETE">DELETE</option>
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select HTTP Method.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select HTTP Method.</span>
         </div>
 
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Endpoint URL</span>
-          <input className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="https://" value={node.webhookUrl || ''} onChange={(e) => onChange({ webhookUrl: e.target.value })} />
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">API Request or Webhook URL.</span>
+          <input className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600" placeholder="https://" value={node.webhookUrl || ''} onChange={(e) => onChange({ webhookUrl: e.target.value })} />
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">API Request or Webhook URL.</span>
         </div>
 
         {node.method !== 'GET' && node.method !== 'DELETE' && (
@@ -1388,19 +1388,19 @@ export function APIRequestNodeBody({ id, node, onChange, onStartEdge, color }: B
             
             <div className="flex flex-col gap-2">
               {(node.bodyParams || []).map((param: any) => (
-                <div key={param.id} className="flex gap-2 items-start bg-gray-50 dark:bg-gray-800/30 p-2 rounded border border-gray-100 dark:border-gray-700/50">
+                <div key={param.id} className="flex gap-2 items-start bg-gray-50 dark:bg-gray-800/30 p-2 rounded border border-gray-100 dark:border-gray-800 dark:border-gray-700/50">
                   <div className="flex-1 flex flex-col gap-1">
                     <input 
-                      className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white focus:bg-white outline-none focus:ring-1 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:placeholder-gray-500" 
+                      className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900 focus:bg-white outline-none focus:ring-1 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:placeholder-gray-500" 
                       placeholder="e.g. email" 
                       value={param.key} 
                       onChange={(e) => updateParam(param.id, { key: e.target.value })} 
                     />
-                    <span className="text-[8px] text-gray-500">Key (Use lowercase letters)</span>
+                    <span className="text-[8px] text-gray-500 dark:text-gray-400">Key (Use lowercase letters)</span>
                   </div>
                   <div className="flex-1 flex flex-col gap-1">
                     <select 
-                      className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white focus:bg-white outline-none focus:ring-1 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900" 
+                      className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900 focus:bg-white outline-none focus:ring-1 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900" 
                       value={param.value} 
                       onChange={(e) => updateParam(param.id, { value: e.target.value })}
                     >
@@ -1413,7 +1413,7 @@ export function APIRequestNodeBody({ id, node, onChange, onStartEdge, color }: B
                         ))
                       )}
                     </select>
-                    <span className="text-[8px] text-gray-500">Value (Custom Field)</span>
+                    <span className="text-[8px] text-gray-500 dark:text-gray-400">Value (Custom Field)</span>
                   </div>
                   <button onMouseDown={() => removeParam(param.id)} className="p-1.5 text-gray-400 hover:text-red-500 transition-colors mt-0.5">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -1428,13 +1428,13 @@ export function APIRequestNodeBody({ id, node, onChange, onStartEdge, color }: B
               )}
             </div>
             
-            <span className="text-[9px] text-gray-500 dark:text-gray-500">JSON payload is automatically generated.</span>
+            <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">JSON payload is automatically generated.</span>
           </div>
         )}
 
         <div className="flex items-center justify-between border border-brand-200 dark:border-brand-500/30 rounded-lg p-1.5 px-3 mt-1 bg-brand-50/30 dark:bg-brand-900/10">
           <span className="text-[12px] font-bold text-brand-600 dark:text-brand-400">Status Fallback</span>
-          <button id={`port-${id}-fallback`} onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, 'fallback', e.clientX, e.clientY); }} className="w-3.5 h-3.5 rounded-full border-2 bg-white cursor-pointer hover:scale-125 transition-transform" style={{ borderColor: color }} title="Connect Fallback path" />
+          <button id={`port-${id}-fallback`} onMouseDown={(e) => { e.stopPropagation(); onStartEdge(id, 'fallback', e.clientX, e.clientY); }} className="w-3.5 h-3.5 rounded-full border-2 bg-white dark:bg-gray-900 cursor-pointer hover:scale-125 transition-transform" style={{ borderColor: color }} title="Connect Fallback path" />
         </div>
       </div>
     </div>
@@ -1447,24 +1447,24 @@ export function SingleAIMessageNodeBody({ id, node, onChange, onStartEdge, color
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select AI Assistant</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600">
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600">
             <option value="">Select AI Assistant...</option>
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select AI Assistant.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select AI Assistant.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Assistant Input</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600">
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600">
             <option value="">Select input...</option>
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select how the AI Assistant should respond.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select how the AI Assistant should respond.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select Contact Custom Field</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600">
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600">
             <option value="">Select field...</option>
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select contact custom field to store value.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select contact custom field to store value.</span>
         </div>
       </div>
     </div>
@@ -1477,17 +1477,17 @@ export function AssignAIAssistantNodeBody({ id, node, onChange, onStartEdge, col
       <div className="relative border border-red-400 dark:border-red-500/40 dark:border-red-500/30 rounded-lg p-2.5 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select AI Assistant</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600">
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600">
             <option value="">Select AI Assistant...</option>
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select AI Assistant.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select AI Assistant.</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Start With</span>
-          <select className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600">
+          <select className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600">
             <option value="">Select...</option>
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">Select how the AI Assistant should start the conversation.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">Select how the AI Assistant should start the conversation.</span>
         </div>
       </div>
     </div>
@@ -1525,7 +1525,7 @@ export function ConnectFlowNodeBody({ id, node, onChange, onStartEdge, color }: 
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Select Flow</span>
           <select 
-            className="w-full text-[12px] text-gray-800 border border-gray-200 rounded p-1.5 bg-white/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900" 
+            className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900" 
             value={node.targetFlowId || ''} 
             onChange={(e) => onChange({ targetFlowId: e.target.value })}
           >
@@ -1538,7 +1538,7 @@ export function ConnectFlowNodeBody({ id, node, onChange, onStartEdge, color }: 
               ))
             )}
           </select>
-          <span className="text-[9px] text-gray-500 dark:text-gray-500">The customer will jump to the start of this flow.</span>
+          <span className="text-[9px] text-gray-500 dark:text-gray-400 dark:text-gray-500">The customer will jump to the start of this flow.</span>
         </div>
       </div>
     </div>
@@ -1549,7 +1549,109 @@ export function DefaultNodeBody({ id, node, onChange, onStartEdge, color }: Body
   return (
     <div className="px-3 py-1.5">
       <div className="px-3 py-3 text-center border border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800/30">
-        <p className="text-[11px] text-gray-500 font-medium">Node details configuration</p>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Node details configuration</p>
+      </div>
+    </div>
+  );
+}
+
+export function WebhookMessageNodeBody({ id, node, onChange, onStartEdge, color, flowId }: BodyProps & { flowId?: string }) {
+  const [detectedFields, setDetectedFields] = useState<string[]>([]);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  const getToken = () => sessionStorage.getItem('crm_token');
+  const headers = () => ({ Authorization: `Bearer ${getToken()}`, 'Content-Type': 'application/json' });
+
+  const loadFields = useCallback(() => {
+    if (flowId) {
+      fetch(`/openwa-api/crm/flows/${flowId}/trigger`, { headers: headers() })
+        .then(res => res.json())
+        .then(data => {
+          if (data.detectedFields) {
+            const allFields = new Set<string>();
+            Object.values(data.detectedFields).forEach((fields: any) => {
+              fields.forEach((f: string) => allFields.add(f));
+            });
+            setDetectedFields(Array.from(allFields));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [flowId]);
+
+  useEffect(() => {
+    loadFields();
+  }, [loadFields]);
+
+  const insertVariable = (variable: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const currentText = node.message || '';
+    const newText = currentText.substring(0, start) + `{{${variable}}}` + currentText.substring(end);
+    onChange({ message: newText });
+    
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + variable.length + 4, start + variable.length + 4);
+    }, 10);
+  };
+
+  const handleTestMessage = async () => {
+    if (!flowId) return;
+    alert("Test message preview ready! (Backend sending logic can be connected here)");
+  };
+
+  return (
+    <div className="px-3 py-1.5 flex flex-col gap-2">
+      <div className="relative border border-brand-400 dark:border-brand-500/40 dark:border-brand-500/30 rounded-lg p-2.5 flex flex-col gap-3">
+        <div className="flex flex-col gap-1 mb-2">
+          <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">To (Phone Number)</span>
+          <input
+            type="text"
+            className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600 font-mono"
+            placeholder="{{customer.phone}}"
+            value={node.toPhone || ''}
+            onChange={(e) => onChange({ toPhone: e.target.value })}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Message Text</span>
+          <textarea
+            ref={textareaRef}
+            className="w-full text-[12px] text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded p-1.5 bg-white dark:bg-gray-900/50 focus:bg-white outline-none focus:ring-2 focus:ring-brand-500/50 transition-all dark:text-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:focus:bg-gray-900 dark:placeholder-gray-600 font-mono"
+            rows={4}
+            placeholder="Hi {{order.customer.name}}, your order..."
+            value={node.message || ''}
+            onChange={(e) => onChange({ message: e.target.value })}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] font-medium text-gray-700 dark:text-gray-300">Insert Variable</label>
+            <button onClick={loadFields} className="text-[9px] text-brand-500 hover:underline flex items-center gap-1">
+              <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+              Refresh
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {detectedFields.map(f => (
+              <button
+                key={f}
+                onClick={() => insertVariable(f)}
+                className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-300 rounded text-[9px] font-mono transition-colors border border-gray-200 dark:border-gray-700"
+              >
+                {`{{${f}}}`}
+              </button>
+            ))}
+            {detectedFields.length === 0 && (
+              <span className="text-[9px] text-gray-400 italic">No variables detected yet. Test your webhook first.</span>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

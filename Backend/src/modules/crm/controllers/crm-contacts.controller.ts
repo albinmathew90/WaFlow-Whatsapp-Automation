@@ -5,7 +5,6 @@ import { CrmContactsService } from '../services/crm-contacts.service';
 import { CreateCrmContactDto, UpdateCrmContactDto } from '../dto/crm.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
-@Public()
 @ApiTags('crm-contacts')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

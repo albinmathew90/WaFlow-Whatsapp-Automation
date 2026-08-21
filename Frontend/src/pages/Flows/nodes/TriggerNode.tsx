@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import type { FlowTrigger } from '../types/flow.types';
 import { TemplateSelectorModal } from './NodeBodies';
+import WebhookTriggerFields from './WebhookTriggerFields';
 
 interface Props {
+  flowId?: string;
   trigger: FlowTrigger;
   x: number;
   y: number;
@@ -12,7 +14,7 @@ interface Props {
   onDragStart: (e: React.MouseEvent) => void;
 }
 
-export default function TriggerNode({ trigger, x, y, dragging, onChange, onStartEdge, onDragStart }: Props) {
+export default function TriggerNode({ flowId, trigger, x, y, dragging, onChange, onStartEdge, onDragStart }: Props) {
   const [keywordInput, setKeywordInput] = useState('');
   const [showTemplateModal, setShowTemplateModal] = useState(false);
 
@@ -77,7 +79,7 @@ export default function TriggerNode({ trigger, x, y, dragging, onChange, onStart
               <path d="M8 5a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm8-16a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4z" />
             </svg>
           </div>
-          <span className="text-[14px] font-bold text-gray-800 dark:text-gray-100">Trigger</span>
+          <span className="text-[14px] font-bold text-gray-800 dark:text-gray-200 dark:text-gray-100">Trigger</span>
         </div>
         <button
           id="port-trigger_node-output"
@@ -95,11 +97,12 @@ export default function TriggerNode({ trigger, x, y, dragging, onChange, onStart
         <div className="flex flex-col gap-1.5">
           <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Trigger Event</label>
           <select
-            className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 outline-none focus:border-brand-400"
+            className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 dark:bg-gray-800 text-gray-800 dark:text-gray-200 outline-none focus:border-brand-400"
             value={trigger.event}
             onChange={(e) => onChange({ ...trigger, event: e.target.value as any })}
           >
             <option value="keyword">Keyword/Regex Match</option>
+            <option value="webhook">Webhook</option>
             <option value="any">User Starts Conversation</option>
             <option value="template_selected">Template Selected</option>
             <option value="payment_capture">Payment Capture</option>
@@ -130,10 +133,10 @@ export default function TriggerNode({ trigger, x, y, dragging, onChange, onStart
           <>
             <div className="flex flex-col gap-1.5">
               <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Enter Keywords</label>
-              <div className="flex flex-wrap gap-1.5 p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 min-h-[42px]">
+              <div className="flex flex-wrap gap-1.5 p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 dark:bg-gray-800 min-h-[42px]">
                 {(trigger.keywords || []).map((k, i) => (
-                  <div key={i} className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 px-2.5 py-1 rounded-md">
-                    <span className="text-[12px] text-gray-700 dark:text-gray-200">{k}</span>
+                  <div key={i} className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 dark:bg-gray-700 px-2.5 py-1 rounded-md">
+                    <span className="text-[12px] text-gray-700 dark:text-gray-300 dark:text-gray-200">{k}</span>
                     <button
                       onClick={() => removeKeyword(i)}
                       className="text-gray-400 hover:text-red-500"
@@ -158,7 +161,7 @@ export default function TriggerNode({ trigger, x, y, dragging, onChange, onStart
             <div className="flex flex-col gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex flex-col">
-                  <span className="text-[12px] font-semibold text-gray-700 dark:text-gray-200">Enable case sensitive regex/keywords.</span>
+                  <span className="text-[12px] font-semibold text-gray-700 dark:text-gray-300 dark:text-gray-200">Enable case sensitive regex/keywords.</span>
                   <span className="text-[11px] text-gray-400">Enable toggle for case sensitive matching.</span>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer mt-1 flex-shrink-0">
@@ -168,14 +171,14 @@ export default function TriggerNode({ trigger, x, y, dragging, onChange, onStart
                     checked={!!trigger.caseSensitive}
                     onChange={(e) => onChange({ ...trigger, caseSensitive: e.target.checked })}
                   />
-                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-brand-500"></div>
+                  <div className="w-9 h-5 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-brand-500"></div>
                 </label>
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Enter Regex</label>
                 <input
-                  className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 outline-none focus:border-brand-400"
+                  className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 dark:bg-gray-800 text-gray-800 dark:text-gray-200 outline-none focus:border-brand-400"
                   placeholder="Enter a regex pattern..."
                   value={trigger.regex || ''}
                   onChange={(e) => onChange({ ...trigger, regex: e.target.value })}
@@ -186,6 +189,10 @@ export default function TriggerNode({ trigger, x, y, dragging, onChange, onStart
 
 
           </>
+        )}
+
+        {trigger.event === 'webhook' && (
+          <WebhookTriggerFields flowId={flowId} trigger={trigger} onChange={onChange} />
         )}
 
         {trigger.event === 'template_selected' && (

@@ -758,37 +758,37 @@ const SEOPage: React.FC = () => {
   return (
     <div className="w-full h-full relative">
       {warningMessage && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-           <div className="bg-white p-6 rounded shadow-xl max-w-sm w-full text-center border border-gray-100">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black dark:bg-white/50 backdrop-blur-sm animate-in fade-in duration-200">
+           <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-xl max-w-sm w-full text-center border border-gray-100 dark:border-gray-800">
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                 <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Warning</h3>
-              <p className="text-sm text-gray-500 mb-6">{warningMessage}</p>
-              <button onClick={() => setWarningMessage('')} className="px-6 py-2 bg-gray-900 text-white rounded text-sm hover:bg-black transition-colors shadow-sm font-medium">OK</button>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Warning</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{warningMessage}</p>
+              <button onClick={() => setWarningMessage('')} className="px-6 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-black rounded text-sm hover:bg-black transition-colors shadow-sm font-medium">OK</button>
            </div>
         </div>
       )}
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden flex flex-col">
         
-        <div className="flex items-center justify-between border-b border-gray-200 px-3 py-1.5 bg-gray-50/50 min-h-[44px]">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-3 py-1.5 bg-gray-50 dark:bg-gray-800/50 min-h-[44px]">
           
           {hasSelection ? (
             <div className="flex items-center flex-1 gap-3 animate-in fade-in slide-in-from-left-2 duration-200">
-              <span className="text-xs font-medium text-gray-700">{selectedItems.length} selected</span>
+              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{selectedItems.length} selected</span>
               <div className="flex items-center gap-1.5">
                 <button 
                   onClick={handleEditSelected}
-                  className="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-1 shadow-sm transition-colors"
+                  className="px-2 py-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-1 shadow-sm transition-colors"
                 >
-                  <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                  <svg className="w-3 h-3 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                   Edit
                 </button>
                 <button 
                   onClick={handleDeleteSelected}
-                  className="px-2 py-1 bg-white border border-red-100 rounded text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-1 shadow-sm transition-colors"
+                  className="px-2 py-1 bg-white dark:bg-gray-900 border border-red-100 rounded text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-1 shadow-sm transition-colors"
                 >
                   <svg className="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   Delete
@@ -804,7 +804,7 @@ const SEOPage: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none text-xs focus:ring-0 w-full outline-none placeholder-gray-400 text-gray-900"
+                className="bg-transparent border-none text-xs focus:ring-0 w-full outline-none placeholder-gray-400 text-gray-900 dark:text-white"
                 placeholder="Search by Url"
               />
             </div>
@@ -839,21 +839,21 @@ const SEOPage: React.FC = () => {
                 setStructuredData('');
                 setIsCreateModalOpen(true);
               }}
-              className="px-2 py-1 border border-gray-200 rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors bg-white text-gray-700 hover:bg-gray-50 mr-2"
+              className="px-2 py-1 border border-gray-200 dark:border-gray-700 rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 mr-2"
             >
               <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
               Create New
             </button>
             <button 
               onClick={() => toggleTab('columns')}
-              className={`px-2 py-1 border rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors ${activeTab === 'columns' ? 'bg-gray-100 border-gray-300 text-gray-900' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`}
+              className={`px-2 py-1 border rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors ${activeTab === 'columns' ? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
             >
               Columns
               <svg className={`w-3 h-3 text-gray-400 transition-transform ${activeTab === 'columns' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
             </button>
             <button 
               onClick={() => toggleTab('filters')}
-              className={`px-2 py-1 border rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors ${activeTab === 'filters' ? 'bg-gray-100 border-gray-300 text-gray-900' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`}
+              className={`px-2 py-1 border rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors ${activeTab === 'filters' ? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
             >
               Filters
               <svg className={`w-3 h-3 text-gray-400 transition-transform ${activeTab === 'filters' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -862,12 +862,12 @@ const SEOPage: React.FC = () => {
         </div>
 
         {activeTab === 'columns' && (
-          <div className="bg-gray-50/80 border-b border-gray-200 px-3 py-2 flex items-center gap-1.5 flex-wrap animate-in slide-in-from-top-1 fade-in duration-150">
+          <div className="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700 px-3 py-2 flex items-center gap-1.5 flex-wrap animate-in slide-in-from-top-1 fade-in duration-150">
             {(Object.keys(visibleColumns) as Array<keyof SEOData>).map((key) => (
               <div 
                 key={key} 
                 onClick={() => toggleColumn(key)}
-                className={`flex items-center gap-1 px-2 py-0.5 border rounded text-[11px] font-medium shadow-sm cursor-pointer transition-colors ${visibleColumns[key] ? 'bg-white border-gray-200 text-gray-700 hover:border-gray-300' : 'bg-gray-100 border-gray-200 text-gray-400'}`}
+                className={`flex items-center gap-1 px-2 py-0.5 border rounded text-[11px] font-medium shadow-sm cursor-pointer transition-colors ${visibleColumns[key] ? 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300' : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400'}`}
               >
                 <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={visibleColumns[key] ? "M6 18L18 6M6 6l12 12" : "M12 4v16m8-8H4"} /></svg>
                 {COLUMN_LABELS[key]}
@@ -877,13 +877,13 @@ const SEOPage: React.FC = () => {
         )}
 
         {activeTab === 'filters' && (
-          <div className="bg-gray-50/80 border-b border-gray-200 px-3 py-3 flex flex-col items-start gap-3 animate-in slide-in-from-top-1 fade-in duration-150 w-full">
+          <div className="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700 px-3 py-3 flex flex-col items-start gap-3 animate-in slide-in-from-top-1 fade-in duration-150 w-full">
             {filters.length === 0 ? (
               <div className="flex items-center gap-2">
-                <span className="text-[11px] text-gray-500 font-medium">No filters set</span>
+                <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">No filters set</span>
                 <button 
                   onClick={() => addFilter('and')}
-                  className="flex items-center gap-1 text-[11px] font-medium text-admin-text border border-gray-200 bg-white shadow-sm px-2 py-1 rounded hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-1 text-[11px] font-medium text-admin-text border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm px-2 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                   Add Filter
@@ -891,22 +891,22 @@ const SEOPage: React.FC = () => {
               </div>
             ) : (
               <div className="flex flex-col w-full gap-2">
-                <span className="text-[11px] text-gray-700 font-semibold mb-0.5">Filter items where</span>
+                <span className="text-[11px] text-gray-700 dark:text-gray-300 font-semibold mb-0.5">Filter items where</span>
                 
                 {filters.map((filter, index) => (
                   <React.Fragment key={filter.id}>
                     {index > 0 && filter.logic === 'or' && (
-                      <span className="text-[11px] text-gray-800 font-semibold my-1 uppercase tracking-wider">Or</span>
+                      <span className="text-[11px] text-gray-800 dark:text-gray-200 font-semibold my-1 uppercase tracking-wider">Or</span>
                     )}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 w-full">
                       {index > 0 && filter.logic === 'and' && (
-                        <span className="text-[11px] text-gray-500 font-medium w-5 text-center sm:block hidden">and</span>
+                        <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium w-5 text-center sm:block hidden">and</span>
                       )}
                       
                       <select 
                         value={filter.column}
                         onChange={(e) => updateFilter(filter.id, 'column', e.target.value)}
-                        className="bg-white border border-gray-300 text-[11px] rounded px-1.5 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full sm:w-48"
+                        className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-[11px] rounded px-1.5 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full sm:w-48"
                       >
                         {(Object.keys(COLUMN_LABELS) as Array<keyof SEOData>).map(key => (
                            <option key={key} value={key}>{COLUMN_LABELS[key]}</option>
@@ -916,7 +916,7 @@ const SEOPage: React.FC = () => {
                       <select
                         value={filter.operator}
                         onChange={(e) => updateFilter(filter.id, 'operator', e.target.value)}
-                        className="bg-white border border-gray-300 text-[11px] rounded px-1.5 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full sm:w-40"
+                        className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-[11px] rounded px-1.5 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full sm:w-40"
                       >
                         <option value="equals">equals</option>
                         <option value="is not equal to">is not equal to</option>
@@ -936,7 +936,7 @@ const SEOPage: React.FC = () => {
                           value={filter.value}
                           onChange={(e) => updateFilter(filter.id, 'value', e.target.value)}
                           placeholder="Enter a value"
-                          className="bg-white border border-gray-300 text-[11px] rounded px-2 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full"
+                          className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-[11px] rounded px-2 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full"
                         />
                       </div>
 
@@ -976,14 +976,14 @@ const SEOPage: React.FC = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse whitespace-nowrap">
-            <thead className="bg-gray-100/75 border-b border-gray-200 text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+            <thead className="bg-gray-100 dark:bg-gray-800/75 border-b border-gray-200 dark:border-gray-700 text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">
               <tr>
-                <th scope="col" className="px-3 py-2 w-10 text-center sticky left-0 bg-gray-100/75">
+                <th scope="col" className="px-3 py-2 w-10 text-center sticky left-0 bg-gray-100 dark:bg-gray-800/75">
                   <input 
                     type="checkbox" 
                     checked={filteredItems.length > 0 && selectedItems.length === filteredItems.length}
                     onChange={handleSelectAll}
-                    className="w-3.5 h-3.5 rounded border-gray-300 text-admin-primary focus:ring-admin-primary bg-white cursor-pointer" 
+                    className="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-600 text-admin-primary focus:ring-admin-primary bg-white dark:bg-gray-900 cursor-pointer" 
                   />
                 </th>
                 {(Object.keys(visibleColumns) as Array<keyof SEOData>).map((key) => {
@@ -1001,16 +1001,16 @@ const SEOPage: React.FC = () => {
                 })}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
               {filteredItems.length > 0 ? (
                 filteredItems.map(item => (
-                  <tr key={item.id} className={`hover:bg-gray-50/50 transition-colors group ${selectedItems.includes(item.id) ? 'bg-blue-50/30' : ''}`}>
-                    <td className="px-3 py-2 text-center sticky left-0 bg-white group-hover:bg-gray-50/50">
+                  <tr key={item.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group ${selectedItems.includes(item.id) ? 'bg-blue-50/30' : ''}`}>
+                    <td className="px-3 py-2 text-center sticky left-0 bg-white dark:bg-gray-900 group-hover:bg-gray-50/50">
                       <input 
                         type="checkbox" 
                         checked={selectedItems.includes(item.id)}
                         onChange={() => handleSelectItem(item.id)}
-                        className="w-3.5 h-3.5 rounded border-gray-300 text-admin-primary focus:ring-admin-primary bg-white cursor-pointer" 
+                        className="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-600 text-admin-primary focus:ring-admin-primary bg-white dark:bg-gray-900 cursor-pointer" 
                       />
                     </td>
                     {(Object.keys(visibleColumns) as Array<keyof SEOData>).map((key) => {
@@ -1021,7 +1021,7 @@ const SEOPage: React.FC = () => {
                       if (key === 'url') {
                         return (
                           <td key={key} className="px-3 py-2">
-                            <Link to="#" className="text-xs font-medium text-black hover:underline decoration-black underline-offset-2">
+                            <Link to="#" className="text-xs font-medium text-black dark:text-white hover:underline decoration-black dark:decoration-white underline-offset-2">
                               {val}
                             </Link>
                           </td>
@@ -1030,7 +1030,7 @@ const SEOPage: React.FC = () => {
 
                       if (key === 'createdAt' || key === 'updatedAt') {
                         return (
-                          <td key={key} className="px-3 py-2 text-xs text-gray-500 whitespace-nowrap">
+                          <td key={key} className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
                             {new Date(val as string).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </td>
                         );
@@ -1038,14 +1038,14 @@ const SEOPage: React.FC = () => {
 
                       if (key === 'id') {
                         return (
-                          <td key={key} className="px-3 py-2 text-[11px] text-gray-500 font-mono">
-                            ID: <span className="text-black font-semibold">{val}</span>
+                          <td key={key} className="px-3 py-2 text-[11px] text-gray-500 dark:text-gray-400 font-mono">
+                            ID: <span className="text-black dark:text-white font-semibold">{val}</span>
                           </td>
                         );
                       }
 
                       return (
-                        <td key={key} className="px-3 py-2 text-xs text-black max-w-[200px] truncate" title={String(val)}>
+                        <td key={key} className="px-3 py-2 text-xs text-black dark:text-white max-w-[200px] truncate" title={String(val)}>
                           {val || <span className="text-gray-300 italic">empty</span>}
                         </td>
                       );
@@ -1055,7 +1055,7 @@ const SEOPage: React.FC = () => {
               ) : (
                 <tr>
                   <td colSpan={Object.keys(visibleColumns).length + 1} className="px-3 py-8 text-center">
-                    <p className="text-xs text-gray-500 font-medium">No items found matching your criteria.</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">No items found matching your criteria.</p>
                   </td>
                 </tr>
               )}
@@ -1068,10 +1068,10 @@ const SEOPage: React.FC = () => {
       {/* Create New SEO Modal */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6 bg-gray-900/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white shadow-2xl w-full max-w-5xl flex flex-col my-8 rounded-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-8 py-5 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
-              <h3 className="font-bold text-gray-900 text-xl tracking-tight">{editingItemId ? 'Edit Page SEO' : 'Create New Page SEO'}</h3>
-              <button onClick={() => setIsCreateModalOpen(false)} className="text-gray-400 hover:text-gray-900 transition-colors bg-gray-50 hover:bg-gray-100 p-1.5 rounded-full">
+          <div className="bg-white dark:bg-gray-900 shadow-2xl w-full max-w-5xl flex flex-col my-8 rounded-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="px-8 py-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-white dark:bg-gray-900 sticky top-0 z-10">
+              <h3 className="font-bold text-gray-900 dark:text-white text-xl tracking-tight">{editingItemId ? 'Edit Page SEO' : 'Create New Page SEO'}</h3>
+              <button onClick={() => setIsCreateModalOpen(false)} className="text-gray-400 hover:text-gray-900 transition-colors bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 p-1.5 rounded-full">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
@@ -1106,16 +1106,16 @@ const SEOPage: React.FC = () => {
               >
                 
                 {/* General Settings */}
-                <h4 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2">General Settings</h4>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">General Settings</h4>
                 
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                       Url <span className="text-red-500 ml-1">*</span>
                     </label>
                     <input 
                       type="text" 
-                      className={`w-full px-3 py-2 bg-white border ${urlError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${urlError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                       required 
                       value={url}
                       onChange={handleUrlChange}
@@ -1123,14 +1123,14 @@ const SEOPage: React.FC = () => {
                     {urlError ? (
                       <p className="text-[11px] text-red-500 mt-1.5 font-medium">{urlError}</p>
                     ) : (
-                      <p className="text-[11px] text-gray-500 mt-1.5">Page URL this SEO config applies to</p>
+                      <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5">Page URL this SEO config applies to</p>
                     )}
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Canonical Url</label>
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Canonical Url</label>
                     <input 
                       type="text" 
-                      className={`w-full px-3 py-2 bg-white border ${canonicalUrlError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${canonicalUrlError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                       placeholder="https://example.com/page"
                       value={canonicalUrl}
                       onChange={handleCanonicalUrlChange}
@@ -1138,23 +1138,23 @@ const SEOPage: React.FC = () => {
                     {canonicalUrlError ? (
                       <p className="text-[11px] text-red-500 mt-1.5 font-medium">{canonicalUrlError}</p>
                     ) : (
-                      <p className="text-[11px] text-gray-500 mt-1.5">Leave blank to default to self-referencing.</p>
+                      <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5">Leave blank to default to self-referencing.</p>
                     )}
                   </div>
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
+                  <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                     Title
                     {title.length > 0 && (
-                       <span className={`ml-2 text-[10px] font-medium ${title.length >= 50 && title.length <= 60 ? 'text-green-600' : 'text-gray-500'}`}>
+                       <span className={`ml-2 text-[10px] font-medium ${title.length >= 50 && title.length <= 60 ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'}`}>
                          {title.length} chars
                        </span>
                     )}
                   </label>
                   <input 
                     type="text" 
-                    className={`w-full px-3 py-2 bg-white border ${titleError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : titleWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                    className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${titleError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : titleWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                     value={title}
                     onChange={handleTitleChange}
                   />
@@ -1166,17 +1166,17 @@ const SEOPage: React.FC = () => {
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
+                  <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                     Description
                     {description.length > 0 && (
-                       <span className={`ml-2 text-[10px] font-medium ${description.length >= 150 && description.length <= 160 ? 'text-green-600' : 'text-gray-500'}`}>
+                       <span className={`ml-2 text-[10px] font-medium ${description.length >= 150 && description.length <= 160 ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'}`}>
                          {description.length} chars
                        </span>
                     )}
                   </label>
                   <textarea 
                     rows={3} 
-                    className={`w-full px-3 py-2 bg-white border ${descriptionError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : descriptionWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                    className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${descriptionError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : descriptionWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                     value={description}
                     onChange={handleDescriptionChange}
                   />
@@ -1188,10 +1188,10 @@ const SEOPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
+                  <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                     Keywords
                     {keywords.length > 0 && (
-                       <span className="ml-2 text-[10px] font-medium text-gray-500">
+                       <span className="ml-2 text-[10px] font-medium text-gray-500 dark:text-gray-400">
                          {keywords.split(',').map(k => k.trim()).filter(k => k !== '').length} / 8 max
                        </span>
                     )}
@@ -1199,7 +1199,7 @@ const SEOPage: React.FC = () => {
                   <input 
                     type="text" 
                     placeholder="keyword1, keyword2, long tail keyword 3"
-                    className={`w-full px-3 py-2 bg-white border ${keywordsError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : keywordsWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                    className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${keywordsError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : keywordsWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                     value={keywords}
                     onChange={handleKeywordsChange}
                   />
@@ -1208,17 +1208,17 @@ const SEOPage: React.FC = () => {
                   ) : keywordsWarning ? (
                     <p className="text-[11px] text-yellow-600 mt-1.5 font-medium">{keywordsWarning}</p>
                   ) : (
-                     <p className="text-[11px] text-gray-500 mt-1.5">Comma-separated list (e.g. primary, secondary, long-tail variant)</p>
+                     <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5">Comma-separated list (e.g. primary, secondary, long-tail variant)</p>
                   )}
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Image (Fallback Social)</label>
+                  <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Image (Fallback Social)</label>
                   {image ? (
                     <div className="flex flex-col gap-3">
-                      <div className="relative group rounded-sm overflow-hidden border border-gray-200 w-full md:w-1/2 h-40">
+                      <div className="relative group rounded-sm overflow-hidden border border-gray-200 dark:border-gray-700 w-full md:w-1/2 h-40">
                         <img src={image} alt={imageAlt} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute inset-0 bg-black dark:bg-white/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                           <button type="button" onClick={() => setImage(null)} className="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded shadow-sm hover:bg-red-600 transition-colors">
                             Remove Image
                           </button>
@@ -1227,7 +1227,7 @@ const SEOPage: React.FC = () => {
                       <input 
                         type="text" 
                         placeholder="Image Alt Text (Required)" 
-                        className={`w-full md:w-1/2 px-3 py-2 bg-white border ${!imageAlt ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`}
+                        className={`w-full md:w-1/2 px-3 py-2 bg-white dark:bg-gray-900 border ${!imageAlt ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`}
                         value={imageAlt}
                         onChange={(e) => setImageAlt(e.target.value)}
                       />
@@ -1235,42 +1235,42 @@ const SEOPage: React.FC = () => {
                       {imageWarning && <p className="text-[11px] text-yellow-600 font-medium">{imageWarning}</p>}
                     </div>
                   ) : (
-                    <div className="border border-dashed border-gray-300 rounded-sm p-3 bg-gray-50/30 flex flex-col items-center justify-center transition-colors h-32 w-full md:w-1/2 cursor-pointer hover:bg-gray-100" onClick={() => { setActiveMediaField('image'); setIsMediaPickerOpen(true); }}>
-                      <span className="text-[11px] font-medium text-gray-900 mb-1 bg-white px-3 py-1 border border-gray-200 rounded shadow-sm">Upload media</span>
+                    <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-sm p-3 bg-gray-50 dark:bg-gray-800/30 flex flex-col items-center justify-center transition-colors h-32 w-full md:w-1/2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => { setActiveMediaField('image'); setIsMediaPickerOpen(true); }}>
+                      <span className="text-[11px] font-medium text-gray-900 dark:text-white mb-1 bg-white dark:bg-gray-900 px-3 py-1 border border-gray-200 dark:border-gray-700 rounded shadow-sm">Upload media</span>
                       <span className="text-[11px] text-gray-400">Or Drag and drop a file</span>
                     </div>
                   )}
-                  <p className="text-[11px] text-gray-500 mt-1.5">Recommended: ≥1200×630px (1.91:1), &lt;1MB, &lt;20% text overlay.</p>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5">Recommended: ≥1200×630px (1.91:1), &lt;1MB, &lt;20% text overlay.</p>
                 </div>
 
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Author</label>
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Author</label>
                     <input 
                       type="text" 
-                      className={`w-full px-3 py-2 bg-white border ${authorWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${authorWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                       value={author}
                       onChange={handleAuthorChange}
                     />
                     {authorWarning && <p className="text-[11px] text-yellow-600 mt-1.5 font-medium">{authorWarning}</p>}
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Robots</label>
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Robots</label>
                     <input 
                       type="text" 
                       placeholder="e.g. index, follow" 
-                      className={`w-full px-3 py-2 bg-white border ${robotsWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${robotsWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                       value={robots}
                       onChange={handleRobotsChange}
                     />
                     {robotsWarning && <p className="text-[11px] text-yellow-600 mt-1.5 font-medium">{robotsWarning}</p>}
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Viewport</label>
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Viewport</label>
                     <input 
                       type="text" 
                       placeholder="width=device-width, initial-scale=1" 
-                      className={`w-full px-3 py-2 bg-white border ${viewportWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${viewportWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                       value={viewport}
                       onChange={handleViewportChange}
                     />
@@ -1279,14 +1279,14 @@ const SEOPage: React.FC = () => {
                 </div>
 
                 {/* Open Graph */}
-                <h4 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2 mt-4">Open Graph</h4>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2 mt-4">Open Graph</h4>
                 
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                       Og Title
                       {ogTitle.length > 0 && (
-                         <span className={`ml-2 text-[10px] font-medium ${ogTitle.length >= 60 && ogTitle.length <= 95 ? 'text-green-600' : 'text-gray-500'}`}>
+                         <span className={`ml-2 text-[10px] font-medium ${ogTitle.length >= 60 && ogTitle.length <= 95 ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'}`}>
                            {ogTitle.length} chars
                          </span>
                       )}
@@ -1294,16 +1294,16 @@ const SEOPage: React.FC = () => {
                     <input 
                       type="text" 
                       placeholder={title || 'Leave blank to fallback to SEO Title'}
-                      className={`w-full px-3 py-2 bg-white border ${ogTitleWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${ogTitleWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                       value={ogTitle}
                       onChange={handleOgTitleChange}
                     />
                     {ogTitleWarning && <p className="text-[11px] text-yellow-600 mt-1.5 font-medium">{ogTitleWarning}</p>}
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Og Type</label>
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Og Type</label>
                     <select 
-                      className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors text-gray-900"
+                      className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors text-gray-900 dark:text-white"
                       value={ogType}
                       onChange={handleOgTypeChange}
                     >
@@ -1316,10 +1316,10 @@ const SEOPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
+                  <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                     Og Description
                     {ogDescription.length > 0 && (
-                       <span className={`ml-2 text-[10px] font-medium ${ogDescription.length <= 200 ? 'text-green-600' : 'text-gray-500'}`}>
+                       <span className={`ml-2 text-[10px] font-medium ${ogDescription.length <= 200 ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'}`}>
                          {ogDescription.length} chars
                        </span>
                     )}
@@ -1327,7 +1327,7 @@ const SEOPage: React.FC = () => {
                   <textarea 
                     rows={2} 
                     placeholder={description || 'Leave blank to fallback to SEO Description'}
-                    className={`w-full px-3 py-2 bg-white border ${ogDescriptionWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                    className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${ogDescriptionWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                     value={ogDescription}
                     onChange={handleOgDescriptionChange}
                   />
@@ -1335,72 +1335,72 @@ const SEOPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Og Image</label>
+                  <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Og Image</label>
                   {ogImage ? (
-                    <div className="relative group rounded-sm overflow-hidden border border-gray-200 w-full md:w-1/2 h-40">
+                    <div className="relative group rounded-sm overflow-hidden border border-gray-200 dark:border-gray-700 w-full md:w-1/2 h-40">
                       <img src={ogImage} alt="Og Image" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute inset-0 bg-black dark:bg-white/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <button type="button" onClick={() => setOgImage(null)} className="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded shadow-sm hover:bg-red-600 transition-colors">
                           Remove Image
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <div className="border border-dashed border-gray-300 rounded-sm p-3 bg-gray-50/30 flex flex-col items-center justify-center transition-colors h-32 w-full md:w-1/2 cursor-pointer hover:bg-gray-100" onClick={() => { setActiveMediaField('ogImage'); setIsMediaPickerOpen(true); }}>
-                      <span className="text-[11px] font-medium text-gray-900 mb-1 bg-white px-3 py-1 border border-gray-200 rounded shadow-sm">Upload media</span>
+                    <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-sm p-3 bg-gray-50 dark:bg-gray-800/30 flex flex-col items-center justify-center transition-colors h-32 w-full md:w-1/2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => { setActiveMediaField('ogImage'); setIsMediaPickerOpen(true); }}>
+                      <span className="text-[11px] font-medium text-gray-900 dark:text-white mb-1 bg-white dark:bg-gray-900 px-3 py-1 border border-gray-200 dark:border-gray-700 rounded shadow-sm">Upload media</span>
                       <span className="text-[11px] text-gray-400">Or Drag and drop a file</span>
                     </div>
                   )}
-                  <p className="text-[11px] text-gray-500 mt-1.5">Recommended: 1200×630px, &lt;8MB, 1.91:1 ratio. Keep subject in center 80% safe zone.</p>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5">Recommended: 1200×630px, &lt;8MB, 1.91:1 ratio. Keep subject in center 80% safe zone.</p>
                 </div>
                 
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Og Url</label>
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Og Url</label>
                     <input 
                       type="text" 
                       placeholder={canonicalUrl || url || 'Absolute URL'}
-                      className={`w-full px-3 py-2 bg-white border ${ogUrlWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${ogUrlWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                       value={ogUrl}
                       onChange={handleOgUrlChange}
                     />
                     {ogUrlWarning && <p className="text-[11px] text-yellow-600 mt-1.5 font-medium">{ogUrlWarning}</p>}
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Og Site Name</label>
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Og Site Name</label>
                     <input 
                       type="text" 
-                      className={`w-full px-3 py-2 bg-white border ${ogSiteNameWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${ogSiteNameWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                       value={ogSiteName}
                       onChange={handleOgSiteNameChange}
                     />
                     {ogSiteNameWarning && <p className="text-[11px] text-yellow-600 mt-1.5 font-medium">{ogSiteNameWarning}</p>}
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Og Locale</label>
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Og Locale</label>
                     <input 
                       type="text" 
                       placeholder="en_US" 
-                      className={`w-full px-3 py-2 bg-white border ${ogLocaleError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${ogLocaleError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                       value={ogLocale}
                       onChange={handleOgLocaleChange}
                     />
                     {ogLocaleError ? (
                        <p className="text-[11px] text-red-500 mt-1.5 font-medium">{ogLocaleError}</p>
                     ) : (
-                       <p className="text-[11px] text-gray-500 mt-1.5">Format: xx_XX</p>
+                       <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5">Format: xx_XX</p>
                     )}
                   </div>
                 </div>
 
                 {/* Twitter / X Card */}
-                <h4 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2 mt-4">Twitter / X Card</h4>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2 mt-4">Twitter / X Card</h4>
 
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Twitter Card</label>
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Twitter Card</label>
                     <select 
-                      className={`w-full px-3 py-2 bg-white border ${twitterCardWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors text-gray-900`}
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${twitterCardWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors text-gray-900 dark:text-white`}
                       value={twitterCard}
                       onChange={handleTwitterCardChange}
                     >
@@ -1412,10 +1412,10 @@ const SEOPage: React.FC = () => {
                     {twitterCardWarning && <p className="text-[11px] text-yellow-600 mt-1.5 font-medium">{twitterCardWarning}</p>}
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                       Twitter Title
                       {twitterTitle.length > 0 && (
-                         <span className={`ml-2 text-[10px] font-medium ${twitterTitle.length <= 70 ? 'text-green-600' : 'text-gray-500'}`}>
+                         <span className={`ml-2 text-[10px] font-medium ${twitterTitle.length <= 70 ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'}`}>
                            {twitterTitle.length} chars
                          </span>
                       )}
@@ -1423,7 +1423,7 @@ const SEOPage: React.FC = () => {
                     <input 
                       type="text" 
                       placeholder={ogTitle || title || ''}
-                      className={`w-full px-3 py-2 bg-white border ${twitterTitleWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${twitterTitleWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                       value={twitterTitle}
                       onChange={handleTwitterTitleChange}
                     />
@@ -1432,10 +1432,10 @@ const SEOPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
+                  <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                     Twitter Description
                     {twitterDescription.length > 0 && (
-                       <span className={`ml-2 text-[10px] font-medium ${twitterDescription.length <= 200 ? 'text-green-600' : 'text-gray-500'}`}>
+                       <span className={`ml-2 text-[10px] font-medium ${twitterDescription.length <= 200 ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'}`}>
                          {twitterDescription.length} chars
                        </span>
                     )}
@@ -1443,7 +1443,7 @@ const SEOPage: React.FC = () => {
                   <textarea 
                     rows={2} 
                     placeholder={ogDescription || description || ''}
-                    className={`w-full px-3 py-2 bg-white border ${twitterDescriptionWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                    className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${twitterDescriptionWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                     value={twitterDescription}
                     onChange={handleTwitterDescriptionChange}
                   />
@@ -1451,43 +1451,43 @@ const SEOPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Twitter Image</label>
+                  <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Twitter Image</label>
                   {twitterImage ? (
-                    <div className="relative group rounded-sm overflow-hidden border border-gray-200 w-full md:w-1/2 h-40">
+                    <div className="relative group rounded-sm overflow-hidden border border-gray-200 dark:border-gray-700 w-full md:w-1/2 h-40">
                       <img src={twitterImage} alt="Twitter Image" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute inset-0 bg-black dark:bg-white/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <button type="button" onClick={() => setTwitterImage(null)} className="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded shadow-sm hover:bg-red-600 transition-colors">
                           Remove Image
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <div className="border border-dashed border-gray-300 rounded-sm p-3 bg-gray-50/30 flex flex-col items-center justify-center transition-colors h-32 w-full md:w-1/2 cursor-pointer hover:bg-gray-100" onClick={() => { setActiveMediaField('twitterImage'); setIsMediaPickerOpen(true); }}>
-                      <span className="text-[11px] font-medium text-gray-900 mb-1 bg-white px-3 py-1 border border-gray-200 rounded shadow-sm">Upload media</span>
+                    <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-sm p-3 bg-gray-50 dark:bg-gray-800/30 flex flex-col items-center justify-center transition-colors h-32 w-full md:w-1/2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" onClick={() => { setActiveMediaField('twitterImage'); setIsMediaPickerOpen(true); }}>
+                      <span className="text-[11px] font-medium text-gray-900 dark:text-white mb-1 bg-white dark:bg-gray-900 px-3 py-1 border border-gray-200 dark:border-gray-700 rounded shadow-sm">Upload media</span>
                       <span className="text-[11px] text-gray-400">Or Drag and drop a file</span>
                     </div>
                   )}
-                  <p className="text-[11px] text-gray-500 mt-1.5">Recommended: 1200×600px (2:1 ratio), &lt;5MB, central framing.</p>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5">Recommended: 1200×600px (2:1 ratio), &lt;5MB, central framing.</p>
                 </div>
 
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Twitter Site</label>
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Twitter Site</label>
                     <input 
                       type="text" 
                       placeholder="@handle" 
-                      className={`w-full px-3 py-2 bg-white border ${twitterSiteWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${twitterSiteWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                       value={twitterSite}
                       onChange={handleTwitterSiteChange}
                     />
                     {twitterSiteWarning && <p className="text-[11px] text-yellow-600 mt-1.5 font-medium">{twitterSiteWarning}</p>}
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">Twitter Creator</label>
+                    <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">Twitter Creator</label>
                     <input 
                       type="text" 
                       placeholder="@handle" 
-                      className={`w-full px-3 py-2 bg-white border ${twitterCreatorWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
+                      className={`w-full px-3 py-2 bg-white dark:bg-gray-900 border ${twitterCreatorWarning ? 'border-yellow-500 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500' : 'border-gray-200 dark:border-gray-700 focus:border-gray-300'} text-sm focus:outline-none rounded-sm transition-colors`} 
                       value={twitterCreator}
                       onChange={handleTwitterCreatorChange}
                     />
@@ -1496,15 +1496,15 @@ const SEOPage: React.FC = () => {
                 </div>
 
                 {/* Structured Data */}
-                <h4 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2 mt-4">
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2 mt-4">
                   Structured Data (JSON-LD)
                   <a href="https://search.google.com/test/rich-results" target="_blank" rel="noreferrer" className="ml-3 text-[10px] font-medium text-blue-600 hover:underline">
                     Test with Google
                   </a>
                 </h4>
                 <div className="flex flex-col">
-                  <div className={`flex font-mono text-[11px] border ${structuredDataError ? 'border-red-500' : structuredDataWarning ? 'border-yellow-500' : 'border-gray-200'} bg-gray-50/50 rounded-sm`}>
-                     <div className={`px-3 py-2 border-r ${structuredDataError ? 'border-red-500' : structuredDataWarning ? 'border-yellow-500' : 'border-gray-200'} text-gray-400 bg-gray-100/50`}>1</div>
+                  <div className={`flex font-mono text-[11px] border ${structuredDataError ? 'border-red-500' : structuredDataWarning ? 'border-yellow-500' : 'border-gray-200 dark:border-gray-700'} bg-gray-50 dark:bg-gray-800/50 rounded-sm`}>
+                     <div className={`px-3 py-2 border-r ${structuredDataError ? 'border-red-500' : structuredDataWarning ? 'border-yellow-500' : 'border-gray-200 dark:border-gray-700'} text-gray-400 bg-gray-100 dark:bg-gray-800/50`}>1</div>
                      <textarea 
                        rows={5} 
                        placeholder="Paste your schema.org JSON-LD object here" 
@@ -1522,7 +1522,7 @@ const SEOPage: React.FC = () => {
                 
                 {/* Footer Save Button */}
                 <div className="mt-4 flex">
-                  <button type="submit" className="px-6 py-2 bg-gray-900 text-white font-medium rounded-sm hover:bg-black transition-colors text-[13px] shadow-sm">
+                  <button type="submit" className="px-6 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-black font-medium rounded-sm hover:bg-black transition-colors text-[13px] shadow-sm">
                     Save
                   </button>
                 </div>

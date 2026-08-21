@@ -46,6 +46,9 @@ export class User {
   @Column({ nullable: true })
   lastRenewedOn?: Date;
 
+  @Column({ nullable: true })
+  webhookToken?: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

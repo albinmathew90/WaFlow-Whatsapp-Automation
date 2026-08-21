@@ -132,8 +132,8 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800 p-4">
+      <div className="max-w-md w-full bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 p-8">
         <div className="mb-10 mt-4 flex justify-center">
           <img src="/logo-light.png" alt="Waflow" className="h-14 w-auto object-contain scale-[1.8]" />
         </div>
@@ -155,23 +155,23 @@ const AdminLogin = () => {
           <form onSubmit={handleLogin} className="space-y-6 animate-in fade-in duration-300">
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700 uppercase tracking-wide">Email Address</label>
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Email Address</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-colors"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-colors"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700 uppercase tracking-wide">Password</label>
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Password</label>
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-colors"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-colors"
                 />
               </div>
             </div>
@@ -180,7 +180,7 @@ const AdminLogin = () => {
               <button
                 type="button"
                 onClick={handleForgotPassword}
-                className="text-xs font-bold text-gray-500 hover:text-black transition-colors"
+                className="text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-black transition-colors"
               >
                 Forgot Password?
               </button>
@@ -189,7 +189,7 @@ const AdminLogin = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-black text-white rounded-xl py-3 text-sm font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-black dark:bg-white text-white dark:text-black rounded-xl py-3 text-sm font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Authenticating...' : 'Sign In'}
             </button>
@@ -201,15 +201,15 @@ const AdminLogin = () => {
           <form onSubmit={handleLogin} className="space-y-6 animate-in slide-in-from-right-4 duration-300">
             <div className="space-y-4">
               <div className="space-y-1.5 text-center">
-                <label className="text-xs font-bold text-gray-700 uppercase tracking-wide">Two-Factor Authentication</label>
-                <p className="text-xs text-gray-500 mb-4">Enter the 6-digit code from your authenticator app.</p>
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Two-Factor Authentication</label>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Enter the 6-digit code from your authenticator app.</p>
                 <input
                   type="text"
                   required
                   maxLength={6}
                   value={twoFactorCode}
                   onChange={(e) => setTwoFactorCode(e.target.value)}
-                  className="w-full px-4 py-3 text-center tracking-[0.5em] text-xl font-mono bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-colors"
+                  className="w-full px-4 py-3 text-center tracking-[0.5em] text-xl font-mono bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-colors"
                   placeholder="000000"
                   autoFocus
                 />
@@ -217,7 +217,7 @@ const AdminLogin = () => {
               <button 
                 type="button" 
                 onClick={resetToLogin}
-                className="w-full text-xs text-gray-500 hover:text-black font-semibold mt-2"
+                className="w-full text-xs text-gray-500 dark:text-gray-400 hover:text-black font-semibold mt-2"
               >
                 ← Back to Login
               </button>
@@ -225,7 +225,7 @@ const AdminLogin = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-black text-white rounded-xl py-3 text-sm font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-black dark:bg-white text-white dark:text-black rounded-xl py-3 text-sm font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Authenticating...' : 'Verify Code'}
             </button>
@@ -235,8 +235,8 @@ const AdminLogin = () => {
         {/* FORGOT PASSWORD: LOADING */}
         {view === 'forgot-loading' && (
           <div className="space-y-6 animate-in fade-in text-center py-6">
-            <div className="w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-sm font-bold text-gray-700 uppercase tracking-wide">Sending Reset Code...</p>
+            <div className="w-8 h-8 border-4 border-black dark:border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Sending Reset Code...</p>
           </div>
         )}
 
@@ -245,15 +245,15 @@ const AdminLogin = () => {
           <form onSubmit={handleVerifyOtp} className="space-y-6 animate-in slide-in-from-right-4 duration-300">
             <div className="space-y-4">
               <div className="space-y-1.5 text-center">
-                <label className="text-xs font-bold text-gray-700 uppercase tracking-wide">Verification Code</label>
-                <p className="text-xs text-gray-500 mb-4">Check your email for the 6-digit reset code.</p>
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Verification Code</label>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Check your email for the 6-digit reset code.</p>
                 <input
                   type="text"
                   required
                   maxLength={6}
                   value={resetCode}
                   onChange={(e) => setResetCode(e.target.value)}
-                  className="w-full px-4 py-3 text-center tracking-[0.5em] text-xl font-mono bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-colors"
+                  className="w-full px-4 py-3 text-center tracking-[0.5em] text-xl font-mono bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-colors"
                   placeholder="000000"
                   autoFocus
                 />
@@ -261,7 +261,7 @@ const AdminLogin = () => {
               <button 
                 type="button" 
                 onClick={resetToLogin}
-                className="w-full text-xs text-gray-500 hover:text-black font-semibold mt-2"
+                className="w-full text-xs text-gray-500 dark:text-gray-400 hover:text-black font-semibold mt-2"
               >
                 ← Back to Login
               </button>
@@ -269,7 +269,7 @@ const AdminLogin = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-black text-white rounded-xl py-3 text-sm font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-black dark:bg-white text-white dark:text-black rounded-xl py-3 text-sm font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Verifying...' : 'Verify Code'}
             </button>
@@ -281,8 +281,8 @@ const AdminLogin = () => {
           <form onSubmit={handleResetPassword} className="space-y-6 animate-in slide-in-from-right-4 duration-300">
             <div className="space-y-4">
               <div className="space-y-1.5 text-center mb-4">
-                <label className="text-xs font-bold text-gray-700 uppercase tracking-wide">Set New Password</label>
-                <p className="text-xs text-gray-500">Create a secure password for your admin portal.</p>
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Set New Password</label>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Create a secure password for your admin portal.</p>
               </div>
               <div className="space-y-1.5">
                 <input
@@ -290,7 +290,7 @@ const AdminLogin = () => {
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-colors"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-colors"
                   placeholder="New Password"
                   autoFocus
                 />
@@ -299,7 +299,7 @@ const AdminLogin = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-black text-white rounded-xl py-3 text-sm font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-black dark:bg-white text-white dark:text-black rounded-xl py-3 text-sm font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>

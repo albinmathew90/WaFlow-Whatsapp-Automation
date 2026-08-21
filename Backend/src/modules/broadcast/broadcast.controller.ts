@@ -8,7 +8,6 @@ import { JwtAuthGuard } from '../crm/guards/jwt-auth.guard';
 import { BroadcastService } from './services/broadcast.service';
 import { CreateBroadcastDto, UpdateBroadcastDto } from './dto/broadcast.dto';
 
-@Public()
 @ApiTags('broadcasts')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

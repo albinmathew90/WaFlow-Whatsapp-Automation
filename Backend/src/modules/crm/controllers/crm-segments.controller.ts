@@ -5,7 +5,6 @@ import { CrmSegmentsService } from '../services/crm-segments.service';
 import { CreateCrmSegmentDto } from '../dto/crm.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
-@Public()
 @ApiTags('crm-segments')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

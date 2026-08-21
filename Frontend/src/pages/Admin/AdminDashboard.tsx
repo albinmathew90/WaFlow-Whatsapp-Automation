@@ -148,10 +148,10 @@ const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         
         {/* Line Chart */}
-        <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-5 hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:border-gray-800 shadow-sm rounded-xl p-5 hover:shadow-md transition-shadow">
           <div className="mb-4">
-            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">User Growth Over Time</h3>
-            <p className="text-xs text-gray-500 mt-1">Cumulative registered users</p>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">User Growth Over Time</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Cumulative registered users</p>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -170,12 +170,12 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Map */}
-        <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-5 hover:shadow-md transition-shadow">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:border-gray-800 shadow-sm rounded-xl p-5 hover:shadow-md transition-shadow">
           <div className="mb-4">
-            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">User Demographics</h3>
-            <p className="text-xs text-gray-500 mt-1">Global distribution of registered users</p>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">User Demographics</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Global distribution of registered users</p>
           </div>
-          <div className="h-[300px] w-full bg-[#f8fafc] rounded-lg overflow-hidden border border-gray-100 relative">
+          <div className="h-[300px] w-full bg-[#f8fafc] dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800 dark:border-gray-700 relative">
             <VectorMap
               map={worldMill}
               backgroundColor="transparent"
@@ -219,19 +219,19 @@ const AdminDashboard: React.FC = () => {
 };
 
 const KpiCard = ({ title, value, linkText, linkTo, icon, smallIcon, color, shadowColor }: { title: string, value: string, linkText: string, linkTo: string, icon: React.ReactNode, smallIcon: React.ReactNode, color: string, shadowColor: string }) => (
-  <div className="flex flex-col bg-white border border-gray-200 shadow-sm rounded-xl hover:shadow-md transition-shadow">
+  <div className="flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:border-gray-800 shadow-sm rounded-xl hover:shadow-md transition-shadow">
     <div className="p-4 pb-2">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-bold text-black uppercase tracking-wider">{title}</span>
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-black shadow-sm [&>svg]:w-4 [&>svg]:h-4">
+        <span className="text-xs font-bold text-black dark:text-white dark:text-gray-200 uppercase tracking-wider">{title}</span>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-black dark:bg-white shadow-sm [&>svg]:w-4 [&>svg]:h-4">
           {icon}
         </div>
       </div>
-      <h4 className="text-3xl font-bold text-black tracking-tight">{value}</h4>
+      <h4 className="text-3xl font-bold text-black dark:text-white dark:text-white tracking-tight">{value}</h4>
     </div>
     
-    <div className="px-4 py-2 border-t border-gray-100 bg-gray-50/50 rounded-b-xl mt-auto">
-      <Link to={linkTo} className="flex items-center text-xs font-bold text-black hover:opacity-75 transition-opacity group">
+    <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 dark:bg-gray-800/50 rounded-b-xl mt-auto">
+      <Link to={linkTo} className="flex items-center text-xs font-bold text-black dark:text-white dark:text-gray-300 hover:opacity-75 transition-opacity group">
         {linkText}
         <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
       </Link>

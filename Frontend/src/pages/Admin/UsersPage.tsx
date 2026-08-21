@@ -214,39 +214,39 @@ const UsersPage: React.FC = () => {
   return (
     <div className="w-full h-full relative">
       {warningMessage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-           <div className="bg-white p-6 rounded shadow-xl max-w-sm w-full text-center border border-gray-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black dark:bg-white/50 backdrop-blur-sm animate-in fade-in duration-200">
+           <div className="bg-white dark:bg-gray-900 p-6 rounded shadow-xl max-w-sm w-full text-center border border-gray-100 dark:border-gray-800">
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                 <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Warning</h3>
-              <p className="text-sm text-gray-500 mb-6">{warningMessage}</p>
-              <button onClick={() => setWarningMessage('')} className="px-6 py-2 bg-gray-900 text-white rounded text-sm hover:bg-black transition-colors shadow-sm font-medium">OK</button>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Warning</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{warningMessage}</p>
+              <button onClick={() => setWarningMessage('')} className="px-6 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-black rounded text-sm hover:bg-black transition-colors shadow-sm font-medium">OK</button>
            </div>
         </div>
       )}
       {/* Table Container */}
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden flex flex-col">
         
         {/* Toolbar */}
-        <div className="flex items-center justify-between border-b border-gray-200 px-3 py-1.5 bg-gray-50/50 min-h-[44px]">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-3 py-1.5 bg-gray-50 dark:bg-gray-800/50 min-h-[44px]">
           
           {hasSelection ? (
             <div className="flex items-center flex-1 gap-3 animate-in fade-in slide-in-from-left-2 duration-200">
-              <span className="text-xs font-medium text-gray-700">{selectedUsers.length} selected</span>
+              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{selectedUsers.length} selected</span>
               <div className="flex items-center gap-1.5">
                 <button 
                   onClick={handleEditSelected}
-                  className="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-1 shadow-sm transition-colors"
+                  className="px-2 py-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-1 shadow-sm transition-colors"
                 >
-                  <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                  <svg className="w-3 h-3 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                   Edit
                 </button>
                 <button 
                   onClick={handleDeleteSelected}
-                  className="px-2 py-1 bg-white border border-red-100 rounded text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-1 shadow-sm transition-colors"
+                  className="px-2 py-1 bg-white dark:bg-gray-900 border border-red-100 rounded text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-1 shadow-sm transition-colors"
                 >
                   <svg className="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   Delete
@@ -262,7 +262,7 @@ const UsersPage: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none text-xs focus:ring-0 w-full outline-none placeholder-gray-400 text-gray-900"
+                className="bg-transparent border-none text-xs focus:ring-0 w-full outline-none placeholder-gray-400 text-gray-900 dark:text-white"
                 placeholder="Search by Email"
               />
             </div>
@@ -271,14 +271,14 @@ const UsersPage: React.FC = () => {
           <div className="flex items-center gap-1.5">
             <button 
               onClick={() => toggleTab('columns')}
-              className={`px-2 py-1 border rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors ${activeTab === 'columns' ? 'bg-gray-100 border-gray-300 text-gray-900' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`}
+              className={`px-2 py-1 border rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors ${activeTab === 'columns' ? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
             >
               Columns
               <svg className={`w-3 h-3 text-gray-400 transition-transform ${activeTab === 'columns' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
             </button>
             <button 
               onClick={() => toggleTab('filters')}
-              className={`px-2 py-1 border rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors ${activeTab === 'filters' ? 'bg-gray-100 border-gray-300 text-gray-900' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`}
+              className={`px-2 py-1 border rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors ${activeTab === 'filters' ? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
             >
               Filters
               <svg className={`w-3 h-3 text-gray-400 transition-transform ${activeTab === 'filters' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -288,12 +288,12 @@ const UsersPage: React.FC = () => {
 
         {/* Expandable Sections */}
         {activeTab === 'columns' && (
-          <div className="bg-gray-50/80 border-b border-gray-200 px-3 py-2 flex items-center gap-1.5 flex-wrap animate-in slide-in-from-top-1 fade-in duration-150">
+          <div className="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700 px-3 py-2 flex items-center gap-1.5 flex-wrap animate-in slide-in-from-top-1 fade-in duration-150">
             {Object.entries(visibleColumns).map(([key, isVisible]) => (
               <div 
                 key={key} 
                 onClick={() => toggleColumn(key as keyof typeof visibleColumns)}
-                className={`flex items-center gap-1 px-2 py-0.5 border rounded text-[11px] font-medium shadow-sm cursor-pointer transition-colors ${isVisible ? 'bg-white border-gray-200 text-gray-700 hover:border-gray-300' : 'bg-gray-100 border-gray-200 text-gray-400'}`}
+                className={`flex items-center gap-1 px-2 py-0.5 border rounded text-[11px] font-medium shadow-sm cursor-pointer transition-colors ${isVisible ? 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300' : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400'}`}
               >
                 <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={isVisible ? "M6 18L18 6M6 6l12 12" : "M12 4v16m8-8H4"} /></svg>
                 {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
@@ -303,13 +303,13 @@ const UsersPage: React.FC = () => {
         )}
 
         {activeTab === 'filters' && (
-          <div className="bg-gray-50/80 border-b border-gray-200 px-3 py-3 flex flex-col items-start gap-3 animate-in slide-in-from-top-1 fade-in duration-150 w-full">
+          <div className="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700 px-3 py-3 flex flex-col items-start gap-3 animate-in slide-in-from-top-1 fade-in duration-150 w-full">
             {filters.length === 0 ? (
               <div className="flex items-center gap-2">
-                <span className="text-[11px] text-gray-500 font-medium">No filters set</span>
+                <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">No filters set</span>
                 <button 
                   onClick={() => addFilter('and')}
-                  className="flex items-center gap-1 text-[11px] font-medium text-admin-text border border-gray-200 bg-white shadow-sm px-2 py-1 rounded hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-1 text-[11px] font-medium text-admin-text border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm px-2 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                   Add Filter
@@ -317,22 +317,22 @@ const UsersPage: React.FC = () => {
               </div>
             ) : (
               <div className="flex flex-col w-full gap-2">
-                <span className="text-[11px] text-gray-700 font-semibold mb-0.5">Filter Users where</span>
+                <span className="text-[11px] text-gray-700 dark:text-gray-300 font-semibold mb-0.5">Filter Users where</span>
                 
                 {filters.map((filter, index) => (
                   <React.Fragment key={filter.id}>
                     {index > 0 && filter.logic === 'or' && (
-                      <span className="text-[11px] text-gray-800 font-semibold my-1 uppercase tracking-wider">Or</span>
+                      <span className="text-[11px] text-gray-800 dark:text-gray-200 font-semibold my-1 uppercase tracking-wider">Or</span>
                     )}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 w-full">
                       {index > 0 && filter.logic === 'and' && (
-                        <span className="text-[11px] text-gray-500 font-medium w-5 text-center sm:block hidden">and</span>
+                        <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium w-5 text-center sm:block hidden">and</span>
                       )}
                       
                       <select 
                         value={filter.column}
                         onChange={(e) => updateFilter(filter.id, 'column', e.target.value)}
-                        className="bg-white border border-gray-300 text-[11px] rounded px-1.5 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full sm:w-32"
+                        className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-[11px] rounded px-1.5 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full sm:w-32"
                       >
                         <option value="email">Email</option>
                         <option value="name">Name</option>
@@ -348,7 +348,7 @@ const UsersPage: React.FC = () => {
                       <select
                         value={filter.operator}
                         onChange={(e) => updateFilter(filter.id, 'operator', e.target.value)}
-                        className="bg-white border border-gray-300 text-[11px] rounded px-1.5 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full sm:w-40"
+                        className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-[11px] rounded px-1.5 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full sm:w-40"
                       >
                         <option value="equals">equals</option>
                         <option value="is not equal to">is not equal to</option>
@@ -368,7 +368,7 @@ const UsersPage: React.FC = () => {
                           value={filter.value}
                           onChange={(e) => updateFilter(filter.id, 'value', e.target.value)}
                           placeholder="Enter a value"
-                          className="bg-white border border-gray-300 text-[11px] rounded px-2 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full"
+                          className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-[11px] rounded px-2 py-1 outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary w-full"
                         />
                       </div>
 
@@ -409,14 +409,14 @@ const UsersPage: React.FC = () => {
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-100/75 border-b border-gray-200 text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+            <thead className="bg-gray-100 dark:bg-gray-800/75 border-b border-gray-200 dark:border-gray-700 text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">
               <tr>
                 <th scope="col" className="px-3 py-2 w-10 text-center">
                   <input 
                     type="checkbox" 
                     checked={filteredUsers.length > 0 && selectedUsers.length === filteredUsers.length}
                     onChange={handleSelectAll}
-                    className="w-3.5 h-3.5 rounded border-gray-300 text-admin-primary focus:ring-admin-primary bg-white cursor-pointer" 
+                    className="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-600 text-admin-primary focus:ring-admin-primary bg-white dark:bg-gray-900 cursor-pointer" 
                   />
                 </th>
                 {visibleColumns.email && (
@@ -511,32 +511,32 @@ const UsersPage: React.FC = () => {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
               {filteredUsers.length > 0 ? (
                 filteredUsers.map(user => (
-                  <tr key={user.id} className={`hover:bg-gray-50/50 transition-colors group ${selectedUsers.includes(user.id) ? 'bg-blue-50/30' : ''}`}>
+                  <tr key={user.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group ${selectedUsers.includes(user.id) ? 'bg-blue-50/30' : ''}`}>
                     <td className="px-3 py-2 text-center">
                       <input 
                         type="checkbox" 
                         checked={selectedUsers.includes(user.id)}
                         onChange={() => handleSelectUser(user.id)}
-                        className="w-3.5 h-3.5 rounded border-gray-300 text-admin-primary focus:ring-admin-primary bg-white cursor-pointer" 
+                        className="w-3.5 h-3.5 rounded border-gray-300 dark:border-gray-600 text-admin-primary focus:ring-admin-primary bg-white dark:bg-gray-900 cursor-pointer" 
                       />
                     </td>
                     {visibleColumns.email && (
                       <td className="px-3 py-2">
-                        <Link to="#" className="text-xs font-medium text-black hover:underline decoration-black underline-offset-2">
+                        <Link to="#" className="text-xs font-medium text-black dark:text-white hover:underline decoration-black dark:decoration-white underline-offset-2">
                           {user.email}
                         </Link>
                       </td>
                     )}
                     {visibleColumns.name && (
-                      <td className="px-3 py-2 text-xs text-black">
+                      <td className="px-3 py-2 text-xs text-black dark:text-white">
                         {user.name || '-'}
                       </td>
                     )}
                     {visibleColumns.phoneNumber && (
-                      <td className="px-3 py-2 text-xs text-gray-500">
+                      <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">
                         {user.phoneNumber || '-'}
                       </td>
                     )}
@@ -546,35 +546,35 @@ const UsersPage: React.FC = () => {
                           user.subscriptionStatus === 'yearly' ? 'bg-green-100 text-green-700' :
                           user.subscriptionStatus === 'monthly' ? 'bg-blue-100 text-blue-700' :
                           user.subscriptionStatus === 'trial' ? 'bg-orange-100 text-orange-700' :
-                          'bg-gray-100 text-gray-600'
+                          'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                         }`}>
                           {user.subscriptionStatus || 'None'}
                         </span>
                       </td>
                     )}
                     {visibleColumns.renewalDate && (
-                      <td className="px-3 py-2 text-xs text-gray-500">
+                      <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">
                         {user.renewalDate ? new Date(user.renewalDate).toLocaleDateString() : '-'}
                       </td>
                     )}
                     {visibleColumns.lastRenewedOn && (
-                      <td className="px-3 py-2 text-xs text-gray-500">
+                      <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">
                         {user.lastRenewedOn ? new Date(user.lastRenewedOn).toLocaleDateString() : '-'}
                       </td>
                     )}
                     {visibleColumns.createdAt && (
-                      <td className="px-3 py-2 text-xs text-black">
+                      <td className="px-3 py-2 text-xs text-black dark:text-white">
                         {new Date(user.createdAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </td>
                     )}
                     {visibleColumns.updatedAt && (
-                      <td className="px-3 py-2 text-xs text-black">
+                      <td className="px-3 py-2 text-xs text-black dark:text-white">
                         {new Date(user.updatedAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </td>
                     )}
                     {visibleColumns.id && (
-                      <td className="px-3 py-2 text-[11px] text-gray-500 font-mono">
-                        ID: <span className="text-black font-semibold">{user.id}</span>
+                      <td className="px-3 py-2 text-[11px] text-gray-500 dark:text-gray-400 font-mono">
+                        ID: <span className="text-black dark:text-white font-semibold">{user.id}</span>
                       </td>
                     )}
                   </tr>
@@ -582,7 +582,7 @@ const UsersPage: React.FC = () => {
               ) : (
                 <tr>
                   <td colSpan={5} className="px-3 py-8 text-center">
-                    <p className="text-xs text-gray-500 font-medium">No users found matching your criteria.</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">No users found matching your criteria.</p>
                   </td>
                 </tr>
               )}
@@ -595,9 +595,9 @@ const UsersPage: React.FC = () => {
       {/* Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-          <div className="bg-white shadow-2xl w-full max-w-md flex flex-col rounded-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
-              <h3 className="font-bold text-gray-900 text-lg tracking-tight">Edit User</h3>
+          <div className="bg-white dark:bg-gray-900 shadow-2xl w-full max-w-md flex flex-col rounded-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-white dark:bg-gray-900">
+              <h3 className="font-bold text-gray-900 dark:text-white text-lg tracking-tight">Edit User</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-900 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
@@ -626,14 +626,14 @@ const UsersPage: React.FC = () => {
                 }}
               >
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-gray-900 mb-1.5 flex items-center">
+                  <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                     Email <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <input type="email" className="w-full px-3 py-2 bg-white border border-gray-200 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
+                  <input type="email" className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
                 </div>
                 
                 <div className="mt-2 flex justify-end">
-                  <button type="submit" className="px-6 py-2 bg-gray-900 text-white font-medium rounded-sm hover:bg-black transition-colors text-[13px] shadow-sm">
+                  <button type="submit" className="px-6 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-black font-medium rounded-sm hover:bg-black transition-colors text-[13px] shadow-sm">
                     Save Changes
                   </button>
                 </div>

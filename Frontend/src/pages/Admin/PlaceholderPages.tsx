@@ -13,7 +13,7 @@ const GenericPagePlaceholder: React.FC<{ title: string, subtitle: string }> = ({
         </button>
       </div>
 
-      <div className="bg-white border border-admin-border rounded-xl shadow-sm overflow-hidden flex flex-col items-center justify-center py-24 text-center">
+      <div className="bg-white dark:bg-gray-900 border border-admin-border rounded-xl shadow-sm overflow-hidden flex flex-col items-center justify-center py-24 text-center">
         <svg className="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
         <h3 className="text-lg font-medium text-admin-text">No data found</h3>
         <p className="text-sm text-admin-text-muted mt-1 max-w-sm">There are no records in this collection yet. Click the "Add New" button above to get started.</p>

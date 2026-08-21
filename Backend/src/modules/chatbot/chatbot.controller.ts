@@ -26,7 +26,6 @@ import { UseGuards } from '@nestjs/common';
 
 @ApiTags('crm-chatbot')
 @Controller('crm/chatbot')
-@Public()
 @UseGuards(JwtAuthGuard)
 export class ChatbotController {
   constructor(private readonly chatbotService: ChatbotService) {}

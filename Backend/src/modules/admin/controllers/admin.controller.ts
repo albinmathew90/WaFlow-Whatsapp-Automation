@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { AdminService } from '../services/admin.service';
 import { JwtService } from '@nestjs/jwt';
 import { Public } from '../../auth/decorators/auth.decorators';
+import { JwtAuthGuard } from '../../crm/guards/jwt-auth.guard';
 import * as bcrypt from 'bcrypt';
 import { MailService } from '../../crm/services/mail.service';
 
-@Public()
 @Controller('admin')
+@UseGuards(JwtAuthGuard)
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,
@@ -138,6 +139,7 @@ export class AdminController {
     return { success: true };
   }
 
+  @Public()
   @Post('auth/forgot-password')
   async forgotPassword() {
     const admin = await this.getProfile();
@@ -153,6 +155,7 @@ export class AdminController {
     return { success: true };
   }
 
+  @Public()
   @Post('auth/verify-reset-otp')
   async verifyResetOtp(@Body() body: { code: string }) {
     const admin = await this.getProfile();
@@ -162,6 +165,7 @@ export class AdminController {
     return { success: true };
   }
 
+  @Public()
   @Post('auth/reset-password')
   async resetPassword(@Body() body: { code: string, newPassword: string }) {
     const admin = await this.getProfile();
@@ -179,6 +183,7 @@ export class AdminController {
     return { success: true };
   }
 
+  @Public()
   @Post('auth/login')
   async login(@Body() body: any) {
     const admin = await this.getProfile(); // ensures it exists
@@ -200,6 +205,7 @@ export class AdminController {
     return { success: true, token };
   }
 
+  @Public()
   @Post('auth/verify-2fa')
   async verify2FALogin(@Body() body: any) {
     const admin = await this.getProfile();

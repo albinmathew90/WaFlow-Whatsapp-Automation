@@ -14,6 +14,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+    if (payload.role === 'admin') {
+      return { id: payload.sub, email: payload.email, role: 'admin' };
+    }
     const user = await this.crmAuthService.validateUser(payload.sub);
     if (!user) {
       throw new UnauthorizedException();
