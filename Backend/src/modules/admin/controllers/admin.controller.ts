@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { AdminService } from '../services/admin.service';
 import { JwtService } from '@nestjs/jwt';
 import { Public } from '../../auth/decorators/auth.decorators';
@@ -220,10 +220,10 @@ export class AdminController {
     }
 
     const otplib = require('otplib');
-    const isCodeValid = otplib.authenticator.verify({
+    const isCodeValid = otplib.verifySync({
       token: body.code,
       secret: admin.twoFactorSecret,
-    });
+    })?.valid;
 
     if (!isCodeValid) {
       return { success: false, message: 'Invalid 2FA code' };
@@ -239,8 +239,8 @@ export class AdminController {
     const qrcode = require('qrcode');
     const admin = await this.getProfile();
     
-    const secret = otplib.authenticator.generateSecret();
-    const otpauthUrl = otplib.authenticator.keyuri(admin.email, 'WAFLOW_Admin', secret);
+    const secret = otplib.generateSecret();
+    const otpauthUrl = otplib.generateURI({ label: admin.email, issuer: 'WAFLOW_Admin', secret });
     
     await this.adminService.adminUserRepo.update(admin.id, { twoFactorSecret: secret });
     
@@ -257,10 +257,10 @@ export class AdminController {
       return { success: false, message: 'Admin not found' };
     }
 
-    const isCodeValid = otplib.authenticator.verify({
+    const isCodeValid = otplib.verifySync({
       token: body.code,
       secret: admin.twoFactorSecret,
-    });
+    })?.valid;
 
     if (!isCodeValid) {
       return { success: false, message: 'Wrong authentication code' };
@@ -279,10 +279,10 @@ export class AdminController {
       return { success: false, message: 'Admin not found' };
     }
 
-    const isCodeValid = otplib.authenticator.verify({
+    const isCodeValid = otplib.verifySync({
       token: body.code,
       secret: admin.twoFactorSecret,
-    });
+    })?.valid;
 
     if (!isCodeValid) {
       return { success: false, message: 'Wrong authentication code' };
@@ -290,5 +290,40 @@ export class AdminController {
 
     await this.adminService.adminUserRepo.update(admin.id, { isTwoFactorEnabled: false, twoFactorSecret: null as any });
     return { success: true };
+  }
+
+  // Visitors (for map)
+  @Public()
+  @Post('track-visitor')
+  async trackVisitor(@Req() req: any) {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const ipAddress = Array.isArray(ip) ? ip[0] : ip;
+    
+    if (!ipAddress) return { success: false };
+
+    try {
+      // Use native fetch to get location
+      const response = await fetch(`http://ip-api.com/json/${ipAddress}`);
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        const visitor = this.adminService.visitorRepo.create({
+          ipAddress,
+          countryCode: data.countryCode,
+          country: data.country,
+          city: data.city,
+        });
+        await this.adminService.visitorRepo.save(visitor);
+      }
+      return { success: true };
+    } catch (e) {
+      console.error('Failed to track visitor IP:', e);
+      return { success: false };
+    }
+  }
+
+  @Get('visitors')
+  getVisitors() {
+    return this.adminService.visitorRepo.find();
   }
 }

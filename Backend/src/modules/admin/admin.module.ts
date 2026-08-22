@@ -6,6 +6,7 @@ import { AdminBlogTopic } from './entities/admin-blog-topic.entity';
 import { AdminMedia } from './entities/admin-media.entity';
 import { AdminSeo } from './entities/admin-seo.entity';
 import { AdminSettings } from './entities/admin-settings.entity';
+import { AdminVisitor } from './entities/admin-visitor.entity';
 import { User } from '../crm/entities/user.entity';
 import { AdminController } from './controllers/admin.controller';
 import { AdminService } from './services/admin.service';
@@ -15,7 +16,7 @@ import { CrmModule } from '../crm/crm.module';
 @Module({
   imports: [
     CrmModule,
-    TypeOrmModule.forFeature([AdminUser, AdminBlog, AdminBlogTopic, AdminMedia, AdminSeo, AdminSettings, User], 'data'),
+    TypeOrmModule.forFeature([AdminUser, AdminBlog, AdminBlogTopic, AdminMedia, AdminSeo, AdminSettings, AdminVisitor, User], 'data'),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'fallback_secret_for_crm_openwa',
       signOptions: { expiresIn: '1d' },

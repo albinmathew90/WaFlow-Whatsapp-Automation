@@ -18,7 +18,10 @@ const AdminDashboard: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const users = await AdminAPI.getUsers();
+      const [users, visitors] = await Promise.all([
+        AdminAPI.getUsers().catch(() => []),
+        AdminAPI.getVisitors().catch(e => { console.error('visitors error', e); return []; })
+      ]);
       setTotalUsers(users.length);
 
       // Process Line Data (Signups per day)
@@ -35,6 +38,14 @@ const AdminDashboard: React.FC = () => {
         // Country processing
         if (u.country) {
           const code = u.country.toUpperCase();
+          countryCounts[code] = (countryCounts[code] || 0) + 1;
+        }
+      });
+      
+      // Merge Visitor locations
+      visitors.forEach((v: any) => {
+        if (v.countryCode) {
+          const code = v.countryCode.toUpperCase();
           countryCounts[code] = (countryCounts[code] || 0) + 1;
         }
       });
@@ -67,8 +78,8 @@ const AdminDashboard: React.FC = () => {
           value={totalUsers.toString()}
           linkText="See all users"
           linkTo="/admin/collections/users"
-          icon={<UsersIcon className="w-6 h-6 text-white" />}
-          smallIcon={<UsersIcon className="w-4 h-4 text-white" />}
+          icon={<UsersIcon className="w-6 h-6 text-white dark:text-black" />}
+          smallIcon={<UsersIcon className="w-4 h-4 text-white dark:text-black" />}
           color="bg-[#2b7cff]"
           shadowColor="shadow-[#2b7cff]/40"
         />
@@ -77,8 +88,8 @@ const AdminDashboard: React.FC = () => {
           value="0"
           linkText="See all blogs"
           linkTo="/admin/collections/blogs"
-          icon={<BlogsIcon className="w-6 h-6 text-white" />}
-          smallIcon={<BlogsIcon className="w-4 h-4 text-white" />}
+          icon={<BlogsIcon className="w-6 h-6 text-white dark:text-black" />}
+          smallIcon={<BlogsIcon className="w-4 h-4 text-white dark:text-black" />}
           color="bg-[#00c473]"
           shadowColor="shadow-[#00c473]/40"
         />
@@ -87,8 +98,8 @@ const AdminDashboard: React.FC = () => {
           value="0"
           linkText="See all SEO"
           linkTo="/admin/collections/seo"
-          icon={<SeoIcon className="w-6 h-6 text-white" />}
-          smallIcon={<SeoIcon className="w-4 h-4 text-white" />}
+          icon={<SeoIcon className="w-6 h-6 text-white dark:text-black" />}
+          smallIcon={<SeoIcon className="w-4 h-4 text-white dark:text-black" />}
           color="bg-[#ff6f20]"
           shadowColor="shadow-[#ff6f20]/40"
         />
@@ -97,8 +108,8 @@ const AdminDashboard: React.FC = () => {
           value="0"
           linkText="See all contacts"
           linkTo="/admin/collections/contact"
-          icon={<ContactsIcon className="w-6 h-6 text-white" />}
-          smallIcon={<ContactsIcon className="w-4 h-4 text-white" />}
+          icon={<ContactsIcon className="w-6 h-6 text-white dark:text-black" />}
+          smallIcon={<ContactsIcon className="w-4 h-4 text-white dark:text-black" />}
           color="bg-[#f01479]"
           shadowColor="shadow-[#f01479]/40"
         />
@@ -107,8 +118,8 @@ const AdminDashboard: React.FC = () => {
           value="0"
           linkText="See all media"
           linkTo="/admin/collections/media"
-          icon={<MediaIcon className="w-6 h-6 text-white" />}
-          smallIcon={<MediaIcon className="w-4 h-4 text-white" />}
+          icon={<MediaIcon className="w-6 h-6 text-white dark:text-black" />}
+          smallIcon={<MediaIcon className="w-4 h-4 text-white dark:text-black" />}
           color="bg-[#a824ff]"
           shadowColor="shadow-[#a824ff]/40"
         />
@@ -117,8 +128,8 @@ const AdminDashboard: React.FC = () => {
           value="0"
           linkText="See all topics"
           linkTo="/admin/collections/blog-topics"
-          icon={<TopicsIcon className="w-6 h-6 text-white" />}
-          smallIcon={<TopicsIcon className="w-4 h-4 text-white" />}
+          icon={<TopicsIcon className="w-6 h-6 text-white dark:text-black" />}
+          smallIcon={<TopicsIcon className="w-4 h-4 text-white dark:text-black" />}
           color="bg-[#5a67ff]"
           shadowColor="shadow-[#5a67ff]/40"
         />
@@ -127,8 +138,8 @@ const AdminDashboard: React.FC = () => {
           value="0"
           linkText="See all categories"
           linkTo="/admin/collections/case-study-categories"
-          icon={<CategoriesIcon className="w-6 h-6 text-white" />}
-          smallIcon={<CategoriesIcon className="w-4 h-4 text-white" />}
+          icon={<CategoriesIcon className="w-6 h-6 text-white dark:text-black" />}
+          smallIcon={<CategoriesIcon className="w-4 h-4 text-white dark:text-black" />}
           color="bg-[#f49300]"
           shadowColor="shadow-[#f49300]/40"
         />
@@ -137,8 +148,8 @@ const AdminDashboard: React.FC = () => {
           value="0"
           linkText="See all subscribers"
           linkTo="/admin/collections/subscriber"
-          icon={<SubscribersIcon className="w-6 h-6 text-white" />}
-          smallIcon={<SubscribersIcon className="w-4 h-4 text-white" />}
+          icon={<SubscribersIcon className="w-6 h-6 text-white dark:text-black" />}
+          smallIcon={<SubscribersIcon className="w-4 h-4 text-white dark:text-black" />}
           color="bg-[#00af91]"
           shadowColor="shadow-[#00af91]/40"
         />
@@ -177,6 +188,7 @@ const AdminDashboard: React.FC = () => {
           </div>
           <div className="h-[300px] w-full bg-[#f8fafc] dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800 dark:border-gray-700 relative">
             <VectorMap
+              key={JSON.stringify(mapData)}
               map={worldMill}
               backgroundColor="transparent"
               zoomOnScroll={false}

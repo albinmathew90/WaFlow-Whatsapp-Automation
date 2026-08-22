@@ -1,7 +1,7 @@
 const BASE_URL = '/openwa-api/admin';
 
 const getHeaders = () => {
-  const token = localStorage.getItem('adminToken');
+  const token = sessionStorage.getItem('adminToken');
   return {
     'Content-Type': 'application/json',
     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
@@ -10,7 +10,7 @@ const getHeaders = () => {
 
 const handleResponse = async (res: Response) => {
   if (res.status === 401) {
-    localStorage.removeItem('adminToken');
+    sessionStorage.removeItem('adminToken');
     window.location.href = '/admin/login';
     throw new Error('Unauthorized');
   }
@@ -109,4 +109,8 @@ export const AdminAPI = {
   turnOff2FA: (code: string) => fetch(`${BASE_URL}/auth/2fa/turn-off`, {
     method: 'POST', headers: getHeaders(), body: JSON.stringify({ code })
   }).then(handleResponse),
+
+  // Visitors (for map)
+  getVisitors: () => fetch(`${BASE_URL}/visitors`, { headers: getHeaders() }).then(handleResponse),
+  trackVisitor: () => fetch(`${BASE_URL}/track-visitor`, { method: 'POST', headers: getHeaders() }).then(handleResponse),
 };

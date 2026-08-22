@@ -7,6 +7,7 @@ import { AdminBlogTopic } from '../entities/admin-blog-topic.entity';
 import { AdminMedia } from '../entities/admin-media.entity';
 import { AdminSeo } from '../entities/admin-seo.entity';
 import { AdminSettings } from '../entities/admin-settings.entity';
+import { AdminVisitor } from '../entities/admin-visitor.entity';
 import { User } from '../../crm/entities/user.entity';
 
 @Injectable()
@@ -19,5 +20,6 @@ export class AdminService {
     @InjectRepository(AdminMedia, 'data') public mediaRepo: Repository<AdminMedia>,
     @InjectRepository(AdminSeo, 'data') public seoRepo: Repository<AdminSeo>,
     @InjectRepository(AdminSettings, 'data') public settingsRepo: Repository<AdminSettings>,
+    @InjectRepository(AdminVisitor, 'data') public visitorRepo: Repository<AdminVisitor>,
   ) {}
 }

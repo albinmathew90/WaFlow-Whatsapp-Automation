@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { AdminAPI } from '../../api/admin';
+import { useTheme } from '../../context/ThemeContext';
 
 type ViewState = 'login' | '2fa' | 'forgot-loading' | 'forgot-otp' | 'forgot-reset';
 
@@ -10,6 +11,8 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [twoFactorCode, setTwoFactorCode] = useState('');
   
+  const { theme } = useTheme();
+
   const [view, setView] = useState<ViewState>('login');
   
   // Forgot password states
@@ -98,7 +101,7 @@ const AdminLogin = () => {
       if (view === '2fa') {
         const res = await AdminAPI.verify2FALogin(email, password, twoFactorCode);
         if (res.success && res.token) {
-          localStorage.setItem('adminToken', res.token);
+          sessionStorage.setItem('adminToken', res.token);
           navigate('/admin');
         } else {
           setError(res.message || 'Invalid 2FA code');
@@ -109,7 +112,7 @@ const AdminLogin = () => {
           if (res.requires2FA) {
             setView('2fa');
           } else if (res.token) {
-            localStorage.setItem('adminToken', res.token);
+            sessionStorage.setItem('adminToken', res.token);
             navigate('/admin');
           }
         } else {
@@ -135,7 +138,16 @@ const AdminLogin = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800 p-4">
       <div className="max-w-md w-full bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 p-8">
         <div className="mb-10 mt-4 flex justify-center">
-          <img src="/logo-light.png" alt="Waflow" className="h-14 w-auto object-contain scale-[1.8]" />
+          <img 
+            src="/logo-light.png" 
+            alt="Waflow" 
+            className="admin-logo-light h-14 w-auto object-contain scale-[1.8]" 
+          />
+          <img 
+            src="/logo-dark.png" 
+            alt="Waflow" 
+            className="admin-logo-dark h-14 w-auto object-contain scale-[1.8]" 
+          />
         </div>
 
         {error && (

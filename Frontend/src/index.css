@@ -260,6 +260,12 @@ layer(base);
   @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm;
 }
 
+.admin-logo-light { display: block !important; }
+.dark .admin-logo-light { display: none !important; }
+.admin-logo-dark { display: none !important; }
+.dark .admin-logo-dark { display: block !important; }
+
+
 @utility menu-item-active {
   @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
 }

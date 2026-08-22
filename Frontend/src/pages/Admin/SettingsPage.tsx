@@ -29,6 +29,9 @@ const SettingsPage = () => {
   const [qrCode, setQrCode] = useState('');
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const [isSettingUp2FA, setIsSettingUp2FA] = useState(false);
+  const [isDisabling2FA, setIsDisabling2FA] = useState(false);
+  const [disableTwoFactorCode, setDisableTwoFactorCode] = useState('');
+  const [twoFactorMessage, setTwoFactorMessage] = useState({ text: '', type: '' });
 
   // Email & Notifications State
   const [smtpSettings, setSmtpSettings] = useState({ provider: 'custom', host: '', port: 587, user: '', pass: '', fromEmail: '' });
@@ -122,24 +125,27 @@ const SettingsPage = () => {
   const turnOn2FA = async () => {
     const res = await AdminAPI.turnOn2FA(twoFactorCode);
     if (res.success) {
-      alert('2FA Enabled successfully!');
+      setTwoFactorMessage({ text: '2FA Enabled successfully!', type: 'success' });
       setIsSettingUp2FA(false);
+      setTwoFactorCode('');
       fetchProfile();
+      setTimeout(() => setTwoFactorMessage({ text: '', type: '' }), 4000);
     } else {
-      alert('Invalid code!');
+      setTwoFactorMessage({ text: 'Invalid code!', type: 'error' });
     }
   };
 
-  const turnOff2FA = async () => {
-    const code = prompt('Enter your 2FA code to disable it:');
-    if (code) {
-      const res = await AdminAPI.turnOff2FA(code);
-      if (res.success) {
-        alert('2FA Disabled successfully!');
-        fetchProfile();
-      } else {
-        alert('Invalid code!');
-      }
+  const submitDisable2FA = async () => {
+    if (!disableTwoFactorCode) return;
+    const res = await AdminAPI.turnOff2FA(disableTwoFactorCode);
+    if (res.success) {
+      setTwoFactorMessage({ text: '2FA Disabled successfully!', type: 'success' });
+      setIsDisabling2FA(false);
+      setDisableTwoFactorCode('');
+      fetchProfile();
+      setTimeout(() => setTwoFactorMessage({ text: '', type: '' }), 4000);
+    } else {
+      setTwoFactorMessage({ text: 'Invalid code!', type: 'error' });
     }
   };
 
@@ -241,7 +247,7 @@ const SettingsPage = () => {
                       </div>
                       <div className="flex-shrink-0">
                         {profile.isTwoFactorEnabled ? (
-                          <button onClick={turnOff2FA} className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold hover:bg-red-100 transition-colors whitespace-nowrap">
+                          <button onClick={() => setIsDisabling2FA(!isDisabling2FA)} className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold hover:bg-red-100 transition-colors whitespace-nowrap">
                             Disable 2FA
                           </button>
                         ) : (
@@ -251,6 +257,32 @@ const SettingsPage = () => {
                         )}
                       </div>
                     </div>
+
+                    {twoFactorMessage.text && (
+                      <div className={`mt-2 inline-block px-3 py-2 text-xs font-semibold rounded-lg border shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 w-full ${twoFactorMessage.type === 'success' ? 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]' : 'bg-red-50 text-red-600 border-red-100'}`}>
+                        {twoFactorMessage.type === 'success' ? '✓ ' : '⚠ '} {twoFactorMessage.text}
+                      </div>
+                    )}
+
+                    {isDisabling2FA && profile.isTwoFactorEnabled && (
+                      <div className="p-4 bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl flex flex-col gap-3 animate-in zoom-in-95 duration-300 mt-2">
+                        <h4 className="font-bold text-sm text-red-800 dark:text-red-400">Disable 2FA</h4>
+                        <p className="text-xs text-red-600 dark:text-red-300">Enter your 6-digit authenticator code to disable Two-Factor Authentication.</p>
+                        <div className="flex gap-2">
+                          <input 
+                            type="text" 
+                            placeholder="000000" 
+                            value={disableTwoFactorCode}
+                            onChange={(e) => setDisableTwoFactorCode(e.target.value)}
+                            className="flex-1 px-3 py-2 text-center tracking-widest font-mono bg-white dark:bg-gray-900 border border-red-200 dark:border-red-800 rounded-lg focus:outline-none focus:border-red-400"
+                            maxLength={6}
+                          />
+                          <button onClick={submitDisable2FA} className="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 transition-colors">
+                            Confirm
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                     {isSettingUp2FA && !profile.isTwoFactorEnabled && (
                       <div className="p-5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center text-center gap-3 animate-in zoom-in-95 duration-300">
