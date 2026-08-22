@@ -23,12 +23,17 @@ export class ChatbotPublicController {
 
 import { JwtAuthGuard } from '../crm/guards/jwt-auth.guard';
 import { UseGuards } from '@nestjs/common';
+import { AuditService } from '../audit/audit.service';
+import { AuditAction } from '../audit/entities/audit-log.entity';
 
 @ApiTags('crm-chatbot')
 @Controller('crm/chatbot')
 @UseGuards(JwtAuthGuard)
 export class ChatbotController {
-  constructor(private readonly chatbotService: ChatbotService) {}
+  constructor(
+    private readonly chatbotService: ChatbotService,
+    private readonly auditService: AuditService,
+  ) {}
 
   // ─── Settings ─────────────────────────────────────────────────────────────
   @Get('settings')
@@ -40,7 +45,11 @@ export class ChatbotController {
   @Post('settings')
   @ApiOperation({ summary: 'Update chatbot settings' })
   async updateSettings(@Req() req: any, @Body() data: any) {
-    return this.chatbotService.updateSettings(req.user.id, data);
+    const updated = await this.chatbotService.updateSettings(req.user.id, data);
+    await this.auditService.logInfo(AuditAction.CRM_CHATBOT_SETTINGS_UPDATED, {
+      userId: req.user.id,
+    });
+    return updated;
   }
 
   // ─── Leads ────────────────────────────────────────────────────────────────

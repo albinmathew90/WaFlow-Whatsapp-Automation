@@ -47,6 +47,26 @@ export interface SessionStats {
   memoryUsage: { heapUsed: number; heapTotal: number; rss: number };
 }
 
+export interface DashboardStatsDto {
+  totalMessagesSent: number;
+  totalMessagesReceived: number;
+  totalContacts: number;
+  activeSessions: number;
+  trafficData: {
+    dates: string[];
+    sent: number[];
+    received: number[];
+  };
+  connectionStatus: {
+    total: number;
+    active: number;
+    status: 'HEALTHY' | 'DISCONNECTED' | 'NONE';
+  };
+  recentActivity: any[];
+  deliveredPercent: number;
+  readPercent: number;
+}
+
 // ---- Helpers ----
 
 /** Fetch using the user's JWT — for user-scoped CRM session endpoints */
@@ -101,6 +121,10 @@ export const getSession = async (id: string): Promise<Session> => {
   const s = await jwtFetch<Session>(`/crm/sessions/${id}`);
   if (s) s.status = (s.status || '').toUpperCase() as SessionStatus;
   return s;
+};
+
+export const getDashboardStats = async (): Promise<DashboardStatsDto> => {
+  return await jwtFetch<DashboardStatsDto>('/crm/dashboard/stats');
 };
 
 /** Get overall stats for the current user's sessions */
@@ -198,3 +222,15 @@ export const executeContactAction = (sessionId: string, action: 'opt-out' | 'ign
     method: 'POST',
     body: JSON.stringify({ action, chatIds }),
   });
+
+export interface ActivityLog {
+  id: string;
+  action: string;
+  severity: string;
+  createdAt: string;
+  metadata?: any;
+}
+
+export const getActivityLogs = async (limit = 50, offset = 0) => {
+  return await jwtFetch<{ data: ActivityLog[]; total: number }>(`/crm/audit/logs?limit=${limit}&offset=${offset}`);
+};

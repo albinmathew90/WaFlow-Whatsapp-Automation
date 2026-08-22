@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Link } from "react-router";
 import { useSidebar } from "../context/SidebarContext";
@@ -7,10 +7,22 @@ import { useTheme } from "../context/ThemeContext";
 import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
 import GlobalSearch from "../components/common/GlobalSearch";
+import { getSessionStats, SessionStats } from "../services/openwa";
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
+  const [sessionStats, setSessionStats] = useState<SessionStats | null>(null);
   const { theme } = useTheme();
+
+  useEffect(() => {
+    getSessionStats().then(setSessionStats).catch(console.error);
+    
+    // Refresh stats every 30 seconds
+    const interval = setInterval(() => {
+      getSessionStats().then(setSessionStats).catch(console.error);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
@@ -114,6 +126,29 @@ const AppHeader: React.FC = () => {
           } items-center justify-between w-full gap-4 px-5 py-2 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
+            {/* Connection Status */}
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 mr-2 shadow-sm">
+              <span className="relative flex h-2.5 w-2.5">
+                {sessionStats && sessionStats.active > 0 ? (
+                  <>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                  </>
+                ) : sessionStats && sessionStats.total > 0 ? (
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                ) : (
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gray-400 dark:bg-gray-500"></span>
+                )}
+              </span>
+              <span className="text-[11px] uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300">
+                {!sessionStats 
+                  ? "Checking..." 
+                  : sessionStats.total === 0 
+                    ? "Not Connected" 
+                    : (sessionStats.active > 0 ? "Connected" : "Disconnected")}
+              </span>
+            </div>
+            
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}

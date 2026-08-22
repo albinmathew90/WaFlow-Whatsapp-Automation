@@ -14,6 +14,7 @@ import { BroadcastController } from './broadcast.controller';
 import { MessageModule } from '../message/message.module';
 import { InboxModule } from '../inbox/inbox.module';
 import { TemplateModule } from '../template/template.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { TemplateModule } from '../template/template.module';
     MessageModule,
     InboxModule,
     TemplateModule,
+    AuditModule,
   ],
   controllers: [BroadcastController],
   providers: [BroadcastService, BroadcastQueueService],

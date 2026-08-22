@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CrmTemplate } from '../entities/crm-template.entity';
 import { CreateCrmTemplateDto } from '../dto/crm.dto';
+import { AuditService } from '../../audit/audit.service';
+import { AuditAction } from '../../audit/entities/audit-log.entity';
 
 @Injectable()
 export class CrmTemplatesService {
   constructor(
     @InjectRepository(CrmTemplate, 'data')
     private templatesRepository: Repository<CrmTemplate>,
+    private auditService: AuditService,
   ) {}
 
   async create(userId: string, dto: CreateCrmTemplateDto): Promise<CrmTemplate> {
@@ -16,7 +19,15 @@ export class CrmTemplatesService {
       ...dto,
       userId,
     });
-    return this.templatesRepository.save(template);
+    const savedTemplate = await this.templatesRepository.save(template);
+
+    // Log creation
+    this.auditService.logInfo(AuditAction.CRM_TEMPLATE_CREATED, {
+      userId,
+      metadata: { templateId: savedTemplate.id, itemName: savedTemplate.name },
+    });
+
+    return savedTemplate;
   }
 
   async findAll(userId: string): Promise<CrmTemplate[]> {
@@ -31,11 +42,25 @@ export class CrmTemplatesService {
     const template = await this.templatesRepository.findOne({ where: { id, userId } });
     if (!template) return null;
     Object.assign(template, dto);
-    return this.templatesRepository.save(template);
+    const savedTemplate = await this.templatesRepository.save(template);
+    
+    this.auditService.logInfo(AuditAction.CRM_TEMPLATE_UPDATED, {
+      userId,
+      metadata: { templateId: savedTemplate.id, itemName: savedTemplate.name },
+    });
+    
+    return savedTemplate;
   }
 
   async remove(userId: string, id: string): Promise<void> {
-    await this.templatesRepository.delete({ id, userId });
+    const template = await this.templatesRepository.findOne({ where: { id, userId } });
+    if (template) {
+      await this.templatesRepository.delete({ id, userId });
+      this.auditService.logInfo(AuditAction.CRM_TEMPLATE_DELETED, {
+        userId,
+        metadata: { templateId: id, itemName: template.name },
+      });
+    }
   }
 
   async bulkCreate(userId: string, dtos: CreateCrmTemplateDto[]): Promise<CrmTemplate[]> {

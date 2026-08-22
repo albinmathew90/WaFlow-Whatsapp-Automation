@@ -12,6 +12,8 @@ import { CrmMedia } from './entities/crm-media.entity';
 import { CrmFlow } from './entities/crm-flow.entity';
 import { CrmFlowState } from './entities/crm-flow-state.entity';
 import { CrmCustomField } from './entities/crm-custom-field.entity';
+import { Session } from '../session/entities/session.entity';
+import { Message } from '../message/entities/message.entity';
 
 import { CrmAuthService } from './services/crm-auth.service';
 import { CrmContactsService } from './services/crm-contacts.service';
@@ -21,6 +23,7 @@ import { CrmSegmentsService } from './services/crm-segments.service';
 import { CrmMediaService } from './services/crm-media.service';
 import { CrmFlowsService } from './services/crm-flows.service';
 import { CrmCustomFieldsService } from './services/crm-custom-fields.service';
+import { CrmDashboardService } from './services/crm-dashboard.service';
 import { FlowRunnerService } from './services/flow-runner.service';
 import { CrmEventsGateway } from './gateways/crm-events.gateway';
 import { MailService } from './services/mail.service';
@@ -34,14 +37,17 @@ import { CrmMediaController } from './controllers/crm-media.controller';
 import { CrmSessionsController } from './controllers/crm-sessions.controller';
 import { CrmFlowsController } from './controllers/crm-flows.controller';
 import { CrmCustomFieldsController } from './controllers/crm-custom-fields.controller';
+import { CrmDashboardController } from './controllers/crm-dashboard.controller';
+import { CrmAuditController } from './controllers/crm-audit.controller';
 
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { SessionModule } from '../session/session.module';
 import { MessageModule } from '../message/message.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, CrmContact, CrmTemplate, CrmTag, CrmSegment, CrmMedia, CrmFlow, CrmFlowState, CrmCustomField], 'data'),
+    TypeOrmModule.forFeature([User, CrmContact, CrmTemplate, CrmTag, CrmSegment, CrmMedia, CrmFlow, CrmFlowState, CrmCustomField, Session, Message], 'data'),
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'fallback_secret_for_crm_openwa',
@@ -49,6 +55,7 @@ import { MessageModule } from '../message/message.module';
     }),
     SessionModule,
     forwardRef(() => MessageModule),
+    AuditModule,
   ],
   controllers: [
     CrmAuthController,
@@ -60,6 +67,8 @@ import { MessageModule } from '../message/message.module';
     CrmSessionsController,
     CrmFlowsController,
     CrmCustomFieldsController,
+    CrmDashboardController,
+    CrmAuditController,
   ],
   providers: [
     CrmAuthService,
@@ -70,6 +79,7 @@ import { MessageModule } from '../message/message.module';
     CrmMediaService,
     CrmFlowsService,
     CrmCustomFieldsService,
+    CrmDashboardService,
     FlowRunnerService,
     JwtStrategy,
     CrmEventsGateway,

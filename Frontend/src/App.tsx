@@ -20,6 +20,7 @@ import SEOPage from "./pages/Admin/SEOPage";
 import AdminLogin from './pages/Admin/AdminLogin';
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import WhatsappConnect from "./pages/Dashboard/WhatsappConnect";
 import Contacts from "./pages/Contacts";
 import BroadcastsPage from "./pages/Broadcasts";
 import ListTemplates from "./pages/Templates/ListTemplates";
@@ -108,6 +109,7 @@ export default function App() {
               }
             >
               <Route index path="/" element={<Home />} />
+              <Route path="/whatsapp-connect" element={<WhatsappConnect />} />
               <Route path="/inbox" element={<InboxPage />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/broadcasts" element={<BroadcastsPage />} />
@@ -133,6 +135,7 @@ export default function App() {
               <Route path="/settings/tags" element={<Settings />} />
               <Route path="/settings/media" element={<Settings />} />
               <Route path="/settings/contact-fields" element={<Settings />} />
+              <Route path="/settings/logs" element={<Settings />} />
               <Route path="/chatbot">
                 <Route index element={<Chatbot />} />
                 <Route path="leads" element={<ChatbotLeads />} />

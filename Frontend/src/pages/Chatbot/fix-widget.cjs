@@ -1,0 +1,1 @@
+const fs = require('fs'); let c = fs.readFileSync('widget-script.ts', 'utf8'); c = c.replace(/capturedData = data;\\n            try {/g, 'capturedData = data;\\n            try {\\n                sendMessage(\\'\\').catch(e => {});\\n'); fs.writeFileSync('widget-script.ts', c); console.log('Widget updated');

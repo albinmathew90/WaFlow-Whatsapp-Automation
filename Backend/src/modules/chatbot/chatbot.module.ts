@@ -7,11 +7,13 @@ import { ChatbotController, ChatbotPublicController } from './chatbot.controller
 import { ChatbotService } from './services/chatbot.service';
 import { KnowledgeEngineService } from './services/knowledge-engine.service';
 import { CrmModule } from '../crm/crm.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Chatbot, ChatbotLead, ChatbotKnowledge], 'data'),
     forwardRef(() => CrmModule),
+    AuditModule,
   ],
   controllers: [ChatbotController, ChatbotPublicController],
   providers: [ChatbotService, KnowledgeEngineService],

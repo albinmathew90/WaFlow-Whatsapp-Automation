@@ -22,7 +22,7 @@ const SEARCH_ITEMS = [
   { label: "Tags", description: "Manage contact tags", path: "/settings/tags" },
   { label: "Media Library", description: "Uploaded media files", path: "/settings/media" },
   { label: "Contact Custom Fields", description: "Manage custom contact fields", path: "/settings/contact-fields" },
-  { label: "WhatsApp Sessions", description: "Manage WhatsApp connections", path: "/" },
+  { label: "WhatsApp Connect", description: "Manage WhatsApp connections", path: "/whatsapp-connect" },
   // OTP Builder
   { label: "OTP Applications", description: "Manage OTP apps & integrations", path: "/otp-builder/applications" },
   { label: "OTP API Keys", description: "Manage API keys for OTP", path: "/otp-builder/api-keys" },

@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CrmFlow } from '../entities/crm-flow.entity';
 import { User } from '../entities/user.entity';
+import { AuditService } from '../../audit/audit.service';
+import { AuditAction } from '../../audit/entities/audit-log.entity';
 
 import { IsString, IsOptional, IsBoolean, IsObject, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -47,11 +49,19 @@ export class CrmFlowsService {
     private flowsRepository: Repository<CrmFlow>,
     @InjectRepository(User, 'data')
     private userRepository: Repository<User>,
+    private auditService: AuditService,
   ) {}
 
   async create(userId: string, dto: CreateFlowDto): Promise<CrmFlow> {
     const flow = this.flowsRepository.create({ ...dto, userId });
-    return this.flowsRepository.save(flow);
+    const saved = await this.flowsRepository.save(flow);
+    
+    await this.auditService.logInfo(AuditAction.CRM_FLOW_CREATED, {
+      userId,
+      metadata: { flowId: saved.id, itemName: saved.name },
+    });
+    
+    return saved;
   }
 
   async findAll(userId: string): Promise<CrmFlow[]> {
@@ -77,18 +87,39 @@ export class CrmFlowsService {
     const flow = await this.flowsRepository.findOne({ where: { id, userId } });
     if (!flow) return null;
     Object.assign(flow, dto);
-    return this.flowsRepository.save(flow);
+    const savedFlow = await this.flowsRepository.save(flow);
+    
+    this.auditService.logInfo(AuditAction.CRM_FLOW_UPDATED, {
+      userId,
+      metadata: { flowId: savedFlow.id, itemName: savedFlow.name },
+    });
+    
+    return savedFlow;
   }
 
   async remove(userId: string, id: string): Promise<void> {
-    await this.flowsRepository.delete({ id, userId });
+    const flow = await this.flowsRepository.findOne({ where: { id, userId } });
+    if (flow) {
+      await this.flowsRepository.delete({ id, userId });
+      this.auditService.logInfo(AuditAction.CRM_FLOW_DELETED, {
+        userId,
+        metadata: { flowId: id, itemName: flow.name },
+      });
+    }
   }
 
   async setEnabled(userId: string, id: string, enabled: boolean): Promise<CrmFlow | null> {
     const flow = await this.flowsRepository.findOne({ where: { id, userId } });
     if (!flow) return null;
     flow.enabled = enabled;
-    return this.flowsRepository.save(flow);
+    const savedFlow = await this.flowsRepository.save(flow);
+    
+    this.auditService.logInfo(AuditAction.CRM_FLOW_UPDATED, {
+      userId,
+      metadata: { flowId: savedFlow.id, itemName: savedFlow.name, action: enabled ? 'enabled' : 'disabled' },
+    });
+    
+    return savedFlow;
   }
 
   async getTrigger(userId: string, id: string) {

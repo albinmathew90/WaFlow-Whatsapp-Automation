@@ -11,6 +11,8 @@ import { CreateBroadcastDto, UpdateBroadcastDto } from '../dto/broadcast.dto';
 import { CrmContact } from '../../crm/entities/crm-contact.entity';
 import { CrmSegment } from '../../crm/entities/crm-segment.entity';
 import { InboxService } from '../../inbox/inbox.service';
+import { AuditService } from '../../audit/audit.service';
+import { AuditAction } from '../../audit/entities/audit-log.entity';
 import { HookManager, HookContext } from '../../../core/hooks';
 
 @Injectable()
@@ -30,6 +32,7 @@ export class BroadcastService implements OnModuleInit {
     private segmentRepo: Repository<CrmSegment>,
     private inboxService: InboxService,
     private hookManager: HookManager,
+    private auditService: AuditService,
   ) {}
 
   onModuleInit() {
@@ -70,6 +73,13 @@ export class BroadcastService implements OnModuleInit {
     });
     const saved = await this.broadcastRepo.save(broadcast);
     await this.logActivity(saved.id, 'Created', userId);
+    
+    // Log creation
+    this.auditService.logInfo(AuditAction.CRM_BROADCAST_SENT, {
+      userId,
+      metadata: { broadcastId: saved.id, broadcastName: saved.name },
+    });
+
     return saved;
   }
 

@@ -11,6 +11,7 @@ export const MAX_AUDIT_PAGE_SIZE = 200;
 
 interface AuditContext {
   apiKey?: ApiKey;
+  userId?: string;
   sessionId?: string;
   sessionName?: string;
   ipAddress?: string;
@@ -25,12 +26,14 @@ interface AuditContext {
 export interface AuditQueryOptions {
   action?: AuditAction;
   apiKeyId?: string;
+  userId?: string;
   sessionId?: string;
   severity?: AuditSeverity;
   startDate?: Date;
   endDate?: Date;
   limit?: number;
   offset?: number;
+  excludeActions?: AuditAction[];
 }
 
 @Injectable()
@@ -97,6 +100,7 @@ export class AuditService implements OnModuleInit, OnModuleDestroy {
       severity,
       apiKeyId: apiKeyId || null,
       apiKeyName: apiKeyName || null,
+      userId: context.userId || null,
       sessionId: context.sessionId || null,
       sessionName: context.sessionName || null,
       ipAddress: ipAddress || null,
@@ -142,10 +146,18 @@ export class AuditService implements OnModuleInit, OnModuleDestroy {
 
     if (options.action) where.action = options.action;
     if (options.apiKeyId) where.apiKeyId = options.apiKeyId;
+    if (options.userId) where.userId = options.userId;
     if (options.sessionId) where.sessionId = options.sessionId;
     if (options.severity) where.severity = options.severity;
+    
+    if (options.excludeActions && options.excludeActions.length > 0) {
+      // Need 'Not(In(...))' from TypeORM for exclusion
+      const { Not, In } = require('typeorm');
+      where.action = Not(In(options.excludeActions));
+    }
 
     if (options.startDate && options.endDate) {
+      const { Between } = require('typeorm');
       where.createdAt = Between(options.startDate, options.endDate);
     }
 

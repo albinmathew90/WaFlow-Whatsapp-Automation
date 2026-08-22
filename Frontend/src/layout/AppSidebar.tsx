@@ -30,6 +30,11 @@ const navItems: NavItem[] = [
     path: "/",
   },
   {
+    icon: <PlugInIcon />,
+    name: "WhatsApp Connect",
+    path: "/whatsapp-connect",
+  },
+  {
     icon: <ChatIcon />,
     name: "Inbox",
     path: "/inbox",
@@ -140,6 +145,7 @@ const othersItems: NavItem[] = [
       { name: "Account Management", path: "/settings/account" },
       { name: "Media Library", path: "/settings/media" },
       { name: "Contact Custom Fields", path: "/settings/contact-fields" },
+      { name: "Activity Logs", path: "/settings/logs" },
     ],
   },
 ];

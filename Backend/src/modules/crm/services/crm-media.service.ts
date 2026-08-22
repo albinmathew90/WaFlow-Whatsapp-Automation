@@ -5,6 +5,8 @@ import { CrmMedia } from '../entities/crm-media.entity';
 import { StorageService } from '../../../common/storage/storage.service';
 import * as crypto from 'crypto';
 import * as path from 'path';
+import { AuditService } from '../../audit/audit.service';
+import { AuditAction } from '../../audit/entities/audit-log.entity';
 
 @Injectable()
 export class CrmMediaService {
@@ -12,6 +14,7 @@ export class CrmMediaService {
     @InjectRepository(CrmMedia, 'data')
     private readonly mediaRepository: Repository<CrmMedia>,
     private readonly storageService: StorageService,
+    private readonly auditService: AuditService,
   ) {}
 
   async uploadFile(userId: string, file: { buffer: Buffer; originalname: string; mimetype: string; size: number }): Promise<CrmMedia> {
@@ -46,7 +49,14 @@ export class CrmMediaService {
       sizeBytes: file.size || (file.buffer ? file.buffer.length : 0),
     });
 
-    return this.mediaRepository.save(media);
+    const savedMedia = await this.mediaRepository.save(media);
+    
+    this.auditService.logInfo(AuditAction.CRM_MEDIA_UPLOADED, {
+      userId,
+      metadata: { mediaId: savedMedia.id, itemName: savedMedia.originalName },
+    });
+    
+    return savedMedia;
   }
 
   async findAll(userId: string): Promise<CrmMedia[]> {
@@ -71,6 +81,11 @@ export class CrmMediaService {
       // ignore storage deletion errors
     }
     await this.mediaRepository.delete({ id: media.id });
+    
+    this.auditService.logInfo(AuditAction.CRM_MEDIA_DELETED, {
+      userId,
+      metadata: { mediaId: id, itemName: media.originalName },
+    });
   }
 
   async getFileBufferAndMime(filename: string): Promise<{ buffer: Buffer; mimetype: string }> {

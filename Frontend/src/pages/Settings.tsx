@@ -5,6 +5,7 @@ import PageMeta from "../components/common/PageMeta";
 import ConfirmDeleteModal from "../components/common/ConfirmDeleteModal";
 import MediaLibrarySection from "./Settings/MediaLibrarySection";
 import ContactCustomFieldsSection from "./Settings/ContactCustomFieldsSection";
+import SettingsLogs from "./Settings/SettingsLogs";
 import UserProfiles from "./UserProfiles";
 
 export interface Tag {
@@ -17,7 +18,7 @@ export interface Tag {
 
 export default function Settings() {
   const location = useLocation();
-  const activeTab = location.pathname.includes('/contact-fields') ? 'contact-fields' : location.pathname.includes('/media') ? 'media' : 'account';
+  const activeTab = location.pathname.includes('/logs') ? 'logs' : location.pathname.includes('/contact-fields') ? 'contact-fields' : location.pathname.includes('/media') ? 'media' : 'account';
   const [tags, setTags] = useState<Tag[]>([]);
 
   useEffect(() => {
@@ -109,15 +110,17 @@ export default function Settings() {
   return (
     <div>
       <PageMeta
-        title={activeTab === 'media' ? "Media Library | Waflow" : activeTab === 'contact-fields' ? "Contact Custom Fields | Waflow" : "Account Management | Waflow"}
-        description={activeTab === 'media' ? "Media Library page for Waflow" : activeTab === 'contact-fields' ? "Contact Custom Fields page for Waflow" : "Account Management page for Waflow"}
+        title={activeTab === 'media' ? "Media Library | Waflow" : activeTab === 'contact-fields' ? "Contact Custom Fields | Waflow" : activeTab === 'logs' ? "Activity Logs | Waflow" : "Account Management | Waflow"}
+        description={activeTab === 'media' ? "Media Library page for Waflow" : activeTab === 'contact-fields' ? "Contact Custom Fields page for Waflow" : activeTab === 'logs' ? "Activity Logs for Waflow" : "Account Management page for Waflow"}
       />
-      <PageBreadcrumb pageTitle={activeTab === 'media' ? "Media Library" : activeTab === 'contact-fields' ? "Contact Custom Fields" : "Account Management"} />
+      <PageBreadcrumb pageTitle={activeTab === 'media' ? "Media Library" : activeTab === 'contact-fields' ? "Contact Custom Fields" : activeTab === 'logs' ? "Activity Logs" : "Account Management"} />
 
       {activeTab === 'media' ? (
         <MediaLibrarySection />
       ) : activeTab === 'contact-fields' ? (
         <ContactCustomFieldsSection />
+      ) : activeTab === 'logs' ? (
+        <SettingsLogs />
       ) : (
         <UserProfiles />
       )}
