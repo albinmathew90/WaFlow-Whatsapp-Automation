@@ -7,6 +7,7 @@ import { getDashboardStats, DashboardStatsDto } from "../../services/openwa";
 export default function Home() {
   const [stats, setStats] = useState<DashboardStatsDto | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     getDashboardStats()
@@ -16,14 +17,25 @@ export default function Home() {
       })
       .catch((err) => {
         console.error("Failed to load dashboard stats", err);
+        setError(true);
         setLoading(false);
       });
   }, []);
 
-  if (loading || !stats) {
+  if (loading) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (error || !stats) {
+    return (
+      <div className="flex h-[80vh] flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+        <svg className="w-12 h-12 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+        <p>Failed to load dashboard statistics.</p>
+        <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors">Reload Page</button>
       </div>
     );
   }

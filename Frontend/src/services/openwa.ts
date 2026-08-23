@@ -71,7 +71,7 @@ export interface DashboardStatsDto {
 
 /** Fetch using the user's JWT — for user-scoped CRM session endpoints */
 async function jwtFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = sessionStorage.getItem('crm_token');
+  const token = sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token');
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: {
       'Content-Type': 'application/json',
