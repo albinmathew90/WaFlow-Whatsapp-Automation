@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router";
 import type { ReactNode } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import SignIn from "./pages/AuthPages/SignIn";
@@ -69,9 +69,16 @@ function LoadingScreen() {
  */
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useUser();
+  const location = useLocation();
 
   if (loading) return <LoadingScreen />;
-  if (!user) return <Navigate to="/signin" replace />;
+  if (!user) {
+    if (location.pathname === '/') {
+      window.location.href = '/landing/index.html';
+      return null;
+    }
+    return <Navigate to="/signin" replace />;
+  }
   return <>{children}</>
 }
 
