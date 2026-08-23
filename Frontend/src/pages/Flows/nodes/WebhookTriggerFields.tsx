@@ -68,7 +68,7 @@ export default function WebhookTriggerFields({ flowId, trigger, onChange }: Prop
 
   const removeEventName = (idx: number) => {
     const current = trigger.triggerEventNames || [];
-    onChange({ ...trigger, triggerEventNames: current.filter((_, i) => i !== idx) });
+    onChange({ ...trigger, triggerEventNames: current.filter((_: string, i: number) => i !== idx) });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -161,7 +161,7 @@ export default function WebhookTriggerFields({ flowId, trigger, onChange }: Prop
       <div className="flex flex-col gap-1.5">
         <label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Event Names</label>
         <div className="flex flex-wrap gap-1.5 p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 dark:bg-gray-800 min-h-[42px]">
-          {(trigger.triggerEventNames || []).map((k, i) => (
+          {(trigger.triggerEventNames || []).map((k: string, i: number) => (
             <div key={i} className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 dark:bg-gray-700 px-2.5 py-1 rounded-md">
               <span className="text-[12px] text-gray-700 dark:text-gray-300 dark:text-gray-200">{k}</span>
               <button onClick={() => removeEventName(i)} className="text-gray-400 hover:text-red-500">
@@ -275,7 +275,7 @@ export default function WebhookTriggerFields({ flowId, trigger, onChange }: Prop
         {showSnippets && (
           <div className="mt-1">
             {webhookToken && trigger.triggerEventNames?.length ? (
-              trigger.triggerEventNames.map(eventName => (
+              trigger.triggerEventNames.map((eventName: string) => (
                 <div key={eventName} className="mb-2 bg-gray-50 dark:bg-gray-800 dark:bg-gray-900/50 rounded-lg p-2 border border-gray-100 dark:border-gray-800">
                   <span className="text-[10px] font-semibold text-gray-700 dark:text-gray-300 block mb-1.5">Event: {eventName}</span>
                   

@@ -12,7 +12,7 @@ type Tab = 'Dashboard' | 'OTP Logs' | 'Webhook Logs' | 'Audit Logs' | 'Export';
 const TABS: Tab[] = ['Dashboard', 'OTP Logs', 'Webhook Logs', 'Audit Logs', 'Export'];
 
 export default function AnalyticsAndLogs() {
-  const { token } = useUser();
+  const userContext = useUser();
   const [applications, setApplications] = useState<Application[]>([]);
   const [selectedAppId, setSelectedAppId] = useState<string>('');
   const [selectedEnvironment, setSelectedEnvironment] = useState<'production' | 'development'>('production');

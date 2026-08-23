@@ -71,7 +71,7 @@ export default function BroadcastDetail({ broadcastId, onBack }: Props) {
 
   useEffect(() => { 
     let mounted = true;
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     const poll = async () => {
       await fetchData();

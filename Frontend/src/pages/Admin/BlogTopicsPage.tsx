@@ -349,7 +349,7 @@ const BlogTopicsPage: React.FC = () => {
 
                       <div className="relative w-full sm:w-56 flex-1 sm:flex-none">
                         <input 
-                          type={filter.column.includes('At') || filter.column === 'date' ? 'date' : 'text'}
+                          type={String(filter.column).includes('At') || String(filter.column) === 'date' ? 'date' : 'text'}
                           value={filter.value}
                           onChange={(e) => updateFilter(filter.id, 'value', e.target.value)}
                           placeholder="Enter a value"

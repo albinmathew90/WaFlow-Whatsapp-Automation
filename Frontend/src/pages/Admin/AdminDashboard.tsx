@@ -188,39 +188,40 @@ const AdminDashboard: React.FC = () => {
           </div>
           <div className="h-[300px] w-full bg-[#f8fafc] dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800 dark:border-gray-700 relative">
             <VectorMap
-              key={JSON.stringify(mapData)}
-              map={worldMill}
-              backgroundColor="transparent"
-              zoomOnScroll={false}
-              containerStyle={{
-                width: '100%',
-                height: '100%'
-              }}
-              regionStyle={{
-                initial: {
-                  fill: '#e2e8f0',
-                  stroke: 'none',
-                  "stroke-width": 0,
-                  "stroke-opacity": 1
+              {...({
+                key: JSON.stringify(mapData),
+                map: worldMill,
+                backgroundColor: 'transparent',
+                containerStyle: {
+                  width: '100%',
+                  height: '100%'
                 },
-                hover: {
-                  "fill-opacity": 0.8,
-                  cursor: 'pointer'
-                }
-              }}
-              series={{
-                regions: [
-                  {
-                    values: mapData,
-                    scale: ['#93c5fd', '#1e3a8a'],
-                    normalizeFunction: 'polynomial'
+                regionStyle: {
+                  initial: {
+                    fill: '#e2e8f0',
+                    stroke: 'none',
+                    "stroke-width": 0,
+                    "stroke-opacity": 1
+                  },
+                  hover: {
+                    "fill-opacity": 0.8,
+                    cursor: 'pointer'
                   }
-                ]
-              }}
-              onRegionTipShow={(e, el, code) => {
-                const count = mapData[code] || 0;
-                el.html(el.html() + ` - ${count} Users`);
-              }}
+                },
+                series: {
+                  regions: [
+                    {
+                      values: mapData,
+                      scale: ['#93c5fd', '#1e3a8a'],
+                      normalizeFunction: 'polynomial'
+                    }
+                  ]
+                },
+                onRegionTipShow: (e: any, el: any, code: any) => {
+                  const count = mapData[code] || 0;
+                  el.html(el.html() + ` - ${count} Users`);
+                }
+              } as any)}
             />
           </div>
         </div>

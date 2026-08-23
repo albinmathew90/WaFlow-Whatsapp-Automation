@@ -10,6 +10,7 @@ export interface FlowTrigger {
   regex?: string;
   skipTrigger?: boolean;
   selectedTemplate?: any;
+  triggerEventNames?: string[];
 }
 
 // ─── Node Kinds ───────────────────────────────────────────────────────────────
@@ -35,6 +36,11 @@ export type NodeKind =
   | 'api_request'
   | 'connect_flow'
   | 'webhook_message'
+  | 'delay'
+  | 'single_ai_message'
+  | 'assign_ai'
+  | 'assign_team_member'
+  | 'send_media'
   | 'end_flow';
 
 export interface ButtonDef {

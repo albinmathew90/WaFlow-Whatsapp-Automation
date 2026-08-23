@@ -1219,7 +1219,7 @@ const SEOPage: React.FC = () => {
                       <div className="relative group rounded-sm overflow-hidden border border-gray-200 dark:border-gray-700 w-full md:w-1/2 h-40">
                         <img src={image} alt={imageAlt} className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-black dark:bg-white/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button type="button" onClick={() => setImage(null)} className="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded shadow-sm hover:bg-red-600 transition-colors">
+                          <button type="button" onClick={() => setImage('')} className="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded shadow-sm hover:bg-red-600 transition-colors">
                             Remove Image
                           </button>
                         </div>

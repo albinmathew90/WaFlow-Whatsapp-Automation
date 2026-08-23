@@ -13,15 +13,15 @@ const getAuthHeaders = () => {
 
 const chatbotApi = {
   get: async () => fetch(API_BASE + '/crm/chatbot/settings', { headers: getAuthHeaders() }).then(r => r.json()).then(data => ({ data })),
-  update: async (payload) => fetch(API_BASE + '/crm/chatbot/settings', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload) }).then(r => r.json())
+  update: async (payload: any) => fetch(API_BASE + '/crm/chatbot/settings', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload) }).then(r => r.json())
 };
 
 const knowledgeApi = {
-  list: async () => fetch(API_BASE + '/crm/chatbot/knowledge', { headers: getAuthHeaders() }).then(r => r.json()),
-  create: async (payload) => fetch(API_BASE + '/crm/chatbot/knowledge', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload) }).then(r => r.json()),
-  update: async (id, payload) => fetch(API_BASE + '/crm/chatbot/knowledge/' + id, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(payload) }).then(r => r.json()),
-  delete: async (id) => fetch(API_BASE + '/crm/chatbot/knowledge/' + id, { method: 'DELETE', headers: getAuthHeaders() }),
-  test: async (text, chatbotId) => fetch(API_BASE + '/api/v1/chatbot/widget/message', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chatbotId: chatbotId, sessionId: 'test-session-123', message: text }) }).then(r => r.json()).then(data => ({ data }))
+  list: async (params?: Record<string, string>) => fetch(API_BASE + '/crm/chatbot/knowledge', { headers: getAuthHeaders() }).then(r => r.json()),
+  create: async (payload: any) => fetch(API_BASE + '/crm/chatbot/knowledge', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload) }).then(r => r.json()),
+  update: async (id: any, payload: any) => fetch(API_BASE + '/crm/chatbot/knowledge/' + id, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(payload) }).then(r => r.json()),
+  delete: async (id: any) => fetch(API_BASE + '/crm/chatbot/knowledge/' + id, { method: 'DELETE', headers: getAuthHeaders() }),
+  test: async (text: any, chatbotId: any) => fetch(API_BASE + '/api/v1/chatbot/widget/message', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chatbotId: chatbotId, sessionId: 'test-session-123', message: text }) }).then(r => r.json()).then(data => ({ data }))
 };
 import {
   Bot, Plus, Trash2, Save, Copy, CheckCheck, ToggleLeft, ToggleRight,

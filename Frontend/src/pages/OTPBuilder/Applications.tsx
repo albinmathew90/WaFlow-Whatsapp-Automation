@@ -116,7 +116,7 @@ export default function Applications() {
         // The backend returns the secrets only once upon creation. We could show them here.
         // For now, we'll just close the modal and refresh.
         setIsModalOpen(false);
-        setNewApp({ name: '', company: '', domain: '', description: '', environment: 'development' });
+        setNewApp({ name: '', company: '', domain: '', description: '', environment: 'development', status: 'active' });
         fetchApplications();
         
         // Automatically navigate to integration page for the new app to show secrets

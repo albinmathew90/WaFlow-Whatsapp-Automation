@@ -49,7 +49,7 @@ export default function Home() {
     },
     dataLabels: {
       enabled: true,
-      formatter: (val, opt) => (opt.dataPointIndex === peakVolumeDayIndex && val > 0 ? val : ""),
+      formatter: (val: any, opt: any) => (opt.dataPointIndex === peakVolumeDayIndex && Number(val) > 0 ? val : ""),
       offsetY: -20,
       style: {
         fontSize: "12px",

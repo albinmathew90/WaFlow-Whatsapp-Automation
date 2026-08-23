@@ -728,7 +728,7 @@ const BlogsPage: React.FC = () => {
                 
                 fetchBlogs();
                 setIsCreateModalOpen(false);
-                resetForm();
+                // resetForm();
               }}>
                 
                 {/* Title */}
