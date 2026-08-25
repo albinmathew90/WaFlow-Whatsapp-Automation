@@ -184,7 +184,7 @@ const AdminDashboard: React.FC = () => {
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 dark:border-gray-800 shadow-sm rounded-xl p-5 hover:shadow-md transition-shadow">
           <div className="mb-4">
             <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">User Demographics</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Global distribution of registered users</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Global distribution of registered users and landing page visitors</p>
           </div>
           <div className="h-[300px] w-full bg-[#f8fafc] dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800 dark:border-gray-700 relative">
             <VectorMap

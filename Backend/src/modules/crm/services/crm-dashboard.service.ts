@@ -80,22 +80,61 @@ export class CrmDashboardService {
     }
 
     if (sessionIds.length > 0) {
-      // 3. Get all-time message counts
-      totalMessagesSent = await this.messageRepository.count({
-        where: { sessionId: In(sessionIds), direction: MessageDirection.OUTGOING },
+      // 1. Get all chatIds and their first API-sent timestamp
+      const apiSentChatsRaw = await this.messageRepository.createQueryBuilder('msg')
+        .select('msg.chatId', 'chatId')
+        .addSelect('MIN(msg.timestamp)', 'firstApiSent')
+        .where('msg.sessionId IN (:...sessionIds)', { sessionIds })
+        .andWhere('msg.direction = :dir', { dir: MessageDirection.OUTGOING })
+        .andWhere("msg.metadata LIKE '%\"source\":\"api\"%'")
+        .groupBy('msg.chatId')
+        .getRawMany();
+
+      const apiSentChatMap = new Map<string, number>();
+      apiSentChatsRaw.forEach(c => {
+        apiSentChatMap.set(c.chatId, Number(c.firstApiSent));
       });
 
-      totalMessagesReceived = await this.messageRepository.count({
-        where: { sessionId: In(sessionIds), direction: MessageDirection.INCOMING },
-      });
+      // 2. Count total API-sent messages
+      totalMessagesSent = await this.messageRepository.createQueryBuilder('msg')
+        .where('msg.sessionId IN (:...sessionIds)', { sessionIds })
+        .andWhere('msg.direction = :dir', { dir: MessageDirection.OUTGOING })
+        .andWhere("msg.metadata LIKE '%\"source\":\"api\"%'")
+        .getCount();
 
-      const deliveredCount = await this.messageRepository.count({
-        where: { sessionId: In(sessionIds), direction: MessageDirection.OUTGOING, status: In([MessageStatus.DELIVERED, MessageStatus.READ]) },
-      });
+      // 3. Count total valid received messages (received after first API-sent message to that chat)
+      if (apiSentChatMap.size > 0) {
+        totalMessagesReceived = await this.messageRepository.createQueryBuilder('msg')
+          .where('msg.sessionId IN (:...sessionIds)', { sessionIds })
+          .andWhere('msg.direction = :dirIn', { dirIn: MessageDirection.INCOMING })
+          .andWhere(`EXISTS (
+            SELECT 1 FROM messages m2 
+            WHERE m2.sessionId IN (:...sessionIds)
+            AND m2.direction = :dirOut 
+            AND m2.chatId = msg.chatId 
+            AND m2.metadata LIKE '%"source":"api"%' 
+            AND msg.timestamp > m2.timestamp
+          )`)
+          .setParameter('dirOut', MessageDirection.OUTGOING)
+          .getCount();
+      } else {
+        totalMessagesReceived = 0;
+      }
 
-      const readCount = await this.messageRepository.count({
-        where: { sessionId: In(sessionIds), direction: MessageDirection.OUTGOING, status: MessageStatus.READ },
-      });
+      // Delivered/Read percentages ONLY for API-sent messages
+      const deliveredCount = await this.messageRepository.createQueryBuilder('msg')
+        .where('msg.sessionId IN (:...sessionIds)', { sessionIds })
+        .andWhere('msg.direction = :dirOut', { dirOut: MessageDirection.OUTGOING })
+        .andWhere("msg.metadata LIKE '%\"source\":\"api\"%'")
+        .andWhere('msg.status IN (:...statuses)', { statuses: [MessageStatus.DELIVERED, MessageStatus.READ] })
+        .getCount();
+
+      const readCount = await this.messageRepository.createQueryBuilder('msg')
+        .where('msg.sessionId IN (:...sessionIds)', { sessionIds })
+        .andWhere('msg.direction = :dirOut', { dirOut: MessageDirection.OUTGOING })
+        .andWhere("msg.metadata LIKE '%\"source\":\"api\"%'")
+        .andWhere('msg.status = :status', { status: MessageStatus.READ })
+        .getCount();
 
       deliveredPercent = totalMessagesSent > 0 ? Math.round((deliveredCount / totalMessagesSent) * 100) : 0;
       readPercent = totalMessagesSent > 0 ? Math.round((readCount / totalMessagesSent) * 100) : 0;
@@ -105,16 +144,25 @@ export class CrmDashboardService {
           sessionId: In(sessionIds),
           createdAt: Between(sevenDaysAgo, today),
         },
-        select: ['createdAt', 'direction'],
+        select: ['createdAt', 'direction', 'chatId', 'metadata', 'timestamp'],
       });
 
-      // Populate counts
       for (const msg of messagesLast7Days) {
         const dayName = msg.createdAt.toLocaleDateString('en-US', { weekday: 'short' });
-        if (daysMap.has(dayName)) {
-          const counts = daysMap.get(dayName)!;
-          if (msg.direction === MessageDirection.OUTGOING) counts.sent++;
-          if (msg.direction === MessageDirection.INCOMING) counts.received++;
+        const dayData = daysMap.get(dayName);
+        if (dayData) {
+          if (msg.direction === MessageDirection.OUTGOING) {
+            // Only count if sent via API
+            if (msg.metadata && (msg.metadata as any).source === 'api') {
+              dayData.sent++;
+            }
+          } else {
+            // Only count if received AFTER the first API message in this chat
+            const firstApi = apiSentChatMap.get(msg.chatId);
+            if (firstApi !== undefined && msg.timestamp > firstApi) {
+              dayData.received++;
+            }
+          }
         }
       }
     }

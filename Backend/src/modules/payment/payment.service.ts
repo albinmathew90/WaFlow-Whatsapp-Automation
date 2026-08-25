@@ -119,13 +119,13 @@ export class PaymentService {
         // Header
         const logoPath = require('path').join(process.cwd(), '../Frontend/public/logo-light.png');
         try {
-          doc.image(logoPath, 50, 45, { width: 140 });
+          doc.image(logoPath, 35, 25, { width: 210 });
         } catch (e) {
           this.logger.error('Failed to load logo for PDF', e);
         }
 
         doc.fontSize(20).text('INVOICE / RECEIPT', { align: 'right' });
-        doc.moveDown(1.5);
+        doc.moveDown(2);
 
         // Company Details
         doc.fontSize(14).font('Helvetica-Bold').text('Waflow');

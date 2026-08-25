@@ -413,6 +413,7 @@ export class SessionService implements OnModuleDestroy, OnModuleInit, OnApplicat
         return await manager.save(session);
       });
     } catch (err) {
+      console.error('[SessionService.create] Error saving session:', err);
       if (isUniqueConstraintError(err)) {
         throw new ConflictException(`Session with name '${dto.name}' already exists`);
       }
@@ -804,11 +805,9 @@ export class SessionService implements OnModuleDestroy, OnModuleInit, OnApplicat
               const user = sessionEntity.user;
               if (user.subscriptionStatus !== 'active') {
                 const normalizedPhone = phone.split('@')[0].replace(/[^0-9]/g, '');
-                const trialHistoryRepo = this.dataSource.getRepository(WhatsappTrialHistory);
                 const userRepo = this.dataSource.getRepository(User);
-                const existingHistory = await trialHistoryRepo.findOne({ where: { phoneNumber: normalizedPhone } });
                 
-                if (user.hasUsedTrial || existingHistory) {
+                if (user.hasUsedTrial) {
                   this.logger.warn(`Trial denied for ${normalizedPhone} on account ${user.id}`);
                   await userRepo.update(user.id, { subscriptionStatus: 'expired' });
                   // Stop the engine to prevent usage
@@ -818,7 +817,6 @@ export class SessionService implements OnModuleDestroy, OnModuleInit, OnApplicat
                   // Start trial
                   const expiresAt = new Date();
                   expiresAt.setHours(expiresAt.getHours() + 24);
-                  await trialHistoryRepo.save({ phoneNumber: normalizedPhone, accountId: user.id });
                   await userRepo.update(user.id, { 
                     hasUsedTrial: true, 
                     trialExpiresAt: expiresAt, 

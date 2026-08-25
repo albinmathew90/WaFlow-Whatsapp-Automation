@@ -70,6 +70,7 @@ export const AddSessionModal = ({
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [polling, setPolling] = useState(false);
+  const [deniedReason, setDeniedReason] = useState(false);
   const [scannedStatus, setScannedStatus] = useState("");
 
   const handleCreate = async () => {
@@ -107,10 +108,10 @@ export const AddSessionModal = ({
       );
 
       const options = {
-        key: 'rzp_test_TTyeODDNR6NQcN',
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_TTyeODDNR6NQcN',
         amount: response.amount,
         currency: response.currency,
-        name: 'ConvoReach',
+        name: 'WA Flow',
         description: `${planType === 'monthly' ? 'Monthly' : 'Yearly'} Subscription`,
         order_id: response.id,
         handler: async function (paymentResponse: any) {
@@ -218,6 +219,11 @@ export const AddSessionModal = ({
           onAddedRef.current();
           // Small delay so user sees the "connected" state before modal closes
           setTimeout(() => onCloseRef.current(), 800);
+        } else if (st === "DISCONNECTED" || st === "FAILED" || st === "STOPPED") {
+          clearInterval(interval);
+          setPolling(false);
+          setDeniedReason(true);
+          setStep("expired");
         }
       } catch {}
     }, 1500);
@@ -292,7 +298,9 @@ export const AddSessionModal = ({
             <div className="mb-6 border-l-4 border-brand-500 pl-4 text-left">
               <h4 className="text-xl font-bold text-gray-900 dark:text-white">Select a Plan</h4>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Your trial or previous subscription has ended. Choose a plan to continue using all WhatsApp integration features.
+                {deniedReason 
+                  ? "This WhatsApp number has already availed the 24-hour free trial previously. Please select a plan to continue."
+                  : "Your trial or previous subscription has ended. Choose a plan to continue using all WhatsApp integration features."}
               </p>
             </div>
             

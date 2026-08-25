@@ -9,6 +9,9 @@ type UserData = {
   name?: string;
   phoneNumber?: string;
   subscriptionStatus?: string;
+  planType?: string;
+  subscriptionExpiresAt?: string;
+  trialExpiresAt?: string;
   renewalDate?: string;
   lastRenewedOn?: string;
   updatedAt: string;
@@ -42,8 +45,10 @@ const UsersPage: React.FC = () => {
     email: true,
     name: true,
     phoneNumber: true,
+    planType: true,
+    price: true,
     subscriptionStatus: true,
-    renewalDate: false,
+    renewalDate: true,
     lastRenewedOn: false,
     createdAt: true,
     updatedAt: false,
@@ -449,10 +454,30 @@ const UsersPage: React.FC = () => {
                     </div>
                   </th>
                 )}
+                {visibleColumns.planType && (
+                  <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
+                    <div className="flex items-center gap-1">
+                      Plan
+                      <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
+                      </div>
+                    </div>
+                  </th>
+                )}
+                {visibleColumns.price && (
+                  <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
+                    <div className="flex items-center gap-1">
+                      Price
+                      <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
+                      </div>
+                    </div>
+                  </th>
+                )}
                 {visibleColumns.subscriptionStatus && (
                   <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
                     <div className="flex items-center gap-1">
-                      Subscription
+                      Subscription Status
                       <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
                         <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
                       </div>
@@ -462,7 +487,7 @@ const UsersPage: React.FC = () => {
                 {visibleColumns.renewalDate && (
                   <th scope="col" className="px-3 py-2 cursor-pointer hover:text-gray-700 group">
                     <div className="flex items-center gap-1">
-                      Renewal Date
+                      Next Renewal Date
                       <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
                         <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" /></svg>
                       </div>
@@ -540,21 +565,35 @@ const UsersPage: React.FC = () => {
                         {user.phoneNumber || '-'}
                       </td>
                     )}
+                    {visibleColumns.planType && (
+                      <td className="px-3 py-2 text-xs text-black dark:text-white">
+                        {user.planType === 'yearly' ? 'Yearly' : user.planType === 'monthly' ? 'Monthly' : user.subscriptionStatus === 'trial' ? 'Trial' : '-'}
+                      </td>
+                    )}
+                    {visibleColumns.price && (
+                      <td className="px-3 py-2 text-xs text-black dark:text-white">
+                        {user.planType === 'yearly' ? '₹1,499' : user.planType === 'monthly' ? '₹249' : 'Free'}
+                      </td>
+                    )}
                     {visibleColumns.subscriptionStatus && (
                       <td className="px-3 py-2">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                          user.subscriptionStatus === 'yearly' ? 'bg-green-100 text-green-700' :
-                          user.subscriptionStatus === 'monthly' ? 'bg-blue-100 text-blue-700' :
-                          user.subscriptionStatus === 'trial' ? 'bg-orange-100 text-orange-700' :
-                          'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                          user.subscriptionStatus === 'active' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                          user.subscriptionStatus === 'trial' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                          user.subscriptionStatus === 'expired' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                          'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
                         }`}>
-                          {user.subscriptionStatus || 'None'}
+                          {user.subscriptionStatus === 'trial' ? 'FREE TRIAL' : user.subscriptionStatus || 'NONE'}
                         </span>
                       </td>
                     )}
                     {visibleColumns.renewalDate && (
                       <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">
-                        {user.renewalDate ? new Date(user.renewalDate).toLocaleDateString() : '-'}
+                        {user.subscriptionStatus === 'active' && user.subscriptionExpiresAt 
+                          ? new Date(user.subscriptionExpiresAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+                          : user.subscriptionStatus === 'trial' && user.trialExpiresAt
+                          ? new Date(user.trialExpiresAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+                          : '-'}
                       </td>
                     )}
                     {visibleColumns.lastRenewedOn && (

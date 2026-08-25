@@ -12,7 +12,6 @@ import { CrmMedia } from './entities/crm-media.entity';
 import { CrmFlow } from './entities/crm-flow.entity';
 import { CrmFlowState } from './entities/crm-flow-state.entity';
 import { CrmCustomField } from './entities/crm-custom-field.entity';
-import { WhatsappTrialHistory } from './entities/whatsapp-trial-history.entity';
 import { Session } from '../session/entities/session.entity';
 import { Message } from '../message/entities/message.entity';
 
@@ -48,7 +47,7 @@ import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, CrmContact, CrmTemplate, CrmTag, CrmSegment, CrmMedia, CrmFlow, CrmFlowState, CrmCustomField, WhatsappTrialHistory, Session, Message], 'data'),
+    TypeOrmModule.forFeature([User, CrmContact, CrmTemplate, CrmTag, CrmSegment, CrmMedia, CrmFlow, CrmFlowState, CrmCustomField, Session, Message], 'data'),
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'fallback_secret_for_crm_openwa',

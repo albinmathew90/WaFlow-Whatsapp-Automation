@@ -14,6 +14,13 @@ export default function Home() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const plan = params.get('plan');
+    if (plan === 'yearly' || plan === 'monthly') {
+      window.location.href = `/settings/billing?plan=${plan}`;
+      return;
+    }
+
     getDashboardStats()
       .then((data) => {
         setStats(data);
@@ -163,15 +170,19 @@ export default function Home() {
                     <div className="font-bold text-gray-900 dark:text-white mb-1 uppercase tracking-wide">
                       {user?.subscriptionStatus === 'trial' ? '24-HOUR FREE TRIAL' : 
                        user?.planType === 'yearly' ? 'YEARLY PLAN' : 
-                       user?.planType === 'monthly' ? 'MONTHLY PLAN' : 'FREE TRIAL EXPIRED'}
+                       user?.planType === 'monthly' ? 'MONTHLY PLAN' : 
+                       (!user?.subscriptionStatus && !user?.hasUsedTrial) ? 'FREE TRIAL AVAILABLE' : 
+                       'FREE TRIAL EXPIRED'}
                     </div>
                     <span className="inline-flex rounded bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-[11px] font-bold text-gray-600 dark:text-gray-300 shadow-sm">
                       {user?.planType === 'yearly' ? '₹1,499/yr' : user?.planType === 'monthly' ? '₹249/mo' : 'Free Trial'}
                     </span>
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`font-semibold ${user?.subscriptionStatus === 'active' || user?.subscriptionStatus === 'trial' ? 'text-green-500' : 'text-red-500'}`}>
-                      {user?.subscriptionStatus === 'active' ? 'Active' : user?.subscriptionStatus === 'trial' ? 'Active Trial' : 'Expired'}
+                    <span className={`font-semibold ${user?.subscriptionStatus === 'active' || user?.subscriptionStatus === 'trial' || (!user?.subscriptionStatus && !user?.hasUsedTrial) ? 'text-green-500' : 'text-red-500'}`}>
+                      {user?.subscriptionStatus === 'active' ? 'Active' : 
+                       user?.subscriptionStatus === 'trial' ? 'Active Trial' : 
+                       (!user?.subscriptionStatus && !user?.hasUsedTrial) ? 'Not Started' : 'Expired'}
                     </span>
                   </td>
                   <td className="px-4 py-4">
@@ -206,7 +217,18 @@ export default function Home() {
                 ? Math.max(0, Math.floor((new Date(user.subscriptionExpiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
                 : 999;
                 
-              if (user?.subscriptionStatus === 'expired' || user?.subscriptionStatus === 'trial') {
+              if (!user?.subscriptionStatus && !user?.hasUsedTrial) {
+                return (
+                  <div className="flex items-center gap-3">
+                    <Link to="/whatsapp-connect" className="rounded-lg bg-green-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-green-600">
+                      Connect WhatsApp to Start Trial
+                    </Link>
+                    <button onClick={() => setShowPaymentModal(true)} className="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-brand-600">
+                      Purchase Plan
+                    </button>
+                  </div>
+                );
+              } else if (user?.subscriptionStatus === 'expired' || user?.subscriptionStatus === 'trial') {
                 return (
                   <button onClick={() => setShowPaymentModal(true)} className="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-brand-600">
                     Upgrade Now

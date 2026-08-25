@@ -29,8 +29,8 @@
       </ul>
     </nav>
     <div class="nav-ctas" style="gap: 24px;">
-      <a class="login-link" href="#" style="font-weight: 600;">Sign in</a>
-      <a class="btn btn-primary" href="#">Sign up</a>
+      <a class="login-link" href="/signin" style="font-weight: 600;">Sign in</a>
+      <a class="btn btn-primary" href="/signup">Sign up</a>
     </div>
     <button class="mobile-toggle" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
@@ -64,10 +64,10 @@
       </div>
 
       <div class="hero-ctas">
-        <a class="btn btn-primary" href="#pricing" id="hero-trial-btn">
+        <a class="btn btn-primary" href="/signup?plan=trial" id="hero-trial-btn">
           🚀 Start 24-Hour Free Trial →
         </a>
-        <a class="btn btn-secondary" href="#pricing" id="hero-buy-btn">
+        <a class="btn btn-secondary" href="/signup?plan=yearly" id="hero-buy-btn">
           Buy Now →
         </a>
       </div>
@@ -313,7 +313,9 @@
           <li><span class="tick">✓</span>Contact Management</li>
           <li><span class="tick">✓</span>Dashboard, updates &amp; support</li>
         </ul>
-        <a class="btn btn-secondary" href="#" style="width:100%;">Start 24-Hour Free Trial</a>
+        <div class="p-actions">
+          <a class="btn btn-primary" href="/signup?plan=trial" style="width:100%;margin-bottom:12px;">Start Free Trial</a>
+        </div>
       </div>
       <div class="price-card featured">
         <span class="badge">Best Value</span>
@@ -328,7 +330,9 @@
           <li><span class="tick">✓</span>AI Content Generator</li>
           <li><span class="tick">✓</span>Priority support</li>
         </ul>
-        <a class="btn btn-primary" href="#" style="width:100%;">Buy Now</a>
+        <div class="p-actions">
+          <a class="btn btn-primary" href="/signup?plan=yearly" style="width:100%;margin-bottom:12px;">Get Yearly Plan</a>
+        </div>
       </div>
     </div>
     <p class="trial-note">24-hour free trial available for eligible new users. No coding required.</p>
@@ -369,8 +373,8 @@
     <h2>Ready to automate your WhatsApp business?</h2>
     <p>Start your 24-hour free trial today. No card lock-in, no coding.</p>
     <div class="hero-ctas">
-      <a class="btn btn-onlight" href="#pricing">Start 24-Hour Free Trial</a>
-      <a class="btn btn-secondary" style="border-color:rgba(255,255,255,0.3);color:#fff;" href="#pricing">Buy Now</a>
+      <a class="btn btn-onlight" href="/signup?plan=trial">Start 24-Hour Free Trial</a>
+      <a class="btn btn-secondary" style="border-color:rgba(255,255,255,0.3);color:#fff;" href="/signup?plan=yearly">Buy Now</a>
     </div>
   </div>
 </section>
@@ -448,6 +452,13 @@
     document.querySelectorAll('.faq-item.open .faq-a').forEach(a => {
       a.style.maxHeight = a.scrollHeight + 'px';
     });
+    
+    // Track landing page visitor based on IP
+    if (!sessionStorage.getItem('visitor_tracked')) {
+      fetch('/openwa-api/admin/track-visitor', { method: 'POST' })
+        .then(() => sessionStorage.setItem('visitor_tracked', 'true'))
+        .catch(console.error);
+    }
   });
 </script>
 

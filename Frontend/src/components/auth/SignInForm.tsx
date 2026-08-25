@@ -15,6 +15,9 @@ export default function SignInForm() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const { refetch } = useUser();
+  const location = window.location;
+  const searchParams = new URLSearchParams(location.search);
+  const plan = searchParams.get('plan');
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<{ message: string; isNotFound?: boolean } | null>(null);
@@ -53,7 +56,7 @@ export default function SignInForm() {
         sessionStorage.setItem("crm_token", data.accessToken);
       }
       await refetch();
-      navigate("/");
+      navigate(plan ? `/?plan=${plan}` : "/");
     } catch (err: any) {
       console.error(err);
       setError({ message: err.message || 'Login failed' });
@@ -94,7 +97,7 @@ export default function SignInForm() {
         }
         await refetch();
         
-        navigate("/");
+        navigate(plan ? `/?plan=${plan}` : "/");
       } catch (err) {
         console.error("Google login failed", err);
       }
@@ -168,7 +171,7 @@ export default function SignInForm() {
                 <div className="flex-1">
                   {error.message}{" "}
                   {error.isNotFound && (
-                    <Link to="/signup" className="font-bold underline hover:text-error-700 dark:hover:text-error-300">
+                    <Link to={plan ? `/signup?plan=${plan}` : "/signup"} className="font-bold underline hover:text-error-700 dark:hover:text-error-300">
                       Please sign up first.
                     </Link>
                   )}
@@ -237,7 +240,7 @@ export default function SignInForm() {
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Don&apos;t have an account? {""}
                 <Link
-                  to="/signup"
+                  to={plan ? `/signup?plan=${plan}` : "/signup"}
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
                   Sign Up

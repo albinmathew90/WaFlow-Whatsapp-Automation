@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { useGoogleLogin } from "@react-oauth/google";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
@@ -16,14 +16,58 @@ export default function SignUpForm() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const { refetch } = useUser();
+  const location = window.location;
+  const searchParams = new URLSearchParams(location.search);
+  const plan = searchParams.get('plan');
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<{ message: string; isDuplicate?: boolean } | null>(null);
+  const [showBanner, setShowBanner] = useState(true);
+
+  useEffect(() => {
+    if (plan) {
+      const timer = setTimeout(() => {
+        setShowBanner(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [plan]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+
+    if (!isChecked) {
+      setError({ message: 'Please agree to the Terms and Conditions and Privacy Policy.' });
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 8) {
+      setError({ message: 'Password must be at least 8 characters long.' });
+      setIsLoading(false);
+      return;
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      setError({ message: 'Password must contain at least one uppercase letter.' });
+      setIsLoading(false);
+      return;
+    }
+
+    if (!/\d/.test(password)) {
+      setError({ message: 'Password must contain at least one number.' });
+      setIsLoading(false);
+      return;
+    }
+
+    if (!/[!@#$%^&*.,]/.test(password)) {
+      setError({ message: 'Password must contain at least one special character (e.g. !@#$%^&*).' });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch('/openwa-api/crm/auth/register', {
         method: 'POST',
@@ -54,7 +98,7 @@ export default function SignUpForm() {
         sessionStorage.setItem("crm_token", data.accessToken);
       }
       await refetch();
-      navigate("/");
+      navigate(plan ? `/?plan=${plan}` : "/");
     } catch (err: any) {
       console.error(err);
       setError({ message: err.message || 'Registration failed' });
@@ -95,7 +139,7 @@ export default function SignUpForm() {
         }
         await refetch();
         
-        navigate("/");
+        navigate(plan ? `/?plan=${plan}` : "/");
       } catch (err) {
         console.error("Google signup failed", err);
       }
@@ -107,6 +151,25 @@ export default function SignUpForm() {
         <div className="flex justify-center w-full mb-0 mt-4">
           <img src="/images/logo/logo.png" className="h-32 scale-[1.6] object-contain" alt="Waflow" />
         </div>
+        
+        <div className={`transition-all duration-1000 ease-in-out overflow-hidden ${showBanner && plan ? 'max-h-24 opacity-100 mb-6' : 'max-h-0 opacity-0 mb-0'}`}>
+          {plan === 'trial' && (
+            <div className="p-3 bg-brand-50 border border-brand-200 dark:bg-brand-900/20 dark:border-brand-500/30 rounded-lg text-brand-700 dark:text-brand-400 text-sm font-bold text-center shadow-sm flex items-center justify-center gap-2">
+              <span className="text-lg">🚀</span> Create an account to start your 24-hour Free Trial!
+            </div>
+          )}
+          {plan === 'yearly' && (
+            <div className="p-3 bg-brand-50 border border-brand-200 dark:bg-brand-900/20 dark:border-brand-500/30 rounded-lg text-brand-700 dark:text-brand-400 text-sm font-bold text-center shadow-sm flex items-center justify-center gap-2">
+              <span className="text-lg">✨</span> Create an account to purchase your plan!
+            </div>
+          )}
+          {plan === 'monthly' && (
+            <div className="p-3 bg-brand-50 border border-brand-200 dark:bg-brand-900/20 dark:border-brand-500/30 rounded-lg text-brand-700 dark:text-brand-400 text-sm font-bold text-center shadow-sm flex items-center justify-center gap-2">
+              <span className="text-lg">✨</span> Create an account to purchase your plan!
+            </div>
+          )}
+        </div>
+
         <div>
           <div className="mb-2">
             <h1 className="mb-1 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
@@ -226,7 +289,7 @@ export default function SignUpForm() {
                 {/* <!-- Password --> */}
                 <div>
                   <Label>
-                    Password<span className="text-error-500">*</span>
+                    Password<span className="text-error-500">*</span> <span className="text-xs text-gray-500 dark:text-gray-400 font-normal ml-1">(Must contain at least 8 characters, 1 uppercase letter, 1 number, and 1 special character)</span>
                   </Label>
                   <div className="relative">
                     <Input
@@ -278,7 +341,7 @@ export default function SignUpForm() {
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Already have an account? {""}
                 <Link
-                  to="/signin"
+                  to={plan ? `/signin?plan=${plan}` : "/signin"}
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
                   Sign In
