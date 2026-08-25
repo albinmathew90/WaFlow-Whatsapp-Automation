@@ -228,27 +228,37 @@ async function bootstrap() {
         'requests will be blocked. Set CORS_ORIGINS to your dashboard origin(s).',
     );
   }
-  app.enableCors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      // Allow requests with no origin (mobile apps, Postman, server-to-server)
-      if (!origin) return callback(null, true);
+  app.enableCors((req: Request, callback: (err: Error | null, options: any) => void) => {
+    let options: any;
 
-      if (corsPolicy.allowAnyOrigin || corsPolicy.origins.includes(origin)) {
-        callback(null, true);
-      } else {
-        // Deny WITHOUT throwing. Throwing here surfaced as a 500 Internal Server Error (#250).
-        // Returning false simply omits the CORS headers: the browser blocks a true cross-origin
-        // request itself (correct), while same-origin requests — e.g. the bundled dashboard served
-        // through the proxy, which the browser never subjects to CORS — keep working. A genuine
-        // cross-origin dashboard still needs its origin in CORS_ORIGINS.
-        callback(null, false);
-      }
-    },
-    credentials: corsPolicy.credentials,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'X-API-Key', 'Authorization', 'X-Request-ID'],
-    exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
-    maxAge: 86400, // 24 hours
+    if (req.path.includes('/v1/chatbot/widget/')) {
+      options = {
+        origin: '*',
+        credentials: false,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'X-API-Key', 'Authorization', 'X-Request-ID'],
+        exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
+        maxAge: 86400,
+      };
+    } else {
+      options = {
+        origin: (origin: string | undefined, originCallback: (err: Error | null, allow?: boolean) => void) => {
+          if (!origin) return originCallback(null, true);
+          if (corsPolicy.allowAnyOrigin || corsPolicy.origins.includes(origin)) {
+            originCallback(null, true);
+          } else {
+            originCallback(null, false);
+          }
+        },
+        credentials: corsPolicy.credentials,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'X-API-Key', 'Authorization', 'X-Request-ID'],
+        exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
+        maxAge: 86400,
+      };
+    }
+
+    callback(null, options);
   });
 
   // Shared production/e2e prefix and DTO validation contract.

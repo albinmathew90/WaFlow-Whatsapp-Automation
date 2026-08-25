@@ -103,6 +103,7 @@ export class AdminController {
     let admins = await this.adminService.adminUserRepo.find();
     let admin = admins[0];
     if (!admin) {
+      // Only seed defaults if NO admin exists at all
       const hashed = await bcrypt.hash('Admin123!', 10);
       admin = this.adminService.adminUserRepo.create({
         email: 'admin@waflow.com',
@@ -110,19 +111,20 @@ export class AdminController {
         isTwoFactorEnabled: false
       });
       await this.adminService.adminUserRepo.save(admin);
-    } else if (admin.passwordHash === 'dummyhash' || !admin.passwordHash.startsWith('$2')) {
-      const hashed = await bcrypt.hash('Admin123!', 10);
-      await this.adminService.adminUserRepo.update(admin.id, { passwordHash: hashed });
-      admin.passwordHash = hashed;
     }
+    // Never overwrite an existing valid bcrypt hash — user may have changed email/password via settings
     return admin;
   }
 
   @Put('profile')
   async updateProfile(@Body() data: any) {
+    if (!data.email || !data.email.includes('@')) {
+      return { success: false, message: 'A valid email is required' };
+    }
     const admin = await this.getProfile();
-    await this.adminService.adminUserRepo.update(admin.id, { email: data.email });
-    return this.adminService.adminUserRepo.findOneBy({ id: admin.id });
+    await this.adminService.adminUserRepo.update(admin.id, { email: data.email.trim().toLowerCase() });
+    const updated = await this.adminService.adminUserRepo.findOneBy({ id: admin.id });
+    return { success: true, admin: updated };
   }
 
   @Put('profile/password')

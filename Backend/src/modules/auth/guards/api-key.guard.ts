@@ -33,7 +33,8 @@ export class ApiKeyGuard implements CanActivate {
     if (request.path && (
       request.path.includes('/crm/') || 
       request.path.includes('/otp-management/') ||
-      request.path.includes('/admin')
+      request.path.includes('/admin') ||
+      request.path.includes('/payment')
     )) {
       return true;
     }

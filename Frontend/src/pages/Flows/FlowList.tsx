@@ -4,7 +4,7 @@ import ConfirmDeleteModal from '../../components/common/ConfirmDeleteModal';
 import { Pagination } from '../../components/Pagination';
 
 const API = '/openwa-api/crm/flows';
-const getToken = () => sessionStorage.getItem('crm_token');
+const getToken = () => sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token');
 const headers = () => ({ Authorization: `Bearer ${getToken()}`, 'Content-Type': 'application/json' });
 
 interface Props {

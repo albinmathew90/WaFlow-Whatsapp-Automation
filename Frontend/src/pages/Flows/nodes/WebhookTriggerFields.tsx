@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { FlowTrigger } from '../types/flow.types';
 
-const getToken = () => sessionStorage.getItem('crm_token');
+const getToken = () => sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token');
 const headers = () => ({ Authorization: `Bearer ${getToken()}`, 'Content-Type': 'application/json' });
 
 interface Props {
@@ -45,7 +45,12 @@ export default function WebhookTriggerFields({ flowId, trigger, onChange }: Prop
       fetch(`/openwa-api/crm/flows/${flowId}/trigger`, { headers: headers() })
         .then(res => res.json())
         .then(data => {
-          if (data.webhookToken) setWebhookToken(data.webhookToken);
+          if (data.webhookToken) {
+            setWebhookToken(data.webhookToken);
+          } else {
+            // Auto-generate if missing
+            handleSaveTrigger();
+          }
           if (data.accountId) setAccountId(data.accountId);
           if (data.detectedFields) setDetectedFields(data.detectedFields);
         })

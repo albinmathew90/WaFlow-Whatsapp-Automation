@@ -7,7 +7,7 @@ import EdgeLayer from './edges/EdgeLayer';
 import TriggerNode from './nodes/TriggerNode';
 
 const API = '/openwa-api/crm/flows';
-const getToken = () => sessionStorage.getItem('crm_token');
+const getToken = () => sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token');
 const headers = () => ({ Authorization: `Bearer ${getToken()}`, 'Content-Type': 'application/json' });
 
 interface Props {
@@ -36,6 +36,8 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [savedFlowId, setSavedFlowId] = useState<string | undefined>(initialFlow?.id);
+  const [triggerRefreshKey, setTriggerRefreshKey] = useState(0);
   const [templates, setTemplates] = useState<{ id: string; name: string }[]>([]);
 
   // Canvas Pan & Zoom
@@ -446,11 +448,29 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
     setSaveError('');
     try {
       const payload = { name: flowName, trigger, nodes, edges };
-      const url = initialFlow ? `${API}/${initialFlow.id}` : API;
-      const method = initialFlow ? 'PUT' : 'POST';
+      const currentFlowId = savedFlowId ?? initialFlow?.id;
+      const url = currentFlowId ? `${API}/${currentFlowId}` : API;
+      const method = currentFlowId ? 'PUT' : 'POST';
       const res = await fetch(url, { method, headers: headers(), body: JSON.stringify(payload) });
       if (!res.ok) throw new Error(await res.text());
       const savedRes: Flow = await res.json();
+      const newFlowId = savedRes.id;
+      // Store the returned flow ID so subsequent saves use PUT and
+      // webhook generation becomes available immediately (no page reload needed).
+      if (newFlowId) setSavedFlowId(newFlowId);
+
+      if (trigger.event === 'webhook' && newFlowId) {
+        await fetch(`${API}/${newFlowId}/trigger`, {
+          method: 'PATCH',
+          headers: headers(),
+          body: JSON.stringify({
+            trigger_type: 'webhook',
+            trigger_event_names: trigger.triggerEventNames || []
+          })
+        });
+        setTriggerRefreshKey(prev => prev + 1);
+      }
+
       onSaved(savedRes);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -460,6 +480,7 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
       setSaving(false);
     }
   };
+
 
   const startNodeId = getStartNodeId();
   const selectedNode = selectedNodeId ? nodes[selectedNodeId] : null;
@@ -542,7 +563,8 @@ export default function FlowCanvas({ initialFlow, onSaved, onCancel }: Props) {
 
             {/* Trigger Node */}
             <TriggerNode
-            flowId={initialFlow?.id}
+            key={`trigger-${triggerRefreshKey}`}
+            flowId={savedFlowId ?? initialFlow?.id}
             trigger={trigger}
             x={triggerPos.x}
             y={triggerPos.y}

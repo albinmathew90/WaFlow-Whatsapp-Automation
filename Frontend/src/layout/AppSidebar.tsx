@@ -143,6 +143,7 @@ const othersItems: NavItem[] = [
     name: "Settings",
     subItems: [
       { name: "Account Management", path: "/settings/account" },
+      { name: "Billing & Subscription", path: "/settings/billing" },
       { name: "Media Library", path: "/settings/media" },
       { name: "Contact Custom Fields", path: "/settings/contact-fields" },
       { name: "Activity Logs", path: "/settings/logs" },

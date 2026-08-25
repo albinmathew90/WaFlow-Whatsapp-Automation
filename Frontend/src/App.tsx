@@ -74,7 +74,7 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   if (loading) return <LoadingScreen />;
   if (!user) {
     if (location.pathname === '/') {
-      window.location.href = '/landing/index.html';
+      window.location.href = '/home.html';
       return null;
     }
     return <Navigate to="/signin" replace />;
@@ -139,6 +139,7 @@ export default function App() {
               </Route>
               <Route path="/settings" element={<Navigate to="/settings/account" replace />} />
               <Route path="/settings/account" element={<Settings />} />
+              <Route path="/settings/billing" element={<Settings />} />
               <Route path="/settings/tags" element={<Settings />} />
               <Route path="/settings/media" element={<Settings />} />
               <Route path="/settings/contact-fields" element={<Settings />} />

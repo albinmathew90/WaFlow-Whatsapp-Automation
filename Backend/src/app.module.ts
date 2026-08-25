@@ -46,6 +46,7 @@ import { OtpModule } from './modules/otp/otp.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { MonitorModule } from './modules/monitor/monitor.module';
 import { ChatbotModule } from './modules/chatbot/chatbot.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 // Only import QueueModule if explicitly enabled to avoid Redis connection errors
 const queueModules: Array<Type | DynamicModule> = [];
@@ -302,6 +303,7 @@ if (dashboardServingEnabled && dashboardBuildPresent) {
     ...mcpModules, // MCP Streamable-HTTP server (opt-in via MCP_ENABLED=true)
     InboxModule, // Inbox: CRM-style conversation view for campaign-originated chats
     CrmModule, // CRM data entities (Contacts, Segments, Tags)
+    PaymentModule, // Razorpay Subscriptions
     BroadcastModule, // Broadcast campaigns with scheduling, batching and retry
     OtpModule, // OTP Builder
     AdminModule, // Admin Dashboard

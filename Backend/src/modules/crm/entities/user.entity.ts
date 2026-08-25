@@ -40,6 +40,15 @@ export class User {
   @Column({ nullable: true })
   subscriptionStatus?: string;
 
+  @Column({ default: false })
+  hasUsedTrial: boolean;
+
+  @Column({ nullable: true })
+  trialExpiresAt?: Date;
+
+  @Column({ nullable: true })
+  trialPhoneNumber?: string;
+
   @Column({ nullable: true })
   renewalDate?: Date;
 
@@ -48,6 +57,15 @@ export class User {
 
   @Column({ nullable: true })
   webhookToken?: string;
+
+  @Column({ nullable: true })
+  subscriptionExpiresAt?: Date;
+
+  @Column({ nullable: true })
+  planType?: string;
+
+  @Column({ nullable: true })
+  razorpayOrderId?: string;
 
   @CreateDateColumn()
   createdAt: Date;

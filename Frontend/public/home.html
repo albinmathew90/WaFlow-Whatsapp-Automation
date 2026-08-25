@@ -13,23 +13,24 @@
 
 <header>
   <div class="wrap nav-row">
-    <a href="index.html" class="logo" style="display:flex;align-items:center;text-decoration:none;">
+    <a href="home.html" class="logo" style="display:flex;align-items:center;text-decoration:none;">
       <!-- Paste your image URL in the src attribute below -->
-      <img src="images\logo-light-removebg-preview.png" alt="Brand Logo" style="height: 85px; width: auto; object-fit: contain;" />
+      <img src="images/logo-light-removebg-preview.png" alt="Brand Logo" style="height: 85px; width: auto; object-fit: contain;" />
     </a>
     <nav class="primary-nav" aria-label="Primary">
       <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="features.html">Features</a></li>
-        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="#why">Why Waflow</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how">Flows</a></li>
+        <li><a href="#pricing">Pricing</a></li>
         <li><a href="blogs.html">Blogs</a></li>
-        <li><a href="api-doc.html">Api Doc</a></li>
-        <li><a href="contact.html">Contact</a></li>
+        <li><a href="#footer">Contact</a></li>
       </ul>
     </nav>
     <div class="nav-ctas" style="gap: 24px;">
-      <a class="login-link" href="/signin" style="font-weight: 600;">Sign in</a>
-      <a class="btn btn-primary" href="/signup">Sign up</a>
+      <a class="login-link" href="#" style="font-weight: 600;">Sign in</a>
+      <a class="btn btn-primary" href="#">Sign up</a>
     </div>
     <button class="mobile-toggle" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
@@ -79,7 +80,7 @@
         No credit card required &nbsp;•&nbsp; Cancel anytime
       </div>
 
-      <div class="hero-stats">
+      <!-- <div class="hero-stats">
         <div class="hero-stat">
           <b>6+</b>
           <div class="stat-row">
@@ -101,7 +102,7 @@
             <span>Contacts &amp; Messaging<br>Possibilities</span>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <div class="phone-stage">
@@ -135,7 +136,113 @@
   </div>
 </section>
 
-
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="feat-head">
+      <span class="eyebrow" style="justify-content:center;">Features</span>
+      <h2>Built for how businesses actually message customers</h2>
+      <p>Seven modules, one dashboard — no coding required.</p>
+    </div>
+    
+    <div class="feat-row">
+      <div class="feat-copy copy">
+        <span class="num">Broadcast Messaging</span>
+        <h3>Reach thousands of customers in one send</h3>
+        <ul>
+          <li>Bulk broadcasts to unlimited contact lists</li>
+          <li>Personalized messages with dynamic fields</li>
+          <li>Attach images, videos and PDFs</li>
+          <li>Schedule campaigns for the right moment</li>
+          <li>Real-time delivery reports</li>
+        </ul>
+      </div>
+      <div class="feat-visual visual">
+        <img class="feat-img" src="images/broadcast.png" alt="Broadcast Messaging feature preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="feat-placeholder"><span class="ph-icon">🖼️</span>Paste Broadcast Messaging image URL here</div>
+      </div>
+    </div>
+    <div class="feat-row rev">
+      <div class="feat-copy copy">
+        <span class="num">Advanced Anti-Ban Safeguards</span>
+        <h3>Reducing the risk of WhatsApp number bans using various smart delivery alogrithms. </h3>
+        <ul>
+          <li>Sophisticated algorithms process and deliver messages in the safest way possible</li>
+          <li>Built-in safeguards work automatically in the background to protect numbers</li>
+          <li>Interactions are managed intelligently so campaigns look natural and compliant</li>
+        </ul>
+      </div>
+      <div class="feat-visual visual">
+        <img class="feat-img" src="images/antiban.png" alt="Anti ban image preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="feat-placeholder"><span class="ph-icon">🖼️</span></div>
+      </div>
+    </div>
+    <div class="feat-row">
+      <div class="feat-copy copy">
+        <span class="num">AI Marketing Content Generator</span>
+        <h3>Never stare at a blank message box again</h3>
+        <ul>
+          <li>Promotional messages in seconds</li>
+          <li>Festival &amp; occasion wishes</li>
+          <li>Product descriptions that convert</li>
+          <li>Ready-to-send sales copy</li>
+        </ul>
+      </div>
+      <div class="feat-visual visual">
+        <img class="feat-img" src="images/templates.png" alt="AI Marketing Content Generator feature preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="feat-placeholder"><span class="ph-icon">🖼️</span>Paste AI Content Generator image URL here</div>
+      </div>
+    </div>
+ 
+    <div class="feat-row rev">
+      <div class="feat-copy copy">
+        <span class="num">Flow Builder</span>
+        <h3>Drag, drop, automate — visually</h3>
+        <ul>
+          <li>Drag-and-drop automation canvas</li>
+          <li>Apply conditional logic for smart routing</li>
+          <li>Automatic lead collection</li>
+          <li>Link nodes, trigger API requests.</li>
+        </ul>
+      </div>
+      <div class="feat-visual visual">
+        <img class="feat-img" src="images/flows.png" alt="Flow Builder feature preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="feat-placeholder"><span class="ph-icon">🖼️</span>Paste Flow Builder image URL here</div>
+      </div>
+    </div>
+ 
+    <div class="feat-row">
+      <div class="feat-copy copy">
+        <span class="num">OTP Automation</span>
+        <h3>Secure, instant one-time passwords</h3>
+        <ul>
+          <li>Login verification</li>
+          <li>Signup confirmation</li>
+          <li>Identity &amp; transaction verification</li>
+        </ul>
+      </div>
+      <div class="feat-visual visual">
+        <img class="feat-img" src="images/otp.png" alt="OTP Automation feature preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="feat-placeholder"><span class="ph-icon">🖼️</span>Paste OTP Automation image URL here</div>
+      </div>
+    </div>
+ 
+    <div class="feat-row rev">
+      <div class="feat-copy copy">
+        <span class="num"> Contacts · Analytics · Cloud</span>
+        <h3>The operational essentials, covered</h3>
+        <ul>
+          <li>Unlimited contacts with CSV import &amp; labels</li>
+          <li>Analytics on campaign performance, delivery &amp; contact growth</li>
+          <li>One dashboard across desktop, laptop, tablet and mobile</li>
+        </ul>
+      </div>
+      <div class="feat-visual visual">
+        <img class="feat-img" src="images/contacts.png" alt="Templates, Contacts, Analytics and Cloud feature preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="feat-placeholder"><span class="ph-icon">🖼️</span>Paste Templates/Analytics image URL here</div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="how" id="how">
   <div class="wrap">
@@ -272,26 +379,26 @@
   <div class="wrap">
     <div class="foot-grid">
       <div class="foot-brand">
-        <a href="index.html" style="display:flex;align-items:center;text-decoration:none;margin-bottom:14px;">
-          <img src="images\logo-dark-removebg-preview.png" alt="Brand Logo" style="height: 80px; width: auto; object-fit: contain;" />
+        <a href="home.html" style="display:flex;align-items:center;text-decoration:none;margin-bottom:14px;">
+          <img src="images/logo-dark-removebg-preview.png" alt="Brand Logo" style="height: 80px; width: auto; object-fit: contain;" />
         </a>
         <p>Smarter WhatsApp Marketing &amp; Business Automation.</p>
       </div>
       <div class="foot-col">
         <h5>Product</h5>
         <ul>
-          <li><a href="/features.html">Features</a></li>
-          <li><a href="/pricing.html">Pricing</a></li>
-          <li><a href="/blogs.html">Blogs</a></li>
-          <li><a href="/api-doc.html">API Doc</a></li>
-          
+          <li><a href="#why">Why Waflow</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how">Flows</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="blogs.html">Blogs</a></li>
         </ul>
       </div>
       <div class="foot-col">
         <h5>Company</h5>
         <ul>
           <li><a href="https://devicedoctorindia.in" target="_blank" rel="noopener">About Device Doctor India</a></li>
-          <li><a href="/contact.html">Contact</a></li>
+          <li><a href="#footer">Contact</a></li>
           <li><a href="/support">Support</a></li>
         </ul>
         <h5 style="margin-top:26px;">Legal</h5>
@@ -305,7 +412,7 @@
         <h5>Reach us</h5>
         <p><b>Email</b>waflow@devicedoctorindia.com</p>
         <p><b>Platform</b>waflow.devicedoctorindia.com</p>
-        <p><b>Company</b>devicedoctorindia.in</p>
+        <p><b>Company</b>DEVICE DOCTOR INDIA</p>
         <p><b>Registered Address</b>Plot No. 42, Sukhdev Residency, Rangtalab, Kalatalab, Kota Junction, Kota, Rajasthan – 324002, India</p>
         <p><b>Office Address</b>5R8R+G9P, Rawatbhata Road, Kota Airport Area, Gumanpura, Kota, Rajasthan – 324007, India</p>
       </div>
@@ -319,15 +426,15 @@
 </footer>
 
 <script>
-  document.querySelectorAll('.faq-q').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
       const item = btn.closest('.faq-item');
       const answer = item.querySelector('.faq-a');
       const isOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item.open').forEach(o=>{
-        if(o!==item){ o.classList.remove('open'); o.querySelector('.faq-a').style.maxHeight = null; }
+      document.querySelectorAll('.faq-item.open').forEach(o => {
+        if (o !== item) { o.classList.remove('open'); o.querySelector('.faq-a').style.maxHeight = null; }
       });
-      if(isOpen){
+      if (isOpen) {
         item.classList.remove('open');
         answer.style.maxHeight = null;
       } else {
@@ -335,8 +442,10 @@
         answer.style.maxHeight = answer.scrollHeight + 'px';
       }
     });
-  window.addEventListener('load', ()=>{
-    document.querySelectorAll('.faq-item.open .faq-a').forEach(a=>{
+  });
+
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.faq-item.open .faq-a').forEach(a => {
       a.style.maxHeight = a.scrollHeight + 'px';
     });
   });

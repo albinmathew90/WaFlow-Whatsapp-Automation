@@ -38,6 +38,8 @@ import {
   ReactionEvent,
   EditedMessage,
 } from '../../engine/interfaces/whatsapp-engine.interface';
+import { User } from '../crm/entities/user.entity';
+import { WhatsappTrialHistory } from '../crm/entities/whatsapp-trial-history.entity';
 import { createLogger } from '../../common/services/logger.service';
 import { ShutdownService } from '../../common/services/shutdown.service';
 import {
@@ -543,7 +545,14 @@ export class SessionService implements OnModuleDestroy, OnModuleInit, OnApplicat
   }
 
   async start(id: string): Promise<Session> {
-    const session = await this.findOne(id);
+    const session = await this.sessionRepository.findOne({ where: { id }, relations: ['user'] });
+    if (!session) {
+      throw new Error(`Session with ID ${id} not found`);
+    }
+
+    if (session.user?.subscriptionStatus === 'expired') {
+      throw new BadRequestException('TRIAL_EXPIRED');
+    }
 
     // Reserve the slot SYNCHRONOUSLY (same tick as the has() check) so two near-simultaneous
     // start() calls can't both pass the check and orphan an engine — the has() -> engines.set()
@@ -787,49 +796,87 @@ export class SessionService implements OnModuleDestroy, OnModuleInit, OnApplicat
       },
       onReady: (phone: string, pushName: string): void => {
         if (!this.isLiveEngine(id, engine)) return;
-        this.logger.log(`Session ready: ${phone}`, {
-          sessionId: id,
-          phone,
-          pushName,
-          action: 'ready',
-        });
+        
+        void (async () => {
+          try {
+            const sessionEntity = await this.sessionRepository.findOne({ where: { id }, relations: ['user'] });
+            if (sessionEntity && sessionEntity.user) {
+              const user = sessionEntity.user;
+              if (user.subscriptionStatus !== 'active') {
+                const normalizedPhone = phone.split('@')[0].replace(/[^0-9]/g, '');
+                const trialHistoryRepo = this.dataSource.getRepository(WhatsappTrialHistory);
+                const userRepo = this.dataSource.getRepository(User);
+                const existingHistory = await trialHistoryRepo.findOne({ where: { phoneNumber: normalizedPhone } });
+                
+                if (user.hasUsedTrial || existingHistory) {
+                  this.logger.warn(`Trial denied for ${normalizedPhone} on account ${user.id}`);
+                  await userRepo.update(user.id, { subscriptionStatus: 'expired' });
+                  // Stop the engine to prevent usage
+                  await this.stop(id);
+                  return;
+                } else {
+                  // Start trial
+                  const expiresAt = new Date();
+                  expiresAt.setHours(expiresAt.getHours() + 24);
+                  await trialHistoryRepo.save({ phoneNumber: normalizedPhone, accountId: user.id });
+                  await userRepo.update(user.id, { 
+                    hasUsedTrial: true, 
+                    trialExpiresAt: expiresAt, 
+                    subscriptionStatus: 'trial', 
+                    trialPhoneNumber: normalizedPhone 
+                  });
+                  this.logger.log(`24h Trial granted for ${normalizedPhone} on account ${user.id}`);
+                }
+              }
+            }
+          } catch (err) {
+            this.logger.error('Error in trial verification', err);
+          }
 
-        void this.webhookService.dispatch(id, 'session.authenticated', { sessionId: id, phone, pushName });
-        this.eventsGateway.emitSessionAuthenticated(id, { phone, pushName });
-
-        // Execute hook for ready event
-        void this.hookManager.execute(
-          'session:ready',
-          { phone, pushName },
-          {
+          this.logger.log(`Session ready: ${phone}`, {
             sessionId: id,
-            source: 'Engine',
-          },
-        );
-
-        // Reset reconnect attempts and clear any stale failure reason on success
-        const reconnectState = this.reconnectStates.get(id);
-        if (reconnectState) {
-          reconnectState.attempts = 0;
-        }
-        // A fresh READY stretch starts the watchdog's failure budget clean too.
-        this.livenessFailures.delete(id);
-        this.sessionErrors.delete(id);
-
-        void this.sessionRepository
-          .update(id, {
-            status: SessionStatus.READY,
             phone,
             pushName,
-            connectedAt: new Date(),
-            lastActiveAt: new Date(),
-          })
-          .catch(err =>
-            this.logger.warn('Failed to persist session ready state', {
+            action: 'ready',
+          });
+
+          void this.webhookService.dispatch(id, 'session.authenticated', { sessionId: id, phone, pushName });
+          this.eventsGateway.emitSessionAuthenticated(id, { phone, pushName });
+
+          // Execute hook for ready event
+          void this.hookManager.execute(
+            'session:ready',
+            { phone, pushName },
+            {
               sessionId: id,
-              error: err instanceof Error ? err.message : String(err),
-            }),
+              source: 'Engine',
+            },
           );
+
+          // Reset reconnect attempts and clear any stale failure reason on success
+          const reconnectState = this.reconnectStates.get(id);
+          if (reconnectState) {
+            reconnectState.attempts = 0;
+          }
+          // A fresh READY stretch starts the watchdog's failure budget clean too.
+          this.livenessFailures.delete(id);
+          this.sessionErrors.delete(id);
+
+          void this.sessionRepository
+            .update(id, {
+              status: SessionStatus.READY,
+              phone,
+              pushName,
+              connectedAt: new Date(),
+              lastActiveAt: new Date(),
+            })
+            .catch(err =>
+              this.logger.warn('Failed to persist session ready state', {
+                sessionId: id,
+                error: err instanceof Error ? err.message : String(err),
+              }),
+            );
+        })();
       },
       onMessage: (message): void => {
         if (!this.isLiveEngine(id, engine)) return;
@@ -1532,6 +1579,38 @@ export class SessionService implements OnModuleDestroy, OnModuleInit, OnApplicat
     if (this.shutdownService?.isShuttingDown()) {
       return;
     }
+
+    // Trial & Subscription Enforcement: Find any expired accounts and stop them
+    try {
+      const userRepo = this.dataSource.getRepository(User);
+      
+      // 1. Expired Trials
+      const expiredTrials = await userRepo.createQueryBuilder('user')
+        .where('user.subscriptionStatus = :status', { status: 'trial' })
+        .andWhere('user.trialExpiresAt < :now', { now: new Date() })
+        .getMany();
+
+      // 2. Expired Paid Subscriptions
+      const expiredSubs = await userRepo.createQueryBuilder('user')
+        .where('user.subscriptionStatus = :status', { status: 'active' })
+        .andWhere('user.subscriptionExpiresAt < :now', { now: new Date() })
+        .getMany();
+
+      const allExpired = [...expiredTrials, ...expiredSubs];
+
+      for (const user of allExpired) {
+        await userRepo.update(user.id, { subscriptionStatus: 'expired' });
+        this.logger.warn(`Subscription/Trial expired for account ${user.id}, disconnecting their sessions.`);
+        
+        const userSessions = await this.sessionRepository.find({ where: { user: { id: user.id } } });
+        for (const us of userSessions) {
+          await this.stop(us.id);
+        }
+      }
+    } catch (err) {
+      this.logger.error('Error enforcing subscription expiration in watchdog', err);
+    }
+
     await Promise.allSettled([...this.engines].map(([id, engine]) => this.probeSessionLiveness(id, engine)));
   }
 
@@ -1829,7 +1908,15 @@ export class SessionService implements OnModuleDestroy, OnModuleInit, OnApplicat
   }
 
   async getQRCode(id: string): Promise<{ qrCode: string; status: SessionStatus }> {
-    const session = await this.findOne(id);
+    const session = await this.sessionRepository.findOne({ where: { id }, relations: ['user'] });
+    if (!session) {
+      throw new BadRequestException(`Session ${id} not found`);
+    }
+
+    if (session.user && session.user.subscriptionStatus === 'expired') {
+      throw new BadRequestException('TRIAL_EXPIRED');
+    }
+
     const engine = this.engines.get(id);
 
     if (!engine) {

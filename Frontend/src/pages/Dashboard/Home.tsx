@@ -3,11 +3,15 @@ import { Link } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import ReactApexChart from "react-apexcharts";
 import { getDashboardStats, DashboardStatsDto } from "../../services/openwa";
+import { useUser } from "../../context/UserContext";
+import { AddSessionModal } from "./WhatsappConnect";
 
 export default function Home() {
   const [stats, setStats] = useState<DashboardStatsDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const { user } = useUser();
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
     getDashboardStats()
@@ -96,7 +100,7 @@ export default function Home() {
   const readPercent = stats.readPercent || 0;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-6rem)] overflow-hidden">
+    <div className="flex flex-col min-h-[calc(100vh-6rem)] overflow-y-auto">
       <PageMeta title="Dashboard | Waflow" description="Overview of your account" />
       
       {/* Top Row: Metric Cards */}
@@ -137,17 +141,96 @@ export default function Home() {
       {/* Middle Row: Charts */}
       <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3 min-h-0 flex-1">
         {/* Bar Chart */}
-        <div className="col-span-1 lg:col-span-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 flex flex-col min-h-0">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <svg className="h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-              <h2 className="text-base font-bold text-gray-900 dark:text-white font-serif">Message Volume Analytics</h2>
-            </div>
-            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">Weekly Overview</span>
+        {/* Subscription Status */}
+        <div className="col-span-1 lg:col-span-2 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 flex flex-col min-h-0">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white font-serif">Current Plans</h2>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Daily traffic distribution & response velocity</p>
-          <div className="flex-1 min-h-0">
-            <ReactApexChart options={chartOptions} series={chartSeries} type="bar" height="100%" />
+          
+          <div className="w-full mb-2">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50/50 text-gray-500 dark:bg-gray-800/50 dark:text-gray-400">
+                <tr>
+                  <th className="px-4 py-3 font-semibold rounded-l-lg">Plan</th>
+                  <th className="px-4 py-3 font-semibold">Status</th>
+                  <th className="px-4 py-3 font-semibold">Left</th>
+                  <th className="px-4 py-3 font-semibold rounded-r-lg">Start/End</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                <tr>
+                  <td className="px-4 py-4">
+                    <div className="font-bold text-gray-900 dark:text-white mb-1 uppercase tracking-wide">
+                      {user?.subscriptionStatus === 'trial' ? '24-HOUR FREE TRIAL' : 
+                       user?.planType === 'yearly' ? 'YEARLY PLAN' : 
+                       user?.planType === 'monthly' ? 'MONTHLY PLAN' : 'FREE TRIAL EXPIRED'}
+                    </div>
+                    <span className="inline-flex rounded bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-[11px] font-bold text-gray-600 dark:text-gray-300 shadow-sm">
+                      {user?.planType === 'yearly' ? '₹1,499/yr' : user?.planType === 'monthly' ? '₹249/mo' : 'Free Trial'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className={`font-semibold ${user?.subscriptionStatus === 'active' || user?.subscriptionStatus === 'trial' ? 'text-green-500' : 'text-red-500'}`}>
+                      {user?.subscriptionStatus === 'active' ? 'Active' : user?.subscriptionStatus === 'trial' ? 'Active Trial' : 'Expired'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="inline-flex items-center justify-center rounded-md bg-indigo-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm min-w-[60px]">
+                      {(() => {
+                        if (user?.subscriptionStatus === 'trial' && user.trialExpiresAt) {
+                           const hours = Math.max(0, Math.floor((new Date(user.trialExpiresAt).getTime() - Date.now()) / (1000 * 60 * 60)));
+                           return `${hours} hours`;
+                        } else if (user?.subscriptionStatus === 'active' && user.subscriptionExpiresAt) {
+                           const days = Math.max(0, Math.floor((new Date(user.subscriptionExpiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+                           return `${days} days`;
+                        }
+                        return '0 days';
+                      })()}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4 text-xs font-medium text-gray-500 dark:text-gray-400">
+                    <div className="mb-1">{user?.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}</div>
+                    <div className="text-gray-900 dark:text-white font-bold">
+                      {user?.subscriptionStatus === 'active' && user.subscriptionExpiresAt ? new Date(user.subscriptionExpiresAt).toISOString().split('T')[0] : 
+                       user?.subscriptionStatus === 'trial' && user.trialExpiresAt ? new Date(user.trialExpiresAt).toISOString().split('T')[0] : '-'}
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 pb-1 flex gap-3">
+            {(() => {
+              const daysLeft = user?.subscriptionStatus === 'active' && user.subscriptionExpiresAt
+                ? Math.max(0, Math.floor((new Date(user.subscriptionExpiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+                : 999;
+                
+              if (user?.subscriptionStatus === 'expired' || user?.subscriptionStatus === 'trial') {
+                return (
+                  <button onClick={() => setShowPaymentModal(true)} className="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-brand-600">
+                    Upgrade Now
+                  </button>
+                );
+              } else if (daysLeft <= 7) {
+                return (
+                  <>
+                    <button onClick={() => setShowPaymentModal(true)} className="rounded-lg bg-orange-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-orange-600">
+                      Extend Subscription
+                    </button>
+                    <Link to="/settings/billing" className="rounded-lg border border-gray-200 bg-white px-6 py-2.5 text-sm font-bold text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+                      Manage Plan
+                    </Link>
+                  </>
+                );
+              } else {
+                return (
+                  <Link to="/settings/billing" className="rounded-lg border border-gray-200 bg-white px-6 py-2.5 text-sm font-bold text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+                    Manage Plan
+                  </Link>
+                );
+              }
+            })()}
           </div>
         </div>
 
@@ -240,6 +323,17 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {showPaymentModal && (
+        <AddSessionModal
+          initialStep="expired"
+          onClose={() => setShowPaymentModal(false)}
+          onAdded={() => {
+            setShowPaymentModal(false);
+            window.location.reload(); // Hard reload to update global state instantly
+          }}
+        />
+      )}
     </div>
   );
 }

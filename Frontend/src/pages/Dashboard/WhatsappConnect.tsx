@@ -51,18 +51,23 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 // ---- Add Session Modal ----
-const AddSessionModal = ({
+export const AddSessionModal = ({
   onClose,
   onAdded,
+  initialStep,
+  initialSessionId,
 }: {
   onClose: () => void;
   onAdded: () => void;
+  initialStep?: "name" | "qr" | "expired";
+  initialSessionId?: string;
 }) => {
-  const [step, setStep] = useState<"name" | "qr">("name");
+  const [step, setStep] = useState<"name" | "qr" | "expired">(initialStep || "name");
   const [name, setName] = useState("");
-  const [sessionId, setSessionId] = useState("");
+  const [sessionId, setSessionId] = useState(initialSessionId || "");
   const [qrImage, setQrImage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [polling, setPolling] = useState(false);
   const [scannedStatus, setScannedStatus] = useState("");
@@ -75,32 +80,81 @@ const AddSessionModal = ({
       const session = await createSession(name.trim());
       await startSession(session.id);
       setSessionId(session.id);
-      // Poll for QR code
-      setPolling(true);
-      let attempts = 0;
-      const interval = setInterval(async () => {
-        attempts++;
-        try {
-          const qr = await getQRCode(session.id);
-          if (qr?.qrCode) {
-            setQrImage(qr.qrCode);
-            setStep("qr");
-            clearInterval(interval);
-            setPolling(false);
-          }
-        } catch {
-          // not ready yet
-        }
-        if (attempts > 20) {
-          clearInterval(interval);
-          setPolling(false);
-          setError("QR code timed out. Please try again.");
-        }
-      }, 2000);
+      setStep("qr");
     } catch (e: any) {
-      setError(e.message);
+      if (e.message === 'TRIAL_EXPIRED') {
+        setStep("expired");
+      } else {
+        setError(e.message);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePayment = async (planType: 'monthly' | 'yearly') => {
+    try {
+      setLoadingPlan(planType);
+      setError("");
+      
+      const { jwtFetch } = await import("../../services/openwa");
+      const response = await jwtFetch<{ id: string; amount: number; currency: string }>(
+        '/payment/create-order',
+        {
+          method: 'POST',
+          body: JSON.stringify({ planType }),
+        }
+      );
+
+      const options = {
+        key: 'rzp_test_TTyeODDNR6NQcN',
+        amount: response.amount,
+        currency: response.currency,
+        name: 'ConvoReach',
+        description: `${planType === 'monthly' ? 'Monthly' : 'Yearly'} Subscription`,
+        order_id: response.id,
+        handler: async function (paymentResponse: any) {
+          try {
+            await jwtFetch('/payment/verify', {
+              method: 'POST',
+              body: JSON.stringify({
+                razorpay_order_id: paymentResponse.razorpay_order_id,
+                razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                razorpay_signature: paymentResponse.razorpay_signature,
+                planType,
+              }),
+            });
+            if (sessionId) {
+              try {
+                const { startSession } = await import("../../services/openwa");
+                await startSession(sessionId);
+                onAddedRef.current();
+                setStep("qr");
+              } catch (e: any) {
+                setError(e.message);
+              }
+            } else {
+              onAddedRef.current();
+              onCloseRef.current(); 
+            }
+          } catch (err: any) {
+            setError(err.message);
+          }
+        },
+        theme: {
+          color: '#10B981',
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on('payment.failed', function (resp: any) {
+        setError(resp.error.description);
+      });
+      rzp.open();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoadingPlan(null);
     }
   };
 
@@ -109,6 +163,38 @@ const AddSessionModal = ({
   const onAddedRef = useRef(onAdded);
   useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
   useEffect(() => { onAddedRef.current = onAdded; }, [onAdded]);
+
+  // Poll for QR image
+  useEffect(() => {
+    if (step !== "qr" || !sessionId || qrImage) return;
+    
+    setPolling(true);
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts++;
+      try {
+        const { getQRCode } = await import("../../services/openwa");
+        const qr = await getQRCode(sessionId);
+        if (qr?.qrCode) {
+          setQrImage(qr.qrCode);
+          clearInterval(interval);
+          setPolling(false);
+        }
+      } catch (err: any) {
+        if (err?.message === 'TRIAL_EXPIRED') {
+          clearInterval(interval);
+          setPolling(false);
+          setStep("expired");
+        }
+      }
+      if (attempts > 20) {
+        clearInterval(interval);
+        setPolling(false);
+        setError("QR code timed out. Please try again.");
+      }
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [step, sessionId, qrImage]);
 
   // Poll for authenticated status after QR is shown
   useEffect(() => {
@@ -140,11 +226,11 @@ const AddSessionModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-800 dark:bg-gray-900">
+      <div className="w-full max-w-lg rounded-sm border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-800 dark:bg-gray-900">
         {/* Header */}
         <div className="mb-5 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {step === "name" ? "Add WhatsApp Number" : "Scan QR Code"}
+            {step === "name" ? "Add WhatsApp Number" : step === "qr" ? "Scan QR Code" : "Subscription Required"}
           </h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
             <CloseIcon className="h-5 w-5" />
@@ -175,7 +261,7 @@ const AddSessionModal = ({
               {loading ? "Creating..." : polling ? "Waiting for QR..." : "Continue"}
             </button>
           </>
-        ) : (
+        ) : step === "qr" ? (
           <>
             <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
               Open WhatsApp on your phone → Linked Devices → Link a Device → Scan this QR code.
@@ -201,6 +287,50 @@ const AddSessionModal = ({
                 : "Waiting for you to scan... This will close automatically."}
             </p>
           </>
+        ) : (
+          <div className="py-2">
+            <div className="mb-6 border-l-4 border-brand-500 pl-4 text-left">
+              <h4 className="text-xl font-bold text-gray-900 dark:text-white">Select a Plan</h4>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Your trial or previous subscription has ended. Choose a plan to continue using all WhatsApp integration features.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Monthly Plan */}
+              <div className="flex flex-col rounded-sm border border-gray-200 bg-gray-50 p-5 text-left transition hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800/50">
+                <span className="mb-1 text-xs font-bold text-gray-500 uppercase tracking-wider">Monthly</span>
+                <div className="mb-5 flex items-baseline">
+                  <span className="text-3xl font-bold text-gray-900 dark:text-white">₹249</span>
+                  <span className="ml-1 text-sm text-gray-500 font-medium">/mo</span>
+                </div>
+                <button 
+                  onClick={() => handlePayment('monthly')}
+                  disabled={!!loadingPlan}
+                  className="mt-auto w-full rounded-sm bg-white border border-gray-300 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
+                >
+                  {loadingPlan === 'monthly' ? "Processing..." : "Buy Now"}
+                </button>
+              </div>
+
+              {/* Yearly Plan */}
+              <div className="flex flex-col rounded-sm border-2 border-brand-500 bg-white p-5 text-left shadow-sm dark:bg-gray-900">
+                <span className="mb-1 text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Yearly (Save 50%)</span>
+                <div className="mb-5 flex items-baseline">
+                  <span className="text-3xl font-bold text-gray-900 dark:text-white">₹1,499</span>
+                  <span className="ml-1 text-sm text-gray-500 font-medium">/yr</span>
+                </div>
+                <button 
+                  onClick={() => handlePayment('yearly')}
+                  disabled={!!loadingPlan}
+                  className="mt-auto w-full rounded-sm bg-brand-500 py-2 text-sm font-semibold text-white transition hover:bg-brand-600 shadow-sm disabled:opacity-50"
+                >
+                  {loadingPlan === 'yearly' ? "Processing..." : "Buy Now"}
+                </button>
+              </div>
+            </div>
+            {error && <p className="mt-4 text-left text-sm font-medium text-red-500">{error}</p>}
+          </div>
         )}
       </div>
     </div>
@@ -288,7 +418,28 @@ const ConfirmToggleModal = ({
 
 // ---- Main Dashboard ----
 export default function WhatsappConnect() {
-  const { loading: userLoading } = useUser();
+  const { user, loading: userLoading, refetch } = useUser();
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    if (user?.subscriptionStatus === 'trial' && user?.trialExpiresAt) {
+      const expiresAt = new Date(user.trialExpiresAt).getTime();
+      const interval = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = expiresAt - now;
+        if (distance < 0) {
+          setTimeLeft("Expired");
+          clearInterval(interval);
+        } else {
+          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+          setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+        }
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [stats, setStats] = useState<SessionStats | null>(null);
   const [folders, setFolders] = useState<Folder[]>([
@@ -296,7 +447,7 @@ export default function WhatsappConnect() {
     { id: "trash", name: "Trash", sessionIds: [] },
   ]);
   const [activeFolder, setActiveFolder] = useState("home");
-  const [showAddSession, setShowAddSession] = useState(false);
+  const [showAddSession, setShowAddSession] = useState<{ step: "name" | "expired", sessionId?: string } | null>(null);
   const [showAddFolder, setShowAddFolder] = useState(false);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "active" | "inactive">("all");
@@ -345,9 +496,11 @@ export default function WhatsappConnect() {
       const [sessionsData, statsData] = await Promise.all([
         getSessions(),
         getSessionStats(),
+        refetch(),
       ]);
       setSessions(sessionsData);
       setStats(statsData);
+      window.dispatchEvent(new Event('waflow-sessions-changed'));
     } catch (e: any) {
       const msg = e?.message || '';
       if (msg.includes('401') || msg.includes('Unauthorized') || msg.includes('Not authenticated')) {
@@ -396,7 +549,11 @@ export default function WhatsappConnect() {
       await startSession(id);
       fetchData();
     } catch (e: any) {
-      showToast(e.message);
+      if (e.message === 'TRIAL_EXPIRED') {
+        setShowAddSession({ step: "expired", sessionId: id });
+      } else {
+        showToast(e.message);
+      }
     }
     setActionMenuId(null);
   };
@@ -454,10 +611,13 @@ export default function WhatsappConnect() {
       )}
       <PageMeta title="WhatsApp Connect" description="Manage your connected WhatsApp numbers" />
 
+      {/* Modals */}
       {showAddSession && (
         <AddSessionModal
-          onClose={() => setShowAddSession(false)}
-          onAdded={fetchData}
+          initialStep={showAddSession.step}
+          initialSessionId={showAddSession.sessionId}
+          onClose={() => setShowAddSession(null)}
+          onAdded={() => fetchData()}
         />
       )}
       {showAddFolder && (
@@ -486,6 +646,25 @@ export default function WhatsappConnect() {
         />
       )}
 
+      {/* Trial Countdown Banner */}
+      {user?.subscriptionStatus === 'trial' && timeLeft && timeLeft !== "Expired" && (
+        <div className="mb-6 flex items-center justify-between rounded-xl bg-orange-50 px-4 py-3 border border-orange-200 dark:bg-orange-500/10 dark:border-orange-500/20">
+          <div className="flex items-center gap-3 text-orange-800 dark:text-orange-400">
+            <svg className="h-6 w-6 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <div>
+              <p className="font-bold">Your Free Trial is Active</p>
+              <p className="text-sm">Trial ends in: <span className="font-mono bg-orange-200 dark:bg-orange-500/30 px-2 py-0.5 rounded text-orange-900 dark:text-orange-300 ml-1">{timeLeft}</span></p>
+            </div>
+          </div>
+          <button 
+            onClick={() => alert("Razorpay integration coming next!")}
+            className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-orange-600"
+          >
+            Upgrade Plan
+          </button>
+        </div>
+      )}
+
       {/* Top action bar */}
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -495,7 +674,7 @@ export default function WhatsappConnect() {
           </p>
         </div>
         <button
-          onClick={() => setShowAddSession(true)}
+          onClick={() => setShowAddSession({ step: user?.subscriptionStatus === 'expired' ? "expired" : "name" })}
           className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-brand-600"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -634,7 +813,7 @@ export default function WhatsappConnect() {
             ) : filtered.length === 0 ? (
               <div className="flex h-40 flex-col items-center justify-center gap-2 text-sm text-gray-400">
                 <p>No sessions found.</p>
-                <button onClick={() => setShowAddSession(true)} className="flex items-center gap-2 text-brand-500 hover:underline">
+                <button onClick={() => setShowAddSession({ step: user?.subscriptionStatus === 'expired' ? "expired" : "name" })} className="flex items-center gap-2 text-brand-500 hover:underline">
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
                   Add a WhatsApp Number
                 </button>

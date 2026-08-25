@@ -157,7 +157,7 @@ export default function ChatbotPage() {
   }>>([]);
   const testEndRef = useRef<HTMLDivElement>(null);
 
-  const backendUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:2785';
+  const backendUrl = typeof window !== 'undefined' ? window.location.origin : 'http://127.0.0.1:2785';
 
   
 
@@ -406,7 +406,47 @@ export default function ChatbotPage() {
     sClose,
   ].join('\n');
 
-  const handleCopy = () => { navigator.clipboard.writeText(embedCode); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+  const [showEnablePrompt, setShowEnablePrompt] = useState(false);
+
+  const handleCopy = () => {
+    if (!enabled) {
+      setShowEnablePrompt(true);
+      return;
+    }
+    executeCopy();
+  };
+
+  const executeCopy = () => {
+    navigator.clipboard.writeText(embedCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleEnableAndCopy = async () => {
+    setEnabled(true);
+    setSaving(true);
+    try {
+      const payload = {
+        enabled: true, botName, botIcon, welcomeMessage, fallbackMessage, offlineMessage,
+        headerText, subHeaderText, buttonLabel,
+        primaryColor, secondaryColor, gradient, gradientAngle, position, theme,
+        rules, collectLeads, leadFields };
+      const res = await chatbotApi.update(payload);
+      if (res && res.data && (res.data.id || res.data._id)) {
+        setChatbotId(res.data.id || res.data._id);
+      } else if (res && (res.id || res._id)) {
+        setChatbotId(res.id || res._id);
+      }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+      executeCopy();
+      setShowEnablePrompt(false);
+    } catch {
+      alert('Failed to enable the bot. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   // Calculate step completions for onboarding
   const steps = [
@@ -1927,6 +1967,31 @@ export default function ChatbotPage() {
                   disabled={kSaving || !kForm.title.trim() || !kForm.content.trim()}
                 >
                   {kSaving ? <><RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</> : <><Save size={14} /> {editingItem ? 'Update' : 'Save Knowledge'}</>}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Enable Prompt Modal */}
+      {showEnablePrompt && (
+        <div className="fixed inset-0 bg-black/60 z-[100] backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setShowEnablePrompt(false)}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100 dark:border-gray-800 animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center mb-4 text-yellow-600 dark:text-yellow-500">
+                <AlertCircle size={24} />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Wait! Your bot is disabled</h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
+                The widget code won't work on your website while the bot is disabled. Do you want us to enable it and save your settings right now before copying?
+              </p>
+              <div className="flex items-center gap-3 w-full">
+                <button onClick={() => setShowEnablePrompt(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  Cancel
+                </button>
+                <button onClick={handleEnableAndCopy} disabled={saving} className="flex-1 px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-medium transition-colors flex items-center justify-center gap-2">
+                  {saving ? 'Enabling...' : 'Enable & Copy'}
                 </button>
               </div>
             </div>

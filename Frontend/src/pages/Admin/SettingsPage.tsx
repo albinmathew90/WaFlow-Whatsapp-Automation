@@ -22,6 +22,7 @@ const SettingsPage = () => {
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [profileSuccess, setProfileSuccess] = useState('');
+  const [profileError, setProfileError] = useState('');
   const [notificationSuccess, setNotificationSuccess] = useState('');
   const [billingSuccess, setBillingSuccess] = useState('');
 
@@ -81,9 +82,21 @@ const SettingsPage = () => {
   };
 
   const saveProfile = async () => {
-    await AdminAPI.updateProfile({ email: profile.email });
-    setProfileSuccess('Profile updated successfully.');
-    setTimeout(() => setProfileSuccess(''), 3000);
+    setProfileError('');
+    setProfileSuccess('');
+    try {
+      const res = await AdminAPI.updateProfile({ email: profile.email });
+      if (res.success) {
+        // Update local state with the saved admin data
+        setProfile(res.admin);
+        setProfileSuccess('Email updated! Use your new email on the next login.');
+      } else {
+        setProfileError(res.message || 'Failed to update profile.');
+      }
+    } catch (err) {
+      setProfileError('An error occurred while saving.');
+    }
+    setTimeout(() => { setProfileSuccess(''); setProfileError(''); }, 5000);
   };
 
   const handleUpdatePassword = async () => {
@@ -232,6 +245,11 @@ const SettingsPage = () => {
                     {profileSuccess && (
                       <div className="mt-2 inline-block px-3 py-1.5 bg-[#f0fdf4] text-[#166534] text-xs font-semibold rounded border border-[#bbf7d0] shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
                         ✓ {profileSuccess}
+                      </div>
+                    )}
+                    {profileError && (
+                      <div className="mt-2 inline-block px-3 py-1.5 bg-[#fef2f2] text-[#991b1b] text-xs font-semibold rounded border border-[#fecaca] shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                        ✗ {profileError}
                       </div>
                     )}
                   </div>
