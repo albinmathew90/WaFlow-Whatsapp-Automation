@@ -14,7 +14,7 @@ export default function TemplateSelector({ onSelect, onClose }: Props) {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/templates', {
           headers: { 'Authorization': `Bearer ${token}` }
         });

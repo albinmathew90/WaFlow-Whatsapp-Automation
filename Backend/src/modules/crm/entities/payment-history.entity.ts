@@ -27,6 +27,9 @@ export class PaymentHistory {
   @Column({ type: 'varchar', length: 50, nullable: true })
   paymentMethod: string;
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  couponCode: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

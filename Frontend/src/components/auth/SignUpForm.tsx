@@ -69,11 +69,15 @@ export default function SignUpForm() {
     }
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
       const response = await fetch('/openwa-api/crm/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: `${firstName} ${lastName}`.trim(), email, password })
+        body: JSON.stringify({ name: `${firstName} ${lastName}`.trim(), email, password }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         let errText = "Registration failed";
@@ -101,7 +105,11 @@ export default function SignUpForm() {
       navigate(plan ? `/?plan=${plan}` : "/");
     } catch (err: any) {
       console.error(err);
-      setError({ message: err.message || 'Registration failed' });
+      if (err.name === 'AbortError') {
+        setError({ message: 'Request timed out. The server may be starting up — please try again in a moment.' });
+      } else {
+        setError({ message: err.message || 'Registration failed' });
+      }
     } finally {
       setIsLoading(false);
     }

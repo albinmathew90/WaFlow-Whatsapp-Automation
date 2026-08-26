@@ -28,7 +28,7 @@ export default function MediaSelectorModal({
   const fetchMedia = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/crm/media', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -68,7 +68,7 @@ export default function MediaSelectorModal({
     setUploading(true);
     setUploadProgress(0);
     setUploadError(null);
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     let lastUploadedItem = null;
 
     try {

@@ -64,7 +64,7 @@ export default function Applications() {
 
   const fetchApplications = async () => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/otp-management/applications', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -82,7 +82,7 @@ export default function Applications() {
     setIsLoading(true);
     setCreateError('');
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       
       // Auto-assign first connected WhatsApp session if available
       let defaultWhatsappSessionId = undefined;
@@ -134,7 +134,7 @@ export default function Applications() {
   };
 
   const deleteApplication = async (id: string) => {
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     try {
       const res = await fetch(`/openwa-api/otp-management/applications/${id}`, {
         method: 'DELETE',
@@ -151,7 +151,7 @@ export default function Applications() {
     setIsLoading(true);
     setEditError('');
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${editingApp.id}`, {
         method: 'PUT',
         headers: {

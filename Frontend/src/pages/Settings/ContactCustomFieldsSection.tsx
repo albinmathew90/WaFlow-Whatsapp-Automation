@@ -33,7 +33,7 @@ export default function ContactCustomFieldsSection() {
   const fetchFields = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/crm/custom-fields', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -63,7 +63,7 @@ export default function ContactCustomFieldsSection() {
     }
 
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/crm/custom-fields', {
         method: 'POST',
         headers: {
@@ -94,7 +94,7 @@ export default function ContactCustomFieldsSection() {
 
   const handleDeleteField = async (id: string) => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/crm/custom-fields/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -128,7 +128,7 @@ export default function ContactCustomFieldsSection() {
     }
 
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/crm/custom-fields/${id}`, {
         method: 'PUT',
         headers: {

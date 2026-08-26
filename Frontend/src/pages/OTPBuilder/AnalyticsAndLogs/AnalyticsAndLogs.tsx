@@ -35,7 +35,7 @@ export default function AnalyticsAndLogs() {
 
   const fetchApplications = async () => {
     try {
-      const crmToken = sessionStorage.getItem('crm_token');
+      const crmToken = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/otp-management/applications', {
         headers: { 'Authorization': `Bearer ${crmToken}` }
       });

@@ -88,7 +88,7 @@ export default function Contacts() {
   // Fetch initial data
   useEffect(() => {
     const loadData = async () => {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       if (!token) return;
 
       const headers = { 'Authorization': `Bearer ${token}` };
@@ -233,7 +233,7 @@ export default function Contacts() {
           const newUnique = importedContacts.filter(c => !existingPhones.has(c.phone.replace(/[^0-9+]/g, '')));
           
           if (newUnique.length > 0) {
-            const token = sessionStorage.getItem('crm_token');
+            const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
             const bulkRes = await fetch('/openwa-api/crm/contacts/bulk', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -339,7 +339,7 @@ export default function Contacts() {
   const handleSaveContact = async () => {
     if (!newPhone) return;
     
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     
     if (editContactId) {
       const fullPhoneForEdit = `${selectedCountry.dialCode} ${newPhone.trim()}`;
@@ -437,7 +437,7 @@ export default function Contacts() {
   };
 
   const handleDeleteContact = async (id: string) => {
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     try {
       if (activeSegment === 'All Contacts') {
         await fetch(`/openwa-api/crm/contacts/${id}`, {
@@ -510,7 +510,7 @@ export default function Contacts() {
 
   const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     try {
       if (activeSegment === 'All Contacts') {
         const res = await fetch('/openwa-api/crm/contacts/bulk', {
@@ -609,7 +609,7 @@ export default function Contacts() {
     }
     
     if (parsedContacts.length > 0) {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       try {
         const bulkRes = await fetch('/openwa-api/crm/contacts/bulk', {
           method: 'POST',
@@ -653,7 +653,7 @@ export default function Contacts() {
   const handleSaveSegment = async () => {
     if (segmentInput && segmentInput.trim()) {
       const name = segmentInput.trim();
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       try {
         const res = await fetch('/openwa-api/crm/segments', {
           method: 'POST',
@@ -683,7 +683,7 @@ export default function Contacts() {
   const handleDeleteSegment = async (segmentId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     try {
       await fetch(`/openwa-api/crm/segments/${segmentId}`, {
         method: 'DELETE',
@@ -713,7 +713,7 @@ export default function Contacts() {
     const segment = segments.find(s => s.id === segmentId);
     if (!segment) return;
     
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     
     // Move on backend one by one (or bulk if API supported, but we loop for now)
     for (const id of moveTargetIds) {

@@ -8,7 +8,7 @@ interface DashboardTabProps {
 }
 
 export default function DashboardTab({ appId }: DashboardTabProps) {
-  const token = sessionStorage.getItem('crm_token');
+  const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
   const [summary, setSummary] = useState<any>(null);
   const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);

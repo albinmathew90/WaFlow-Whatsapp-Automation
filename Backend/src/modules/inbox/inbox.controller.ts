@@ -12,6 +12,7 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  UseGuards,
 } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ApiTags, ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
@@ -22,9 +23,12 @@ import { CreateConversationDto } from './dto/create-conversation.dto';
 import { SendReplyDto } from './dto/send-reply.dto';
 import { UpdateConversationDto, AddTagDto, RemoveTagDto } from './dto/update-conversation.dto';
 
+import { JwtAuthGuard } from '../crm/guards/jwt-auth.guard';
+
 @ApiTags('inbox')
 @SkipThrottle({ short: true, medium: true, long: true })
-@Controller('inbox')
+@Controller('crm/inbox')
+@UseGuards(JwtAuthGuard)
 export class InboxController {
   private readonly logger = new Logger(InboxController.name);
 

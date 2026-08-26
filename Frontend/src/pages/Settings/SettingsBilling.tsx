@@ -31,7 +31,7 @@ export default function SettingsBilling() {
 
   const fetchHistory = async () => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/payment/history', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -48,7 +48,7 @@ export default function SettingsBilling() {
 
   const handleDownloadReceipt = async (id: string) => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/payment/receipt/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

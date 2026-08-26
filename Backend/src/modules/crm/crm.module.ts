@@ -39,11 +39,13 @@ import { CrmFlowsController } from './controllers/crm-flows.controller';
 import { CrmCustomFieldsController } from './controllers/crm-custom-fields.controller';
 import { CrmDashboardController } from './controllers/crm-dashboard.controller';
 import { CrmAuditController } from './controllers/crm-audit.controller';
+import { CrmMonitorController } from './controllers/crm-monitor.controller';
 
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { SessionModule } from '../session/session.module';
 import { MessageModule } from '../message/message.module';
 import { AuditModule } from '../audit/audit.module';
+import { MonitorService } from '../monitor/monitor.service';
 
 @Module({
   imports: [
@@ -69,6 +71,7 @@ import { AuditModule } from '../audit/audit.module';
     CrmCustomFieldsController,
     CrmDashboardController,
     CrmAuditController,
+    CrmMonitorController,
   ],
   providers: [
     CrmAuthService,
@@ -84,6 +87,7 @@ import { AuditModule } from '../audit/audit.module';
     JwtStrategy,
     CrmEventsGateway,
     MailService,
+    MonitorService,
   ],
   exports: [CrmAuthService, CrmMediaService, CrmFlowsService, FlowRunnerService, CrmEventsGateway, MailService],
 })

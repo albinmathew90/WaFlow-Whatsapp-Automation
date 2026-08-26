@@ -807,8 +807,11 @@ export class SessionService implements OnModuleDestroy, OnModuleInit, OnApplicat
                 const normalizedPhone = phone.split('@')[0].replace(/[^0-9]/g, '');
                 const userRepo = this.dataSource.getRepository(User);
                 
-                if (user.hasUsedTrial) {
-                  this.logger.warn(`Trial denied for ${normalizedPhone} on account ${user.id}`);
+                // Check if this WhatsApp number was already used for a trial by ANY account
+                const existingTrialUser = await userRepo.findOne({ where: { trialPhoneNumber: normalizedPhone } });
+                
+                if (user.hasUsedTrial || (existingTrialUser && existingTrialUser.id !== user.id)) {
+                  this.logger.warn(`Trial denied for ${normalizedPhone} on account ${user.id} (Number already used in trial)`);
                   await userRepo.update(user.id, { subscriptionStatus: 'expired' });
                   // Stop the engine to prevent usage
                   await this.stop(id);

@@ -47,7 +47,7 @@ const SettingsPage = () => {
   // Subscriptions & Billing State
   const [paymentGatewaySettings, setPaymentGatewaySettings] = useState({ provider: 'razorpay', apiKey: '', apiSecret: '', webhookSecret: '' });
   const [taxConfiguration, setTaxConfiguration] = useState({ currency: 'INR (₹)', gstPercentage: 18, gstInNumber: '' });
-  const [planParameters, setPlanParameters] = useState({ trialDurationHours: 24, monthlyPlanEnabled: true, yearlyPlanEnabled: true, yearlyDiscountPercentage: 20, couponCode: '', couponDiscountPercentage: 0, couponMaxRedemptions: 100 });
+  const [planParameters, setPlanParameters] = useState<any>({ coupons: [] });
   const [invoiceSettings, setInvoiceSettings] = useState({ invoicePrefix: 'WAF-', businessAddress: '', companySignature: '' });
 
   useEffect(() => {
@@ -74,7 +74,27 @@ const SettingsPage = () => {
       if (data.emailTemplates) setEmailTemplates(data.emailTemplates);
       if (data.paymentGatewaySettings) setPaymentGatewaySettings(data.paymentGatewaySettings);
       if (data.taxConfiguration) setTaxConfiguration(data.taxConfiguration);
-      if (data.planParameters) setPlanParameters(data.planParameters);
+      if (data.planParameters) {
+        let params = { ...data.planParameters };
+        if (!params.coupons) {
+          // Migrate old format
+          if (params.couponCode) {
+            params.coupons = [{
+              id: Date.now().toString(),
+              code: params.couponCode,
+              discountType: params.couponDiscountType || 'percentage',
+              discountPercentage: params.couponDiscountPercentage || 0,
+              flatDiscountAmount: params.couponFlatDiscountAmount || 0,
+              minOrderAmount: params.couponMinOrderAmount || 0,
+              maxOrderAmount: params.couponMaxOrderAmount || 0,
+              maxRedemptions: params.couponMaxRedemptions || 0,
+            }];
+          } else {
+            params.coupons = [];
+          }
+        }
+        setPlanParameters(params);
+      }
       if (data.invoiceSettings) setInvoiceSettings(data.invoiceSettings);
     } catch (err) {
       console.error(err);
@@ -573,168 +593,128 @@ const SettingsPage = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 w-full">
+              <div className="max-w-3xl w-full">
                 
-                {/* Left Column */}
                 <div className="space-y-8">
                   
-                  {/* Payment Gateway Settings */}
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">Payment Gateways</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Configure your preferred provider for INR transactions.</p>
-                    </div>
-                    
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Provider</label>
-                        <select 
-                          value={paymentGatewaySettings.provider} 
-                          onChange={(e) => setPaymentGatewaySettings({...paymentGatewaySettings, provider: e.target.value})}
-                          className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black"
-                        >
-                          <option value="razorpay">Razorpay</option>
-                          <option value="cashfree">Cashfree</option>
-                          <option value="payu">PayU</option>
-                          <option value="stripe">Stripe (India)</option>
-                        </select>
-                      </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">API Key / Client ID</label>
-                        <input type="text" value={paymentGatewaySettings.apiKey} onChange={(e) => setPaymentGatewaySettings({...paymentGatewaySettings, apiKey: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="rzp_live_xxx..." />
-                      </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">API Secret / Salt</label>
-                        <input type="password" value={paymentGatewaySettings.apiSecret} onChange={(e) => setPaymentGatewaySettings({...paymentGatewaySettings, apiSecret: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="••••••••••••" />
-                      </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Webhook Secret</label>
-                        <input type="password" value={paymentGatewaySettings.webhookSecret} onChange={(e) => setPaymentGatewaySettings({...paymentGatewaySettings, webhookSecret: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="••••••••••••" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <hr className="border-gray-100 dark:border-gray-800" />
-
-                  {/* Plan & Trial Parameters */}
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">Plan & Trial Configurations</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Control your subscription offerings and trials.</p>
-                    </div>
-
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Free Trial Duration (Hours)</label>
-                        <input type="number" value={planParameters.trialDurationHours} onChange={(e) => setPlanParameters({...planParameters, trialDurationHours: parseInt(e.target.value)})} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="24" />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 mt-2">
-                        <label className="flex items-center gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer">
-                          <input type="checkbox" checked={planParameters.monthlyPlanEnabled} onChange={(e) => setPlanParameters({...planParameters, monthlyPlanEnabled: e.target.checked})} className="w-4 h-4 text-black dark:text-white rounded border-gray-300 dark:border-gray-600 focus:ring-black" />
-                          <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Enable Monthly</span>
-                        </label>
-                        <label className="flex items-center gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer">
-                          <input type="checkbox" checked={planParameters.yearlyPlanEnabled} onChange={(e) => setPlanParameters({...planParameters, yearlyPlanEnabled: e.target.checked})} className="w-4 h-4 text-black dark:text-white rounded border-gray-300 dark:border-gray-600 focus:ring-black" />
-                          <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Enable Yearly</span>
-                        </label>
-                      </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Yearly Discount Percentage (%)</label>
-                        <input type="number" value={planParameters.yearlyDiscountPercentage} onChange={(e) => setPlanParameters({...planParameters, yearlyDiscountPercentage: parseInt(e.target.value)})} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="20" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <hr className="border-gray-100 dark:border-gray-800" />
-
                   {/* Promo Codes */}
                   <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">Promo & Coupon Codes</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Configure global discounts for early users.</p>
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">Promo & Coupon Codes</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Configure global discounts for early users.</p>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          const newCoupons = [...(planParameters.coupons || []), {
+                            id: Date.now().toString(),
+                            code: '',
+                            discountType: 'percentage',
+                            discountPercentage: '',
+                            flatDiscountAmount: '',
+                            minOrderAmount: '',
+                            maxOrderAmount: '',
+                            maxRedemptions: '',
+                          }];
+                          setPlanParameters({...planParameters, coupons: newCoupons});
+                        }}
+                        className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-semibold hover:bg-gray-800 transition-colors shadow-sm"
+                      >
+                        + Add Coupon
+                      </button>
                     </div>
                     
-                    <div className="grid grid-cols-3 gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-                      <div className="col-span-3 flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Coupon Code</label>
-                        <input type="text" value={planParameters.couponCode} onChange={(e) => setPlanParameters({...planParameters, couponCode: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black uppercase" placeholder="EARLYBIRD" />
-                      </div>
-                      <div className="col-span-2 flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Discount Percentage (%)</label>
-                        <input type="number" value={planParameters.couponDiscountPercentage} onChange={(e) => setPlanParameters({...planParameters, couponDiscountPercentage: parseInt(e.target.value)})} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="50" />
-                      </div>
-                      <div className="col-span-1 flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Max Redemptions</label>
-                        <input type="number" value={planParameters.couponMaxRedemptions} onChange={(e) => setPlanParameters({...planParameters, couponMaxRedemptions: parseInt(e.target.value)})} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="100" />
-                      </div>
+                    <div className="space-y-4">
+                      {planParameters.coupons?.map((coupon: any, index: number) => (
+                        <div key={coupon.id || index} className="grid grid-cols-3 gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative group">
+                          
+                          <button 
+                            onClick={() => {
+                              const newCoupons = planParameters.coupons.filter((_: any, i: number) => i !== index);
+                              setPlanParameters({...planParameters, coupons: newCoupons});
+                            }}
+                            className="absolute top-2 right-2 p-1.5 bg-red-50 text-red-500 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100"
+                            title="Remove Coupon"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                          </button>
+
+                          <div className="col-span-3 flex flex-col gap-1.5 pr-8">
+                            <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Coupon Code</label>
+                            <input type="text" value={coupon.code} onChange={(e) => {
+                              const newCoupons = [...planParameters.coupons];
+                              newCoupons[index].code = e.target.value.toUpperCase();
+                              setPlanParameters({...planParameters, coupons: newCoupons});
+                            }} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black uppercase font-mono" placeholder="EARLYBIRD" />
+                          </div>
+                          
+                          <div className="col-span-1 flex flex-col gap-1.5">
+                            <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Discount Type</label>
+                            <select value={coupon.discountType || 'percentage'} onChange={(e) => {
+                              const newCoupons = [...planParameters.coupons];
+                              newCoupons[index].discountType = e.target.value;
+                              setPlanParameters({...planParameters, coupons: newCoupons});
+                            }} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black">
+                              <option value="percentage">Percentage (%)</option>
+                              <option value="flat">Flat Amount (₹)</option>
+                            </select>
+                          </div>
+                          
+                          <div className="col-span-1 flex flex-col gap-1.5">
+                            <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Discount Amount</label>
+                            {(!coupon.discountType || coupon.discountType === 'percentage') ? (
+                              <input type="number" value={coupon.discountPercentage ?? ''} onChange={(e) => {
+                                const newCoupons = [...planParameters.coupons];
+                                newCoupons[index].discountPercentage = e.target.value === '' ? '' : parseInt(e.target.value);
+                                setPlanParameters({...planParameters, coupons: newCoupons});
+                              }} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="50" />
+                            ) : (
+                              <input type="number" value={coupon.flatDiscountAmount ?? ''} onChange={(e) => {
+                                const newCoupons = [...planParameters.coupons];
+                                newCoupons[index].flatDiscountAmount = e.target.value === '' ? '' : parseInt(e.target.value);
+                                setPlanParameters({...planParameters, coupons: newCoupons});
+                              }} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="247" />
+                            )}
+                          </div>
+                          
+                          <div className="col-span-1 flex flex-col gap-1.5">
+                            <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Max Redemptions</label>
+                            <input type="number" value={coupon.maxRedemptions ?? ''} onChange={(e) => {
+                              const newCoupons = [...planParameters.coupons];
+                              newCoupons[index].maxRedemptions = e.target.value === '' ? '' : parseInt(e.target.value);
+                              setPlanParameters({...planParameters, coupons: newCoupons});
+                            }} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="100" />
+                          </div>
+                          
+                          <div className="col-span-1 flex flex-col gap-1.5">
+                            <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Min Order (₹)</label>
+                            <input type="number" value={coupon.minOrderAmount ?? ''} onChange={(e) => {
+                              const newCoupons = [...planParameters.coupons];
+                              newCoupons[index].minOrderAmount = e.target.value === '' ? '' : parseInt(e.target.value);
+                              setPlanParameters({...planParameters, coupons: newCoupons});
+                            }} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="0" />
+                          </div>
+                          
+                          <div className="col-span-2 flex flex-col gap-1.5">
+                            <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Max Order (₹)</label>
+                            <input type="number" value={coupon.maxOrderAmount ?? ''} onChange={(e) => {
+                              const newCoupons = [...planParameters.coupons];
+                              newCoupons[index].maxOrderAmount = e.target.value === '' ? '' : parseInt(e.target.value);
+                              setPlanParameters({...planParameters, coupons: newCoupons});
+                            }} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="0" />
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {(!planParameters.coupons || planParameters.coupons.length === 0) && (
+                        <div className="p-8 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+                          <p className="text-sm text-gray-500">No active coupons. Click "Add Coupon" to create one.</p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                 </div>
-
-                {/* Right Column */}
-                <div className="space-y-8">
-                  
-                  {/* Currency & Tax */}
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">Currency & Tax</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Configure base currency and GST requirements.</p>
-                    </div>
-
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Base Currency</label>
-                        <input type="text" value={taxConfiguration.currency} disabled className="w-full px-3 py-2 bg-gray-200 text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-lg text-sm cursor-not-allowed font-medium" />
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-3">
-                        <div className="col-span-1 flex flex-col gap-1.5">
-                          <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">GST (%)</label>
-                          <input type="number" value={taxConfiguration.gstPercentage} onChange={(e) => setTaxConfiguration({...taxConfiguration, gstPercentage: parseInt(e.target.value)})} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black" placeholder="18" />
-                        </div>
-                        <div className="col-span-2 flex flex-col gap-1.5">
-                          <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">GSTIN Number</label>
-                          <input type="text" value={taxConfiguration.gstInNumber} onChange={(e) => setTaxConfiguration({...taxConfiguration, gstInNumber: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black uppercase" placeholder="22AAAAA0000A1Z5" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <hr className="border-gray-100 dark:border-gray-800" />
-
-                  {/* Invoice Settings */}
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">Invoice Settings</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Details that will appear on automated user invoices.</p>
-                    </div>
-
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Invoice Prefix</label>
-                        <input type="text" value={invoiceSettings.invoicePrefix} onChange={(e) => setInvoiceSettings({...invoiceSettings, invoicePrefix: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black uppercase font-mono" placeholder="WAF-" />
-                      </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Registered Business Address</label>
-                        <textarea value={invoiceSettings.businessAddress} onChange={(e) => setInvoiceSettings({...invoiceSettings, businessAddress: e.target.value})} rows={3} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black resize-none" placeholder="123 Startup Tower, Tech City..."></textarea>
-                      </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Company Signature (Text)</label>
-                        <textarea value={invoiceSettings.companySignature} onChange={(e) => setInvoiceSettings({...invoiceSettings, companySignature: e.target.value})} rows={2} className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:border-black resize-none" placeholder="Auth. Signatory, Waflow Inc."></textarea>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-
               </div>
             </div>
           )}

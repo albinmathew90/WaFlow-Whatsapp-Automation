@@ -7,7 +7,7 @@ interface AuditLogsTabProps {
 }
 
 export default function AuditLogsTab({ appId }: AuditLogsTabProps) {
-  const token = sessionStorage.getItem('crm_token');
+  const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
   const [logs, setLogs] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);

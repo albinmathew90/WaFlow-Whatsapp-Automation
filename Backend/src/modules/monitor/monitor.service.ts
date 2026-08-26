@@ -51,16 +51,17 @@ export class MonitorService {
     // Fetch messages within the time bounds
     const outgoingMessages = await this.messageRepository.find({
       where: { sessionId, direction: MessageDirection.OUTGOING, createdAt: LessThan(endDate) },
-      select: ['status', 'createdAt']
+      select: ['status', 'createdAt', 'metadata', 'chatId']
     });
 
     const incomingMessages = await this.messageRepository.find({
       where: { sessionId, direction: MessageDirection.INCOMING, createdAt: LessThan(endDate) },
-      select: ['createdAt']
+      select: ['createdAt', 'chatId']
     });
 
     // 1. Overall Delivery Rate & Read Rate for the period
     let totalOutgoing = 0;
+    
     let delivered = 0;
     let read = 0;
     let stuck = 0; // Stuck at SENT for > 24 hours relative to NOW, or just stuck within the period
@@ -90,7 +91,13 @@ export class MonitorService {
       chartBuckets.set(key, { sent: 0, delivered: 0, read: 0 });
     }
 
+    const apiSentChatIds = new Set<string>();
+
     for (const msg of outgoingMessages) {
+      if (msg.metadata?.source !== 'api') continue;
+      
+      apiSentChatIds.add(msg.chatId);
+
       if (msg.createdAt >= startDate) {
         totalOutgoing++;
         if (msg.status === MessageStatus.DELIVERED || msg.status === MessageStatus.READ) delivered++;
@@ -125,7 +132,7 @@ export class MonitorService {
 
     let replied = 0;
     for (const msg of incomingMessages) {
-      if (msg.createdAt >= startDate) {
+      if (msg.createdAt >= startDate && apiSentChatIds.has(msg.chatId)) {
         replied++;
       }
     }
@@ -137,8 +144,10 @@ export class MonitorService {
 
     // Account Status logic
     let accountStatus = 'good';
-    if (stuckRate > 0.05 || deliveryRate < 0.8) accountStatus = 'warning';
-    if (stuckRate > 0.1 || deliveryRate < 0.6) accountStatus = 'critical';
+    if (totalOutgoing > 0) {
+      if (stuckRate > 0.05 || deliveryRate < 0.8) accountStatus = 'warning';
+      if (stuckRate > 0.1 || deliveryRate < 0.6) accountStatus = 'critical';
+    }
 
     // Format chart data
     const chartData = Array.from(chartBuckets.entries()).map(([name, counts]) => ({
@@ -183,7 +192,11 @@ export class MonitorService {
       order: { createdAt: 'DESC' }
     });
 
-    const filteredStuck = stuckMessages.filter(m => m.createdAt >= startDate && m.createdAt <= cutoffDate);
+    const filteredStuck = stuckMessages.filter(m => 
+      m.metadata?.source === 'api' && 
+      m.createdAt >= startDate && 
+      m.createdAt <= cutoffDate
+    );
 
     // Extract unique chat IDs
     const chatIds = [...new Set(filteredStuck.map(m => m.chatId))];

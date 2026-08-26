@@ -43,7 +43,7 @@ export default function TemplateEditor() {
 
   const fetchApplications = async () => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/otp-management/applications', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -56,7 +56,7 @@ export default function TemplateEditor() {
 
   const fetchTemplate = async () => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${appId}/templates/${templateId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -75,7 +75,7 @@ export default function TemplateEditor() {
 
   const fetchVersions = async () => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${appId}/templates/${templateId}/versions`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -89,7 +89,7 @@ export default function TemplateEditor() {
   const handleRestore = async (versionId: string) => {
     if (!confirm('Are you sure you want to restore this version? This will become the active template version.')) return;
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${appId}/templates/${templateId}/restore`, {
         method: 'POST',
         headers: { 
@@ -123,7 +123,7 @@ export default function TemplateEditor() {
     }
 
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const method = isEdit ? 'PUT' : 'POST';
       const url = isEdit 
         ? `/openwa-api/otp-management/applications/${appId}/templates/${templateId}`

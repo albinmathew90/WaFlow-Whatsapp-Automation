@@ -188,7 +188,9 @@ export default function Home() {
                   <td className="px-4 py-4">
                     <span className="inline-flex items-center justify-center rounded-md bg-indigo-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm min-w-[60px]">
                       {(() => {
-                        if (user?.subscriptionStatus === 'trial' && user.trialExpiresAt) {
+                        if (!user?.subscriptionStatus && !user?.hasUsedTrial) {
+                           return '24 hours';
+                        } else if (user?.subscriptionStatus === 'trial' && user.trialExpiresAt) {
                            const hours = Math.max(0, Math.floor((new Date(user.trialExpiresAt).getTime() - Date.now()) / (1000 * 60 * 60)));
                            return `${hours} hours`;
                         } else if (user?.subscriptionStatus === 'active' && user.subscriptionExpiresAt) {

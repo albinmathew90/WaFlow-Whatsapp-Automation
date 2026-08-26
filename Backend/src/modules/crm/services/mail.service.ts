@@ -6,7 +6,7 @@ export class MailService implements OnModuleInit {
   private readonly logger = new Logger('MailService');
   private transporter: nodemailer.Transporter;
 
-  async onModuleInit() {
+  onModuleInit() {
     const host = process.env.SMTP_HOST;
     const port = parseInt(process.env.SMTP_PORT || '587', 10);
     const user = process.env.SMTP_USER;
@@ -18,33 +18,24 @@ export class MailService implements OnModuleInit {
         host,
         port,
         secure: port === 465,
-        auth: {
-          user,
-          pass,
-        },
+        auth: { user, pass },
       });
     } else {
-      this.logger.log('No SMTP configuration found. Creating Ethereal Mail test account...');
-      try {
-        const testAccount = await nodemailer.createTestAccount();
-        
+      // Use a no-op dummy transporter immediately so startup is never blocked.
+      // Attempt to upgrade to Ethereal in the background for dev email previews.
+      this.transporter = nodemailer.createTransport({ streamTransport: true, newline: 'windows' });
+      this.logger.log('No SMTP config found — using dummy transporter. Attempting Ethereal upgrade in background...');
+      nodemailer.createTestAccount().then(testAccount => {
         this.transporter = nodemailer.createTransport({
           host: 'smtp.ethereal.email',
           port: 587,
           secure: false,
-          auth: {
-            user: testAccount.user,
-            pass: testAccount.pass,
-          },
+          auth: { user: testAccount.user, pass: testAccount.pass },
         });
-        this.logger.log(`Ethereal Mail initialized. Credentials: ${testAccount.user} / ${testAccount.pass}`);
-      } catch (e) {
-        this.logger.warn(`Failed to create Ethereal test account: ${e.message}. Falling back to dummy transporter.`);
-        this.transporter = nodemailer.createTransport({
-           streamTransport: true,
-           newline: 'windows'
-        });
-      }
+        this.logger.log(`Ethereal Mail ready: ${testAccount.user}`);
+      }).catch(e => {
+        this.logger.warn(`Ethereal upgrade failed: ${e.message}. Staying with dummy transporter.`);
+      });
     }
   }
 

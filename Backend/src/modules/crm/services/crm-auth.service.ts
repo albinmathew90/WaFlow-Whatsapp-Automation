@@ -22,7 +22,8 @@ export class CrmAuthService {
       throw new ConflictException('Email already in use');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const saltRounds = process.env.NODE_ENV === 'production' ? 10 : 8;
+    const hashedPassword = await bcrypt.hash(dto.password, saltRounds);
     const user = this.usersRepository.create({
       email: dto.email,
       password: hashedPassword,

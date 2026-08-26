@@ -63,7 +63,7 @@ export default function CreateTemplate() {
     if (editId) {
       const loadTemplate = async () => {
         try {
-          const token = sessionStorage.getItem('crm_token');
+          const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
           const res = await fetch(`/openwa-api/crm/templates/${editId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
@@ -155,7 +155,7 @@ export default function CreateTemplate() {
     };
 
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const method = editId ? 'PUT' : 'POST';
       const url = editId ? `/openwa-api/crm/templates/${editId}` : '/openwa-api/crm/templates';
       const response = await fetch(url, {

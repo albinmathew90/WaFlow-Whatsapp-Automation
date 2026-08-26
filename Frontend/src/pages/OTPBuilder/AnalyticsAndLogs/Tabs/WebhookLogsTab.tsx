@@ -7,7 +7,7 @@ interface WebhookLogsTabProps {
 }
 
 export default function WebhookLogsTab({ appId }: WebhookLogsTabProps) {
-  const token = sessionStorage.getItem('crm_token');
+  const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
   const [logs, setLogs] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);

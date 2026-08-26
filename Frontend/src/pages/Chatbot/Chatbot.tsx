@@ -4,7 +4,7 @@ import PageMeta from "../../components/common/PageMeta";
 import { WIDGET_SCRIPT } from "./widget-script";
 const API_BASE = '/openwa-api'; // Or standard backend url
 const getAuthHeaders = () => {
-  const token = sessionStorage.getItem('crm_token');
+  const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
   return {
     'Content-Type': 'application/json',
     ...(token ? { 'Authorization': 'Bearer ' + token } : {})

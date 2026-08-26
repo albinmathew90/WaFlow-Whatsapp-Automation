@@ -68,7 +68,7 @@ export default function Webhooks() {
 
   const fetchApplications = async () => {
     try {
-      const crmToken = sessionStorage.getItem('crm_token');
+      const crmToken = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/otp-management/applications', {
         headers: { 'Authorization': `Bearer ${crmToken}` }
       });
@@ -86,7 +86,7 @@ export default function Webhooks() {
   const fetchWebhooks = async (appId: string) => {
     setIsLoadingWebhooks(true);
     try {
-      const crmToken = sessionStorage.getItem('crm_token');
+      const crmToken = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${appId}/webhooks`, {
         headers: { 'Authorization': `Bearer ${crmToken}` }
       });
@@ -116,7 +116,7 @@ export default function Webhooks() {
     setFormError('');
     setIsSubmitting(true);
     try {
-      const crmToken = sessionStorage.getItem('crm_token');
+      const crmToken = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${selectedAppId}/webhooks`, {
         method: 'POST',
         headers: { 
@@ -147,7 +147,7 @@ export default function Webhooks() {
     if (!window.confirm('Are you sure you want to delete this webhook?')) return;
 
     try {
-      const crmToken = sessionStorage.getItem('crm_token');
+      const crmToken = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${selectedAppId}/webhooks/${webhookId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${crmToken}` }
@@ -165,7 +165,7 @@ export default function Webhooks() {
     setTestNotification({ show: true, type: 'loading', message: 'Sending test event...' });
     
     try {
-      const crmToken = sessionStorage.getItem('crm_token');
+      const crmToken = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${selectedAppId}/webhooks/${webhookId}/test`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${crmToken}` }

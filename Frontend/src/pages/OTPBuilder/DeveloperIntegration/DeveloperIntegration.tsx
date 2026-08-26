@@ -39,7 +39,7 @@ export default function DeveloperIntegration() {
   const fetchApplication = async (id: string) => {
     try {
       setLoading(true);
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       // The backend needs to provide a single app endpoint, assuming it does based on Applications.tsx
       const res = await fetch(`/openwa-api/otp-management/applications`, {
         headers: { 'Authorization': `Bearer ${token}` }

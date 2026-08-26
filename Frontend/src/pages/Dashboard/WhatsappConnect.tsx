@@ -72,6 +72,7 @@ export const AddSessionModal = ({
   const [polling, setPolling] = useState(false);
   const [deniedReason, setDeniedReason] = useState(false);
   const [scannedStatus, setScannedStatus] = useState("");
+  const [couponCode, setCouponCode] = useState("");
 
   const handleCreate = async () => {
     if (!name.trim()) return;
@@ -103,7 +104,7 @@ export const AddSessionModal = ({
         '/payment/create-order',
         {
           method: 'POST',
-          body: JSON.stringify({ planType }),
+          body: JSON.stringify({ planType, couponCode: couponCode.trim() }),
         }
       );
 
@@ -123,6 +124,7 @@ export const AddSessionModal = ({
                 razorpay_payment_id: paymentResponse.razorpay_payment_id,
                 razorpay_signature: paymentResponse.razorpay_signature,
                 planType,
+                couponCode: couponCode.trim()
               }),
             });
             if (sessionId) {
@@ -208,13 +210,7 @@ export const AddSessionModal = ({
         const st = (s?.status || "").toUpperCase();
         console.log("[QR Poll] Session status:", st);
         setScannedStatus(st);
-        if (
-          st === "READY" ||
-          st === "AUTHENTICATED" ||
-          st === "AUTHENTICATING" ||
-          st === "CONNECTED" ||
-          st === "LOGGED_IN"
-        ) {
+        if (st === "READY") {
           clearInterval(interval);
           onAddedRef.current();
           // Small delay so user sees the "connected" state before modal closes
@@ -337,6 +333,20 @@ export const AddSessionModal = ({
                 </button>
               </div>
             </div>
+            
+            <div className="mt-5 border-t border-gray-100 pt-5 dark:border-gray-800">
+              <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Have a promo code?</label>
+              <div className="mt-1.5 flex gap-2">
+                <input 
+                  type="text" 
+                  value={couponCode} 
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  placeholder="Enter code here" 
+                  className="w-full max-w-[200px] px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-sm text-sm focus:outline-none focus:border-brand-500 uppercase"
+                />
+              </div>
+            </div>
+
             {error && <p className="mt-4 text-left text-sm font-medium text-red-500">{error}</p>}
           </div>
         )}
@@ -493,8 +503,7 @@ export default function WhatsappConnect() {
   }, []);
 
   const fetchData = useCallback(async () => {
-    // Don't fetch if user isn't authenticated yet
-    const token = sessionStorage.getItem('crm_token');
+    const token = sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token');
     if (!token) {
       setLoading(false);
       return;
@@ -504,7 +513,6 @@ export default function WhatsappConnect() {
       const [sessionsData, statsData] = await Promise.all([
         getSessions(),
         getSessionStats(),
-        refetch(),
       ]);
       setSessions(sessionsData);
       setStats(statsData);
@@ -514,7 +522,7 @@ export default function WhatsappConnect() {
       if (msg.includes('401') || msg.includes('Unauthorized') || msg.includes('Not authenticated')) {
         setError("Session expired. Please sign in again.");
       } else {
-        setError("Cannot connect to OpenWA API. Make sure it is running on port 2785.");
+        setError("Cannot connect to backend API. Make sure it is running on port 2785.");
       }
     } finally {
       setLoading(false);
@@ -522,11 +530,10 @@ export default function WhatsappConnect() {
   }, []);
 
   useEffect(() => {
-    if (userLoading) return; // wait for auth context to resolve
     fetchData();
-    const interval = setInterval(fetchData, 10000); // refresh every 10s
+    const interval = setInterval(fetchData, 3000); // refresh every 3s for near real-time updates
     return () => clearInterval(interval);
-  }, [fetchData, userLoading]);
+  }, [fetchData]);
 
   const handleDeleteSession = async (id: string) => {
     try {
@@ -624,8 +631,16 @@ export default function WhatsappConnect() {
         <AddSessionModal
           initialStep={showAddSession.step}
           initialSessionId={showAddSession.sessionId}
-          onClose={() => setShowAddSession(null)}
-          onAdded={() => fetchData()}
+          onClose={() => {
+            setShowAddSession(null);
+            fetchData();
+            refetch();
+          }}
+          onAdded={() => {
+            setShowAddSession(null);
+            fetchData();
+            refetch(); // Instantly update User Context (e.g. trial status)
+          }}
         />
       )}
       {showAddFolder && (
@@ -817,7 +832,16 @@ export default function WhatsappConnect() {
           {/* Table */}
           <div>
             {loading ? (
-              <div className="flex h-40 items-center justify-center text-sm text-gray-400">Loading sessions...</div>
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-4 px-5 py-4 animate-pulse">
+                    <div className="h-4 w-16 rounded bg-gray-200 dark:bg-gray-700" />
+                    <div className="h-4 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+                    <div className="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+                    <div className="ml-auto h-4 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+                  </div>
+                ))}
+              </div>
             ) : filtered.length === 0 ? (
               <div className="flex h-40 flex-col items-center justify-center gap-2 text-sm text-gray-400">
                 <p>No sessions found.</p>

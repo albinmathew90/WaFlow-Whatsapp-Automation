@@ -20,6 +20,8 @@ import { SessionService } from '../../session/session.service';
 import { CreateSessionDto } from '../../session/dto/create-session.dto';
 import { SessionResponseDto, QRCodeResponseDto } from '../../session/dto/session-response.dto';
 import { MessageService } from '../../message/message.service';
+import { SendTextMessageDto } from '../../message/dto';
+import { SendTemplateMessageDto } from '../../message/dto/send-template.dto';
 
 /**
  * CRM-level session controller.
@@ -151,5 +153,39 @@ export class CrmSessionsController {
   async getQRCode(@Param('id', ParseUUIDPipe) id: string, @Req() req: any): Promise<QRCodeResponseDto> {
     await this.getOwnedSession(id, req.user.id);
     return this.sessionService.getQRCode(id);
+  }
+
+  @Post(':id/messages/send-text')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send a text message via a user-owned session (JWT-secured)' })
+  @ApiParam({ name: 'id', description: 'Session ID' })
+  async sendText(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { chatId: string; text: string },
+    @Req() req: any,
+  ) {
+    await this.getOwnedSession(id, req.user.id);
+    const dto = new SendTextMessageDto();
+    dto.chatId = body.chatId;
+    dto.text = body.text;
+    return this.messageService.sendText(id, dto);
+  }
+
+  @Post(':id/messages/send-template')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send a template message via a user-owned session (JWT-secured)' })
+  @ApiParam({ name: 'id', description: 'Session ID' })
+  async sendTemplate(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { chatId: string; templateId?: string; templateName?: string; vars?: Record<string, string> },
+    @Req() req: any,
+  ) {
+    await this.getOwnedSession(id, req.user.id);
+    const dto = new SendTemplateMessageDto();
+    dto.chatId = body.chatId;
+    dto.templateId = body.templateId;
+    dto.templateName = body.templateName;
+    dto.vars = body.vars;
+    return this.messageService.sendTemplate(id, dto);
   }
 }

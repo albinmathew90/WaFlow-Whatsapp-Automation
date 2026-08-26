@@ -8,7 +8,7 @@ interface Props {
 }
 
 const API = '/openwa-api/crm/broadcasts';
-const getToken = () => sessionStorage.getItem('crm_token');
+const getToken = () => (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
 
 const statusColorMap: Record<string, 'primary' | 'success' | 'error' | 'warning' | 'info' | 'light' | 'dark'> = {
   draft: 'light', scheduled: 'info', queued: 'info', running: 'primary',

@@ -24,7 +24,7 @@ const statusColorMap: Record<string, 'primary' | 'success' | 'error' | 'warning'
 };
 
 const API = '/openwa-api/crm/broadcasts';
-const getToken = () => sessionStorage.getItem('crm_token');
+const getToken = () => (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
 
 function Countdown({ until }: { until: string }) {
   const [timeLeft, setTimeLeft] = useState('');

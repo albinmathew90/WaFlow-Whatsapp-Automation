@@ -9,9 +9,13 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post('create-order')
-  async createOrder(@Req() req: any, @Body('planType') planType: string) {
+  async createOrder(
+    @Req() req: any, 
+    @Body('planType') planType: string,
+    @Body('couponCode') couponCode?: string
+  ) {
     const userId = req.user.id;
-    return this.paymentService.createOrder(userId, planType);
+    return this.paymentService.createOrder(userId, planType, couponCode);
   }
 
   @Post('verify')
@@ -21,9 +25,10 @@ export class PaymentController {
     @Body('razorpay_payment_id') razorpayPaymentId: string,
     @Body('razorpay_signature') razorpaySignature: string,
     @Body('planType') planType: string,
+    @Body('couponCode') couponCode?: string,
   ) {
     const userId = req.user.id;
-    return this.paymentService.verifyPayment(userId, razorpayOrderId, razorpayPaymentId, razorpaySignature, planType);
+    return this.paymentService.verifyPayment(userId, razorpayOrderId, razorpayPaymentId, razorpaySignature, planType, couponCode);
   }
 
   @Get('history')

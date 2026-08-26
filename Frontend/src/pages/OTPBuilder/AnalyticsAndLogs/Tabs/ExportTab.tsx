@@ -6,7 +6,7 @@ interface ExportTabProps {
 }
 
 export default function ExportTab({ appId }: ExportTabProps) {
-  const token = sessionStorage.getItem('crm_token');
+  const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
   const [isExporting, setIsExporting] = useState(false);
   const [exportType, setExportType] = useState('otp');
 

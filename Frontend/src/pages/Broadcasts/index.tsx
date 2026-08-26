@@ -30,7 +30,7 @@ export interface Broadcast {
   sleepReason?: string;
 }
 
-const getToken = () => sessionStorage.getItem('crm_token');
+const getToken = () => (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
 const API = '/openwa-api/crm/broadcasts';
 
 export default function BroadcastsPage() {

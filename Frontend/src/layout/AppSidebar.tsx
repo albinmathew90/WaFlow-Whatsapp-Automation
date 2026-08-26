@@ -160,7 +160,7 @@ const AppSidebar: React.FC = () => {
 
   useEffect(() => {
     let socket: any;
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     if (!token) return;
 
     const fetchLeads = () => {

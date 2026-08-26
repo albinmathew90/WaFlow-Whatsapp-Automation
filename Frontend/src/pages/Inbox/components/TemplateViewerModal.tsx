@@ -48,10 +48,10 @@ export const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
     const fetchTemplate = async () => {
       setLoading(true);
       try {
-        const API_KEY = 'owa_k1_466b33226f05f4df85cd5621e0a5b31bfa314b1052e3b1b24e9d5388d6ff5bcf';
+        const token = sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token');
 
-        const res = await fetch(`/openwa-api/sessions/${sessionId}/templates`, {
-          headers: { 'X-Api-Key': API_KEY },
+        const res = await fetch(`/openwa-api/crm/templates`, {
+          headers: { 'Authorization': `Bearer ${token}` },
         });
 
         if (!res.ok) throw new Error('Failed to fetch templates');

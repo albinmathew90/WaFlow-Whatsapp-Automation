@@ -383,7 +383,7 @@
   .final-cta .hero-ctas{justify-content:center;}
 
   footer{background:var(--ink);color:#AEB7C4;padding:64px 0 28px;}
-  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.3fr;gap:40px;padding-bottom:44px;border-bottom:1px solid rgba(255,255,255,0.08);}
+  .foot-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.2fr;gap:40px;padding-bottom:44px;border-bottom:1px solid rgba(255,255,255,0.08);}
   .foot-brand .logo-mark{height:30px;margin-bottom:14px;}
   .foot-brand p{font-size:13.5px;max-width:260px;color:#8B94A3;}
   .foot-col h5{color:#fff;font-size:13.5px;font-weight:600;margin-bottom:16px;letter-spacing:.02em;}

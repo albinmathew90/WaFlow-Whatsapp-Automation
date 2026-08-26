@@ -25,7 +25,7 @@ export default function Settings() {
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/tags', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -64,7 +64,7 @@ export default function Settings() {
     if (!newTagName.trim()) return;
 
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       fetch('/openwa-api/crm/tags', {
         method: 'POST',
         headers: {
@@ -94,7 +94,7 @@ export default function Settings() {
 
   const handleDeleteTag = (id: string) => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       fetch(`/openwa-api/crm/tags/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }

@@ -39,7 +39,7 @@ export default function Templates() {
   // Since the API requires appId to get templates, we need to load templates per app.
   const fetchApplications = async () => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/otp-management/applications', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -52,7 +52,7 @@ export default function Templates() {
   };
 
   const fetchTemplates = async (appId: string, appsList = applications) => {
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     if (appId === 'All') {
       try {
         const allTemplates: OtpTemplate[] = [];
@@ -88,7 +88,7 @@ export default function Templates() {
 
   const duplicateTemplate = async (templateId: string, appId: string) => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${appId}/templates/${templateId}/duplicate`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -101,7 +101,7 @@ export default function Templates() {
 
   const deleteTemplate = async (templateId: string, appId: string) => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${appId}/templates/${templateId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }

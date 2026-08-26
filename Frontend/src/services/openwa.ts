@@ -1,13 +1,12 @@
 // ============================================================
 // OpenWA API Service
 // Connects to: /openwa-api (proxied via vite.config.ts)
-// Session calls go through /crm/sessions — JWT-authenticated,
-// per-user isolated. All other messages/webhooks use the
-// global API key via /sessions.
+// All calls go through the backend CRM endpoints which are
+// JWT-authenticated and user-isolated. The Master API Key is
+// NEVER sent from the browser — it lives only in the backend .env
 // ============================================================
 
 const BASE_URL = '/openwa-api';  // proxied via vite.config.ts → localhost:2785/api
-const API_KEY = 'owa_k1_466b33226f05f4df85cd5621e0a5b31bfa314b1052e3b1b24e9d5388d6ff5bcf';
 
 // ---- Types ----
 export type SessionStatus =
@@ -67,9 +66,12 @@ export interface DashboardStatsDto {
   readPercent: number;
 }
 
-// ---- Helpers ----
+// ---- Helper ----
 
-/** Fetch using the user's JWT — for user-scoped CRM session endpoints */
+/**
+ * All requests go through this single helper using the user's JWT token.
+ * The Master API Key never leaves the backend server.
+ */
 export async function jwtFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const token = sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token');
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -83,24 +85,6 @@ export async function jwtFetch<T>(path: string, options?: RequestInit): Promise<
     const err = await res.json().catch(() => ({ message: res.statusText }));
     throw new Error(err.message || 'API error');
   }
-  if (res.status === 204) return undefined as T;
-  return res.json();
-}
-
-/** Fetch using the global API key — for message sending and other system-level calls */
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Api-Key': API_KEY,
-    },
-    ...options,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(err.message || 'API error');
-  }
-  // 204 No Content
   if (res.status === 204) return undefined as T;
   return res.json();
 }
@@ -163,20 +147,28 @@ export const deleteSession = (id: string) =>
 export const getQRCode = (id: string) =>
   jwtFetch<QRCodeResponse>(`/crm/sessions/${id}/qr`);
 
-/** Send text message (uses global API key — session must belong to user) */
+/**
+ * Send text message — routed through the secure backend.
+ * The backend verifies the session belongs to the logged-in user
+ * before forwarding to the WhatsApp engine.
+ */
 export const sendTextMessage = (sessionId: string, chatId: string, text: string) =>
-  apiFetch(`/sessions/${sessionId}/messages/send-text`, {
+  jwtFetch(`/crm/sessions/${sessionId}/messages/send-text`, {
     method: 'POST',
     body: JSON.stringify({ chatId, text }),
   });
 
-/** Send template message */
+/**
+ * Send template message — routed through the secure backend.
+ * The backend verifies ownership and uses the engine to send.
+ */
 export const sendTemplateMessage = (sessionId: string, chatId: string, templateId: string) =>
-  apiFetch(`/sessions/${sessionId}/messages/send-template`, {
+  jwtFetch(`/crm/sessions/${sessionId}/messages/send-template`, {
     method: 'POST',
     body: JSON.stringify({ chatId, templateId }),
   });
-// ---- Monitor APIs (System-level via API Key) ----
+
+// ---- Monitor APIs (JWT-secured via backend proxy) ----
 
 export interface HealthSummary {
   deliveryRate: number;
@@ -207,18 +199,18 @@ export const getHealthSummary = (sessionId: string, timeRange?: string, customDa
   const query = new URLSearchParams();
   if (timeRange) query.append('timeRange', timeRange);
   if (customDate) query.append('customDate', customDate);
-  return apiFetch<HealthSummary>(`/monitor/${sessionId}/summary?${query.toString()}`);
+  return jwtFetch<HealthSummary>(`/crm/monitor/${sessionId}/summary?${query.toString()}`);
 };
 
 export const getStuckContacts = (sessionId: string, timeRange?: string, customDate?: string) => {
   const query = new URLSearchParams();
   if (timeRange) query.append('timeRange', timeRange);
   if (customDate) query.append('customDate', customDate);
-  return apiFetch<StuckContact[]>(`/monitor/${sessionId}/stuck-contacts?${query.toString()}`);
+  return jwtFetch<StuckContact[]>(`/crm/monitor/${sessionId}/stuck-contacts?${query.toString()}`);
 };
 
 export const executeContactAction = (sessionId: string, action: 'opt-out' | 'ignore', chatIds: string[]) =>
-  apiFetch<{ success: boolean }>(`/monitor/${sessionId}/contacts/action`, {
+  jwtFetch<{ success: boolean }>(`/crm/monitor/${sessionId}/contacts/action`, {
     method: 'POST',
     body: JSON.stringify({ action, chatIds }),
   });

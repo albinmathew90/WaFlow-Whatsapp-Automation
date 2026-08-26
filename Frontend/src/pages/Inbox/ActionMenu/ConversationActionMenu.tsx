@@ -29,7 +29,7 @@ export default function ConversationActionMenu({ conversation, sessionId, onUpda
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/tags', {
           headers: { 'Authorization': `Bearer ${token}` }
         });

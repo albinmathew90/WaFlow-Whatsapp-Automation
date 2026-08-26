@@ -12,16 +12,16 @@ import type {
   InboxFilter,
 } from '../types/inbox.types';
 
-const BASE_URL = '/openwa-api';
-const API_KEY = 'owa_k1_466b33226f05f4df85cd5621e0a5b31bfa314b1052e3b1b24e9d5388d6ff5bcf';
-
+const BASE_URL = '/openwa-api/crm';
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token');
   const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
     headers: {
       'Content-Type': 'application/json',
-      'X-Api-Key': API_KEY,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options?.headers || {}),
     },
-    ...options,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }));

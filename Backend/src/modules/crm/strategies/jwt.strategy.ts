@@ -7,7 +7,10 @@ import { CrmAuthService } from '../services/crm-auth.service';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private crmAuthService: CrmAuthService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        (request: any) => request?.query?.token,
+      ]),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRET || 'fallback_secret_for_crm_openwa',
     });

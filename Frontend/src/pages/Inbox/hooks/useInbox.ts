@@ -3,7 +3,7 @@ import type { InboxConversation, InboxFilter, InboxSSEEvent } from '../types/inb
 import * as api from '../services/inbox.api';
 import { emitGlobalNotification } from '../../../components/header/NotificationDropdown';
 
-const SSE_URL = '/openwa-api/inbox/events';
+const SSE_URL = '/openwa-api/crm/inbox/events';
 const POLL_INTERVAL = 8000; // 8s fallback polling
 const INITIAL_LOAD = 40;
 
@@ -121,7 +121,8 @@ export function useInbox(sessionId: string | null) {
     // Close existing
     sseRef.current?.close();
 
-    const url = `${SSE_URL}?sessionId=${encodeURIComponent(sid)}`;
+    const token = sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token');
+    const url = `${SSE_URL}?sessionId=${encodeURIComponent(sid)}&token=${token}`;
     let es: EventSource;
     try {
       es = new EventSource(url);

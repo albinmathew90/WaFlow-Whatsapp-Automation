@@ -22,7 +22,7 @@ export default function ListTemplates() {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/templates', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -76,7 +76,7 @@ export default function ListTemplates() {
 
 
   const deleteTemplate = async (id: string) => {
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     try {
       const res = await fetch(`/openwa-api/crm/templates/${id}`, {
         method: 'DELETE',

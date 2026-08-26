@@ -14,7 +14,7 @@ export default function OverviewTab({ app, onAppUpdate }: { app: Application, on
 
   const fetchSessions = async () => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/crm/sessions', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -36,7 +36,7 @@ export default function OverviewTab({ app, onAppUpdate }: { app: Application, on
     setIsSaving(true);
     setSaveMessage('');
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${app.id}`, {
         method: 'PUT',
         headers: {

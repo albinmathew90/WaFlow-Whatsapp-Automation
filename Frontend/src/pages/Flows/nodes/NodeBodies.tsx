@@ -287,7 +287,7 @@ export function ListNodeBody({ id, node, onChange, onStartEdge, color }: BodyPro
     const fetchCustomFields = async () => {
       setLoadingFields(true);
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/custom-fields', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -574,7 +574,7 @@ export function TemplateSelectorModal({ onSelect, onClose }: { onSelect: (templa
   React.useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/templates', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -761,7 +761,7 @@ export function ConditionNodeBody({ id, node, onChange, onStartEdge, color }: Bo
   const fetchCustomFields = async () => {
     setLoadingFields(true);
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/crm/custom-fields', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -950,7 +950,7 @@ export function QuestionNodeBody({ id, node, onChange, onStartEdge, color }: Bod
     const fetchCustomFields = async () => {
       setLoadingFields(true);
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/custom-fields', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -1052,7 +1052,7 @@ export function MediaQuestionNodeBody({ id, node, onChange, onStartEdge, color }
     const fetchCustomFields = async () => {
       setLoadingFields(true);
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/custom-fields', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -1130,7 +1130,7 @@ export function ContactCustomFieldNodeBody({ id, node, onChange, onStartEdge, co
     const fetchCustomFields = async () => {
       setLoadingFields(true);
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/custom-fields', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -1182,7 +1182,7 @@ export function AddressNodeBody({ id, node, onChange, onStartEdge, color }: Body
     const fetchCustomFields = async () => {
       setLoadingFields(true);
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/custom-fields', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -1234,7 +1234,7 @@ export function LocationNodeBody({ id, node, onChange, onStartEdge, color }: Bod
     const fetchCustomFields = async () => {
       setLoadingFields(true);
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/custom-fields', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -1310,7 +1310,7 @@ export function APIRequestNodeBody({ id, node, onChange, onStartEdge, color }: B
     const fetchCustomFields = async () => {
       setLoadingFields(true);
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/custom-fields', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -1502,7 +1502,7 @@ export function ConnectFlowNodeBody({ id, node, onChange, onStartEdge, color }: 
     const fetchFlows = async () => {
       setLoading(true);
       try {
-        const token = sessionStorage.getItem('crm_token');
+        const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
         const res = await fetch('/openwa-api/crm/flows', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -1559,7 +1559,7 @@ export function WebhookMessageNodeBody({ id, node, onChange, onStartEdge, color,
   const [detectedFields, setDetectedFields] = useState<string[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  const getToken = () => sessionStorage.getItem('crm_token');
+  const getToken = () => (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
   const headers = () => ({ Authorization: `Bearer ${getToken()}`, 'Content-Type': 'application/json' });
 
   const loadFields = useCallback(() => {

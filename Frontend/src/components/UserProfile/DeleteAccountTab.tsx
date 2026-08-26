@@ -16,7 +16,7 @@ export default function DeleteAccountTab() {
     setError("");
     
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const response = await fetch('/openwa-api/crm/auth/account', {
         method: 'DELETE',
         headers: {

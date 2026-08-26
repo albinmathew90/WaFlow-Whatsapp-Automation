@@ -34,7 +34,7 @@ export default function MediaLibrarySection() {
   const fetchMedia = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/crm/media', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -67,7 +67,7 @@ export default function MediaLibrarySection() {
     setUploading(true);
     setUploadProgress(0);
     setUploadError(null);
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
 
     try {
       for (let i = 0; i < files.length; i++) {
@@ -125,7 +125,7 @@ export default function MediaLibrarySection() {
   const executeSingleDelete = async () => {
     if (!itemToDelete) return;
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/crm/media/${itemToDelete}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -165,7 +165,7 @@ export default function MediaLibrarySection() {
 
   const executeBulkDelete = async () => {
     if (selectedIds.size === 0) return;
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     try {
       for (const id of Array.from(selectedIds)) {
         await fetch(`/openwa-api/crm/media/${id}`, {

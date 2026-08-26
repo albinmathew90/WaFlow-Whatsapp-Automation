@@ -12,7 +12,7 @@ import {
 import { formatDistanceToNow, format } from 'date-fns';
 
 const getHeaders = () => {
-  const token = sessionStorage.getItem('crm_token');
+  const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
   return {
     'Content-Type': 'application/json',
     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
@@ -49,7 +49,7 @@ const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   useEffect(() => {
-    const token = sessionStorage.getItem('crm_token');
+    const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     if (!token) return;
 
     const newSocket = io("/crm-events", {

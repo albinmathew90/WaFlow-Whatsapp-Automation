@@ -13,7 +13,7 @@ export default function ApiCredentialsTab({ app, onAppUpdate }: { app: Applicati
     setNewSecret(null);
     setShowRotateConfirm(false);
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${app.id}/rotate-secret`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }

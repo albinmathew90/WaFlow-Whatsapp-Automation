@@ -17,7 +17,7 @@ interface Contact { id: string; firstName: string; lastName?: string; phone?: st
 interface Template { id: string; name: string; body: string; header?: string; footer?: string; type?: string; content?: any; mediaUrl?: string; buttons?: any[]; carouselCards?: any[]; }
 
 const API = '/openwa-api/crm';
-const getToken = () => sessionStorage.getItem('crm_token');
+const getToken = () => (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
 const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` });
 
 function DropdownMultiSelect({

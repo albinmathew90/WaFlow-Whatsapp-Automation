@@ -56,7 +56,7 @@ export default function ApiKeys() {
 
   const fetchApplications = async () => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch('/openwa-api/otp-management/applications', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -72,7 +72,7 @@ export default function ApiKeys() {
 
   const fetchLogs = async (appId: string) => {
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const res = await fetch(`/openwa-api/otp-management/applications/${appId}/api-key-logs`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -89,7 +89,7 @@ export default function ApiKeys() {
     const type = rotateConfirm;
 
     try {
-      const token = sessionStorage.getItem('crm_token');
+      const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
       const endpoint = type === 'api' ? 'rotate-api-key' : type === 'secret' ? 'rotate-secret-key' : 'rotate-webhook-secret';
       const res = await fetch(`/openwa-api/otp-management/applications/${selectedAppId}/${endpoint}`, {
         method: 'POST',

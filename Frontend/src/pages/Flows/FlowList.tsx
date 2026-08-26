@@ -26,7 +26,7 @@ export default function FlowList({ onEdit, onCreateNew, refreshKey }: Props) {
   } | null>(null);
 
   const fetchFlows = useCallback(async () => {
-    setLoading(true);
+    // Only show the full spinner on first load; subsequent refreshes are silent
     try {
       const res = await fetch(API, { headers: headers() });
       if (res.ok) setFlows(await res.json());
