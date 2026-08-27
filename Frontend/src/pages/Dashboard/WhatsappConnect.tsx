@@ -531,8 +531,6 @@ export default function WhatsappConnect() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 3000); // refresh every 3s for near real-time updates
-    return () => clearInterval(interval);
   }, [fetchData]);
 
   const handleDeleteSession = async (id: string) => {

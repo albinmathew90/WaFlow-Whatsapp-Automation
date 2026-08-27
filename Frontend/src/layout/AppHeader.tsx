@@ -17,13 +17,9 @@ const AppHeader: React.FC = () => {
   useEffect(() => {
     const fetchStats = () => getSessionStats().then(setSessionStats).catch(console.error);
     fetchStats();
-    
-    // Refresh stats every 30 seconds
-    const interval = setInterval(fetchStats, 30000);
     window.addEventListener('waflow-sessions-changed', fetchStats);
     
     return () => {
-      clearInterval(interval);
       window.removeEventListener('waflow-sessions-changed', fetchStats);
     };
   }, []);
