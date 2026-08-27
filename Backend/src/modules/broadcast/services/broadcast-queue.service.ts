@@ -340,6 +340,21 @@ export class BroadcastQueueService implements OnModuleInit, OnModuleDestroy {
           }
           recipient.errorReason = errorMsg;
 
+          if (errorMsg.includes('Session is not connected') || errorMsg.includes('client is not ready')) {
+            this.logger.warn(`Broadcast ${bc.id}: Engine disconnected. Pausing broadcast for 30 seconds to allow auto-reconnect.`);
+            // Revert recipient status so it doesn't fail
+            recipient.status = recipient.retryCount > 1 ? 'retrying' : 'queued';
+            recipient.retryCount -= 1; // Don't burn a retry
+            recipient.errorReason = 'Transient engine disconnect. Waiting to retry...';
+            await this.recipientRepo.save(recipient);
+
+            bc.isSleeping = true;
+            bc.sleepReason = 'WhatsApp session disconnected. Waiting for reconnect...';
+            bc.sleepUntil = new Date(Date.now() + 30000).toISOString();
+            await this.broadcastRepo.save(bc);
+            break; // Break out of the inner loop and wait for the next queue tick
+          }
+
           const isInvalidNumber = this.isInvalidWhatsAppNumberError(err);
           if (bc.retryEnabled && !isInvalidNumber && recipient.retryCount <= bc.retryCount) {
             recipient.status = 'retrying';
