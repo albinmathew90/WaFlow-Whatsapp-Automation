@@ -109,7 +109,7 @@ export const AddSessionModal = ({
       );
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_TTyeODDNR6NQcN',
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_TUmffQnLVo1oIZ',
         amount: response.amount,
         currency: response.currency,
         name: 'WA Flow',
