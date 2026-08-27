@@ -74,7 +74,17 @@ const UsersPage: React.FC = () => {
     try {
       const data = await AdminAPI.getSettings();
       if (data.uiPreferences?.usersTableColumns) {
-        setVisibleColumns(prev => ({ ...prev, ...data.uiPreferences.usersTableColumns }));
+        const savedCols = data.uiPreferences.usersTableColumns;
+        setVisibleColumns(prev => {
+          const next = { ...prev };
+          Object.keys(next).forEach(key => {
+            if (savedCols[key] !== undefined) {
+              // @ts-ignore
+              next[key] = savedCols[key];
+            }
+          });
+          return next;
+        });
       }
     } catch (err) {
       console.error('Error fetching settings:', err);
