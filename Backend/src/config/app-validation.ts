@@ -10,7 +10,7 @@ export function applyGlobalValidation(app: INestApplication): void {
       forbidNonWhitelisted: true,
       transform: true,
       transformOptions: { enableImplicitConversion: true },
-      disableErrorMessages: !isValidationErrorDetailEnabled(process.env.VALIDATION_ERROR_DETAIL, process.env.NODE_ENV),
+      disableErrorMessages: false, // Always show detailed validation errors
     }),
   );
 }

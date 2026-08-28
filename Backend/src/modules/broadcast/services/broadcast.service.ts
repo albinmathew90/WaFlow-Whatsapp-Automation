@@ -335,7 +335,7 @@ export class BroadcastService implements OnModuleInit {
     const bc = await this.findOne(userId, broadcastId);
     const completionPct =
       bc.totalCount > 0
-        ? Math.round(((bc.sentCount + bc.failedCount + bc.skippedCount) / bc.totalCount) * 100)
+        ? Math.round(((bc.sentCount + bc.deliveredCount + bc.readCount + bc.failedCount + bc.skippedCount) / bc.totalCount) * 100)
         : 0;
 
     return {

@@ -138,7 +138,7 @@ export default function Contacts() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [csvUrl, setCsvUrl] = useState('');
+  const [csvFileName, setCsvFileName] = useState('');
   const [csvFileContent, setCsvFileContent] = useState('');
   const [skipDuplicates, setSkipDuplicates] = useState(false);
   
@@ -172,6 +172,7 @@ export default function Contacts() {
   const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES.find(c => c.code === 'IN') || COUNTRY_CODES[0]);
   const [newPhone, setNewPhone] = useState('');
   const [newName, setNewName] = useState('');
+  const [nameError, setNameError] = useState('');
   const [newStatus, setNewStatus] = useState<'opted_in' | 'opted_out'>('opted_in');
 
   // Trigger for live time updates
@@ -338,6 +339,11 @@ export default function Contacts() {
   // Handlers
   const handleSaveContact = async () => {
     if (!newPhone) return;
+    if (!newName.trim()) {
+      setNameError('Display Name is required');
+      return;
+    }
+    setNameError('');
     
     const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
     
@@ -350,7 +356,7 @@ export default function Contacts() {
       }
       
       const payload = {
-        firstName: newName || 'Unknown',
+        firstName: newName.trim(),
         phone: fullPhoneForEdit,
         status: newStatus
       };
@@ -388,7 +394,7 @@ export default function Contacts() {
       }
       
       const payload = {
-        firstName: newName || 'Unknown',
+        firstName: newName.trim(),
         phone: fullPhoneForNew,
         status: newStatus,
         segmentId,
@@ -431,9 +437,12 @@ export default function Contacts() {
     setEditContactId(null);
     setNewPhone('');
     setNewName('');
+    setNameError('');
     setSelectedCountry(COUNTRY_CODES.find(c => c.code === 'IN') || COUNTRY_CODES[0]);
     setNewStatus('opted_in');
     setSelectedTagIds([]);
+    setCsvFileName('');
+    setCsvFileContent('');
   };
 
   const handleDeleteContact = async (id: string) => {
@@ -537,8 +546,8 @@ export default function Contacts() {
   };
 
   const handleImportContacts = async () => {
-    if (!csvUrl && !csvFileContent) {
-      setPopupMessage({ title: 'Upload Required', message: 'Please provide a CSV URL or upload a file first.' });
+    if (!csvFileContent) {
+      setPopupMessage({ title: 'Upload Required', message: 'Please upload a CSV file first.' });
       return;
     }
     
@@ -579,21 +588,13 @@ export default function Contacts() {
             if (isDuplicate) continue;
           }
 
-          const name = nameIdx >= 0 && cols[nameIdx] ? cols[nameIdx] : 'Unknown';
-          
-          let isOptedIn = true; // default true
-          if (optinIdx >= 0 && cols[optinIdx]) {
-            const optinStr = cols[optinIdx].toLowerCase().trim();
-            if (optinStr === 'false' || optinStr === 'no' || optinStr === '0' || optinStr.includes('out') || optinStr === 'opted_out' || optinStr === 'unsubscribed') {
-              isOptedIn = false;
-            }
-          }
+          const name = nameIdx >= 0 && cols[nameIdx] ? cols[nameIdx] : (cols[0] || 'Unknown');
 
           parsedContacts.push({
             id: Math.random().toString(36).substr(2, 9),
             phone: mobile,
             name: name,
-            status: isOptedIn ? 'opted_in' : 'opted_out',
+            status: 'opted_in',
             source: 'Csv import',
             createdAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             segment: 'Unassigned',
@@ -601,11 +602,6 @@ export default function Contacts() {
           });
         }
       }
-    } else if (csvUrl) {
-      // Mock URL Import if no file was uploaded but URL was provided
-      parsedContacts = [
-        { id: Math.random().toString(36).substr(2, 9), phone: '+1 555 123 4567', name: 'URL Import User', status: 'opted_in', source: 'Csv import', createdAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), segment: 'Unassigned', lastInteractionAt: new Date().toISOString() },
-      ];
     }
     
     if (parsedContacts.length > 0) {
@@ -635,7 +631,7 @@ export default function Contacts() {
           }));
           setContacts(prev => [...formatted, ...prev]);
           setShowAddContact(false);
-          setCsvUrl('');
+          setCsvFileName('');
           setCsvFileContent('');
           setPopupMessage({ title: 'Import Successful', message: `Successfully imported ${formatted.length} contacts.`, type: 'success' });
         } else {
@@ -756,8 +752,8 @@ export default function Contacts() {
       const reader = new FileReader();
       reader.onload = (event) => {
         setCsvFileContent(event.target?.result as string);
+        setCsvFileName(file.name);
         setPopupMessage({ title: 'File Ready', message: `File "${file.name}" ready for import. Click 'Import Contacts' to proceed.`, type: 'success' });
-        setCsvUrl(`blob://local-file/${file.name}`); 
       };
       reader.readAsText(file);
     }
@@ -1029,6 +1025,20 @@ export default function Contacts() {
               </div>
               <div className="flex items-center gap-3">
                 <button 
+                  onClick={() => {
+                    const isAllSelected = filteredContacts.length > 0 && selectedIds.length === filteredContacts.length;
+                    if (isAllSelected) {
+                      setSelectedIds([]);
+                    } else {
+                      setSelectedIds(filteredContacts.map(c => c.id));
+                    }
+                  }}
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-brand-600 hover:bg-brand-100 dark:text-brand-400 dark:hover:bg-brand-500/20"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                  {filteredContacts.length > 0 && selectedIds.length === filteredContacts.length ? 'Deselect All' : 'Select All'}
+                </button>
+                <button 
                   onClick={() => { setMoveTargetIds(selectedIds); setShowMoveModal(true); }}
                   className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-brand-600 hover:bg-brand-100 dark:text-brand-400 dark:hover:bg-brand-500/20"
                 >
@@ -1061,9 +1071,9 @@ export default function Contacts() {
                   />
                 </div>
                 <div className="min-w-[140px] flex-1">Status/Created at</div>
-                <div className="min-w-[180px] flex-1">WhatsApp Number/Name</div>
+                <div className="min-w-[180px] flex-1">Name</div>
+                <div className="min-w-[180px] flex-1">WhatsApp Number</div>
                 <div className="min-w-[180px] flex-1">Source</div>
-                <div className="min-w-[150px] flex-1">24 Hours Status</div>
                 <div className="w-[140px] shrink-0 text-right">Actions</div>
               </div>
             </div>
@@ -1118,19 +1128,13 @@ export default function Contacts() {
                     <span className="text-xs text-gray-500 dark:text-gray-400">{contact.createdAt}</span>
                   </div>
                   <div className="min-w-[180px] flex-1">
-                    <p className="text-sm font-bold text-gray-900 dark:text-white">{contact.phone}</p>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">{contact.name}</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">{contact.name}</p>
+                  </div>
+                  <div className="min-w-[180px] flex-1">
+                    <p className="text-sm text-gray-900 dark:text-white">{contact.phone}</p>
                   </div>
                   <div className="min-w-[180px] flex-1">
                     <p className="text-sm text-gray-900 dark:text-white">{contact.source}</p>
-                  </div>
-                  <div className="min-w-[150px] flex-1">
-                    <p className={`text-sm font-medium ${isWithin24Hours(contact.lastInteractionAt) ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                      {isWithin24Hours(contact.lastInteractionAt) ? 'Within Window' : 'Outside Window'}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {getTimeAgo(contact.lastInteractionAt)}
-                    </p>
                   </div>
                   <div className="w-[140px] shrink-0 flex items-center justify-end gap-2">
                     <button onClick={(e) => { e.stopPropagation(); handleEditContact(contact); }} className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white" title="Edit">
@@ -1242,7 +1246,7 @@ export default function Contacts() {
                         <input 
                           type="text" 
                           value={newPhone}
-                          onChange={(e) => setNewPhone(e.target.value)}
+                          onChange={(e) => setNewPhone(e.target.value.replace(/[^0-9]/g, ''))}
                           placeholder="e.g. 555 0123 456" 
                           className="w-full border-none bg-transparent px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-0 dark:text-white" 
                         />
@@ -1258,17 +1262,17 @@ export default function Contacts() {
                     <div>
                       <div className="mb-2 flex justify-between">
                         <label className="block text-sm font-semibold text-gray-900 dark:text-white">
-                          Display Name
+                          Display Name <span className="text-red-500">*</span>
                         </label>
-                        <span className="text-xs text-gray-400">Optional</span>
                       </div>
                       <input 
                         type="text" 
                         value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
+                        onChange={(e) => { setNewName(e.target.value); setNameError(''); }}
                         placeholder="Enter contact's name" 
-                        className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white" 
+                        className={`w-full rounded-xl border ${nameError ? 'border-red-500' : 'border-gray-200'} px-4 py-2.5 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white`}
                       />
+                      {nameError && <p className="mt-1 text-xs text-red-500">{nameError}</p>}
                     </div>
 
                     {/* Status Toggle */}
@@ -1295,27 +1299,37 @@ export default function Contacts() {
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    {/* CSV URL Option */}
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">
-                        CSV File URL
-                      </label>
-                      <input 
-                        type="url" 
-                        value={csvUrl}
-                        onChange={(e) => setCsvUrl(e.target.value)}
-                        placeholder="https://example.com/contacts.csv" 
-                        className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50 dark:text-white" 
-                      />
-                      <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        Provide a publicly accessible URL to your CSV file.
-                      </p>
-                    </div>
-
-                    <div className="relative flex items-center py-2">
-                      <div className="flex-grow border-t border-gray-100 dark:border-gray-800"></div>
-                      <span className="mx-4 shrink-0 text-xs text-gray-400">OR</span>
-                      <div className="flex-grow border-t border-gray-100 dark:border-gray-800"></div>
+                    {/* Download Template Box */}
+                    <div className="rounded-xl bg-blue-50/50 p-4 border border-blue-100/50 dark:bg-blue-900/10 dark:border-blue-800/30">
+                      <div className="flex gap-3">
+                        <div className="text-blue-500 mt-0.5 shrink-0">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-300">Download CSV Template</h4>
+                          <p className="mt-1 text-xs text-blue-800/80 dark:text-blue-200/70">
+                            Please use this template format.
+                          </p>
+                          <button
+                            onClick={() => {
+                              const csvContent = "Name,WhatsApp Number\n";
+                              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                              const url = URL.createObjectURL(blob);
+                              const link = document.createElement("a");
+                              link.setAttribute("href", url);
+                              link.setAttribute("download", "contacts_template.csv");
+                              link.style.visibility = 'hidden';
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                            }}
+                            className="mt-3 flex items-center gap-1.5 rounded-lg bg-blue-100/80 px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-200/80 dark:bg-blue-800/40 dark:text-blue-300 dark:hover:bg-blue-800/60"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            Download Template
+                          </button>
+                        </div>
+                      </div>
                     </div>
 
                     {/* File Upload Option */}
@@ -1326,9 +1340,19 @@ export default function Contacts() {
                       <div className="flex w-full items-center justify-center">
                         <label className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-800">
                           <div className="flex flex-col items-center justify-center pb-6 pt-5 text-center">
-                            <svg className="mb-3 h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                            <p className="mb-1 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold text-brand-600 dark:text-brand-400">Click to upload</span> or drag and drop</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">CSV files only (MAX. 10MB)</p>
+                            {csvFileName ? (
+                              <>
+                                <svg className="mb-3 h-8 w-8 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <p className="mb-1 text-sm font-semibold text-gray-900 dark:text-white">{csvFileName}</p>
+                                <p className="text-xs text-brand-600 dark:text-brand-400">Click to change file</p>
+                              </>
+                            ) : (
+                              <>
+                                <svg className="mb-3 h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                                <p className="mb-1 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold text-brand-600 dark:text-brand-400">Click to upload</span> or drag and drop</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">CSV files only (MAX. 10MB)</p>
+                              </>
+                            )}
                           </div>
                           <input type="file" onChange={handleFileUpload} className="hidden" accept=".csv" />
                         </label>

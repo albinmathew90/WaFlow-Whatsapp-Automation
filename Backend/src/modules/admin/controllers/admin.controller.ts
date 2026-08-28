@@ -29,6 +29,7 @@ export class AdminController {
   deleteUser(@Param('id') id: string) { return this.adminService.appUserRepo.delete(id); }
 
   // Blogs
+  @Public()
   @Get('blogs')
   getBlogs() { return this.adminService.blogRepo.find({ order: { createdAt: 'DESC' } }); }
   @Post('blogs')

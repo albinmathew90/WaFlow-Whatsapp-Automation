@@ -83,7 +83,11 @@ export async function jwtFetch<T>(path: string, options?: RequestInit): Promise<
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(err.message || 'API error');
+    let errorMessage = err.message || 'API error';
+    if (Array.isArray(errorMessage)) {
+      errorMessage = errorMessage.join(', ');
+    }
+    throw new Error(errorMessage);
   }
   if (res.status === 204) return undefined as T;
   return res.json();

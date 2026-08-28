@@ -69,6 +69,12 @@
         <li><a href="home.html#pricing">Pricing</a></li>
         <li><a href="blogs.html">Blogs</a></li>
         <li><a href="home.html#footer">Contact</a></li>
+        <li class="mobile-only" style="width: 100%; margin-top: 10px;">
+          <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+            <a class="btn btn-secondary" href="/signin" style="width: 100%; justify-content: center;">Sign in</a>
+            <a class="btn btn-primary" href="/signup" style="width: 100%; justify-content: center;">Sign up</a>
+          </div>
+        </li>
       </ul>
     </nav>
     <div class="nav-ctas" style="gap: 24px;">
@@ -300,7 +306,6 @@
         <ul>
           <li><a href="https://devicedoctorindia.in" target="_blank" rel="noopener">About Device Doctor India</a></li>
           <li><a href="home.html#footer">Contact</a></li>
-          <li><a href="/support">Support</a></li>
         </ul>
       </div>
       <div class="foot-col">
@@ -312,6 +317,7 @@
         </ul>
         <h5 style="margin-top:26px;">Reach us</h5>
         <div class="foot-addr">
+          <p><b>Phone</b>+91 91165 21678</p>
           <p><b>Email</b>waflow@devicedoctorindia.com</p>
           <p><b>Platform</b>waflow.devicedoctorindia.com</p>
         </div>
@@ -332,14 +338,17 @@
 </footer>
 
 <script>
-  const toggle = document.querySelector('.mobile-toggle');
-  const nav = document.querySelector('.primary-nav');
-  if(toggle) {
-    toggle.addEventListener('click', () => {
-      toggle.classList.toggle('active');
-      nav.classList.toggle('active');
+  // Mobile menu toggle
+  document.querySelector('.mobile-toggle').addEventListener('click', function() {
+    document.querySelector('header').classList.toggle('nav-open');
+  });
+
+  // Close mobile menu on link click
+  document.querySelectorAll('nav.primary-nav a').forEach(link => {
+    link.addEventListener('click', () => {
+      document.querySelector('header').classList.remove('nav-open');
     });
-  }
+  });
 
   // Add pill SVG animation to primary navigation links
   document.querySelectorAll('nav.primary-nav a').forEach(a => {

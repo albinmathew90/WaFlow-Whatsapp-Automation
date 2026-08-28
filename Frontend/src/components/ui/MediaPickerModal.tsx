@@ -10,11 +10,7 @@ export type MediaData = {
 };
 
 // Mock data based on MediaPage
-const MOCK_MEDIA: MediaData[] = [
-  { id: 1, fileName: 'logo.png', thumbnail: 'https://via.placeholder.com/150?text=Logo', alt: 'Logo', url: 'https://via.placeholder.com/600?text=Logo' },
-  { id: 2, fileName: 'hero-banner.jpg', thumbnail: 'https://via.placeholder.com/150?text=Hero', alt: 'Hero Banner', url: 'https://via.placeholder.com/1200x400?text=Hero+Banner' },
-  { id: 3, fileName: 'placeholder-1.jpg', thumbnail: 'https://via.placeholder.com/150?text=Image+1', alt: 'Image 1', url: 'https://via.placeholder.com/800x600?text=Image+1' },
-];
+const MOCK_MEDIA: MediaData[] = [];
 
 interface MediaPickerModalProps {
   isOpen: boolean;

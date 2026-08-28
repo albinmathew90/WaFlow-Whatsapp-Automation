@@ -26,6 +26,12 @@
         <li><a href="#pricing">Pricing</a></li>
         <li><a href="blogs.html">Blogs</a></li>
         <li><a href="#footer">Contact</a></li>
+        <li class="mobile-only" style="width: 100%; margin-top: 10px;">
+          <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+            <a class="btn btn-secondary" href="/signin" style="width: 100%; justify-content: center;">Sign in</a>
+            <a class="btn btn-primary" href="/signup" style="width: 100%; justify-content: center;">Sign up</a>
+          </div>
+        </li>
       </ul>
     </nav>
     <div class="nav-ctas" style="gap: 24px;">
@@ -61,6 +67,10 @@
           <span class="feat-icon">📢</span>
           <span>Send Smart<br>Broadcasts</span>
         </div>
+      </div>
+
+      <div class="phone-stage mobile-hero-img">
+        <img src="images/hero-visual.png" alt="Person using WA Flow on WhatsApp" class="hero-image">
       </div>
 
       <div class="hero-ctas">
@@ -105,7 +115,7 @@
       </div> -->
     </div>
 
-    <div class="phone-stage">
+    <div class="phone-stage desktop-hero-img">
       <img src="images/hero-visual.png" alt="Person using WA Flow on WhatsApp, with cards showing broadcast message, 98% delivery rate, campaign performance and 25K+ total audience" class="hero-image">
     </div>
   </div>
@@ -401,7 +411,6 @@
         <ul>
           <li><a href="https://devicedoctorindia.in" target="_blank" rel="noopener">About Device Doctor India</a></li>
           <li><a href="#footer">Contact</a></li>
-          <li><a href="/support">Support</a></li>
         </ul>
       </div>
       <div class="foot-col">
@@ -413,6 +422,7 @@
         </ul>
         <h5 style="margin-top:26px;">Reach us</h5>
         <div class="foot-addr">
+          <p><b>Phone</b>+91 91165 21678</p>
           <p><b>Email</b>waflow@devicedoctorindia.com</p>
           <p><b>Platform</b>waflow.devicedoctorindia.com</p>
         </div>
@@ -471,6 +481,18 @@
     const text = a.innerHTML;
     a.innerHTML = `<span style="position:relative; z-index:1;">${text}</span>
                    <svg class="hover-pill"><rect x="0" y="0" width="100%" height="100%" rx="18" ry="18" pathLength="100" /></svg>`;
+  });
+
+  // Mobile menu toggle
+  document.querySelector('.mobile-toggle').addEventListener('click', function() {
+    document.querySelector('header').classList.toggle('nav-open');
+  });
+
+  // Close mobile menu on link click
+  document.querySelectorAll('nav.primary-nav a').forEach(link => {
+    link.addEventListener('click', () => {
+      document.querySelector('header').classList.remove('nav-open');
+    });
   });
 </script>
 

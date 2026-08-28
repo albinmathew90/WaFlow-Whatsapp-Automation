@@ -20,7 +20,7 @@ type BlogData = {
   createdAt: string;
 };
 
-const CustomDatePicker = () => {
+const CustomDatePicker = ({ value, onChange }: { value?: string, onChange?: (val: string) => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'days' | 'years'>('days');
   const [currentDate, setCurrentDate] = useState(new Date()); 
@@ -40,8 +40,12 @@ const CustomDatePicker = () => {
   };
 
   const handleSelectDate = (day: number) => {
-    setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
+    const d = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    setSelectedDate(d);
     setIsOpen(false);
+    if (onChange) {
+      onChange(`${String(d.getDate()).padStart(2, '0')} / ${String(d.getMonth() + 1).padStart(2, '0')} / ${d.getFullYear()}`);
+    }
   };
   
   const handleSelectYear = (year: number) => {
@@ -88,10 +92,9 @@ const CustomDatePicker = () => {
       <div className="relative" onClick={() => setIsOpen(!isOpen)}>
         <input 
           readOnly
-          value={formatDate(selectedDate)}
+          value={value || formatDate(selectedDate)}
           placeholder="dd / mm / yyyy" 
           className="w-full px-3 py-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors pr-10 cursor-pointer shadow-sm placeholder-gray-400 font-medium" 
-          required 
         />
         <span className="absolute text-gray-400 -translate-y-1/2 pointer-events-none right-3 top-1/2">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -170,17 +173,14 @@ const BlogsPage: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCreateTopicModalOpen, setIsCreateTopicModalOpen] = useState(false);
-  const [topics, setTopics] = useState([
-    { id: 'api', name: 'API' },
-    { id: 'updates', name: 'Updates' },
-    { id: 'tutorials', name: 'Tutorials' }
-  ]);
+  const [topics, setTopics] = useState<any[]>([]);
   const [newTopicTitle, setNewTopicTitle] = useState('');
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   
   const [editingBlogId, setEditingBlogId] = useState<number | null>(null);
   const [warningMessage, setWarningMessage] = useState('');
+  const [formError, setFormError] = useState('');
   
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
@@ -230,8 +230,18 @@ const BlogsPage: React.FC = () => {
     }
   };
 
+  const fetchTopics = async () => {
+    try {
+      const data = await AdminAPI.getTopics();
+      setTopics(data);
+    } catch (err) {
+      console.error('Error fetching topics:', err);
+    }
+  };
+
   useEffect(() => {
     fetchBlogs();
+    fetchTopics();
     fetchSettings();
   }, []);
 
@@ -442,6 +452,7 @@ const BlogsPage: React.FC = () => {
                 setReadMinutes('');
                 setAuthor('');
                 setCoverImage(null);
+                setFormError('');
                 setIsCreateModalOpen(true);
               }} 
               className="px-2 py-1 border border-gray-200 dark:border-gray-700 rounded text-xs font-medium flex items-center gap-1 shadow-sm transition-colors bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 mr-2"
@@ -712,31 +723,14 @@ const BlogsPage: React.FC = () => {
             
             {/* Modal Body */}
             <div className="p-8 overflow-y-auto max-h-[80vh]">
-              <form className="flex flex-col gap-6" onSubmit={async (e) => {
-                e.preventDefault();
-                if (!title || !topic || !author || !date || !slug || !content) return;
-
-                const payload = {
-                  title, topic, author, date, readMinutes, slug, description, content, image: coverImage || ''
-                };
-
-                if (editingBlogId) {
-                  await AdminAPI.updateBlog(editingBlogId, payload);
-                } else {
-                  await AdminAPI.createBlog(payload);
-                }
-                
-                fetchBlogs();
-                setIsCreateModalOpen(false);
-                // resetForm();
-              }}>
+              <div className="flex flex-col gap-6">
                 
                 {/* Title */}
                 <div className="flex flex-col">
                   <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                     Title <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <input type="text" className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required value={title} onChange={(e) => setTitle(e.target.value)} />
+                  <input type="text" className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" value={title} onChange={(e) => setTitle(e.target.value)} />
                 </div>
 
                 {/* Slug */}
@@ -744,7 +738,7 @@ const BlogsPage: React.FC = () => {
                   <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                     Slug <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <input type="text" className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required value={slug} onChange={(e) => setSlug(e.target.value)} />
+                  <input type="text" className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" value={slug} onChange={(e) => setSlug(e.target.value)} />
                   <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5">The URL-friendly version of the title. Must be unique.</p>
                 </div>
 
@@ -753,7 +747,7 @@ const BlogsPage: React.FC = () => {
                   <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                     Description <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <input type="text" className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required />
+                  <input type="text" className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" value={description} onChange={(e) => setDescription(e.target.value)} />
                 </div>
 
                 {/* Content */}
@@ -773,7 +767,7 @@ const BlogsPage: React.FC = () => {
                     Topic <span className="text-red-500 ml-1">*</span>
                   </label>
                   <div className="flex">
-                    <select className="flex-1 px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 border-r-0 text-sm focus:outline-none focus:border-gray-300 rounded-l-sm transition-colors appearance-none" required value={topic} onChange={(e) => setTopic(e.target.value)}>
+                    <select className="flex-1 px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 border-r-0 text-sm focus:outline-none focus:border-gray-300 rounded-l-sm transition-colors appearance-none" value={topic} onChange={(e) => setTopic(e.target.value)}>
                       <option value="">Select a value</option>
                       {topics.map(t => (
                         <option key={t.id} value={t.name}>{t.name}</option>
@@ -790,7 +784,7 @@ const BlogsPage: React.FC = () => {
                   <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                     Date <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <CustomDatePicker />
+                  <CustomDatePicker value={date} onChange={(val) => setDate(val)} />
                 </div>
 
                 {/* Read Minutes */}
@@ -798,7 +792,7 @@ const BlogsPage: React.FC = () => {
                   <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                     Read Minutes <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <input type="number" min="1" className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required value={readMinutes} onChange={(e) => setReadMinutes(e.target.value)} />
+                  <input type="number" min="1" className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" value={readMinutes} onChange={(e) => setReadMinutes(e.target.value)} />
                   <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5">Estimated reading time in minutes</p>
                 </div>
 
@@ -807,7 +801,7 @@ const BlogsPage: React.FC = () => {
                   <label className="text-[11px] font-bold text-gray-900 dark:text-white mb-1.5 flex items-center">
                     Author <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <input type="text" className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" required value={author} onChange={(e) => setAuthor(e.target.value)} />
+                  <input type="text" className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:border-gray-300 rounded-sm transition-colors" value={author} onChange={(e) => setAuthor(e.target.value)} />
                 </div>
 
                 {/* Image */}
@@ -841,13 +835,42 @@ const BlogsPage: React.FC = () => {
                 </div>
 
                 {/* Footer Save Button */}
+                {formError && (
+                  <div className="text-red-500 text-xs font-bold bg-red-50 p-3 rounded border border-red-200 mb-2">
+                    {formError}
+                  </div>
+                )}
                 <div className="mt-4 flex">
-                  <button type="submit" className="px-6 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-black font-medium rounded-sm hover:bg-black transition-colors text-[13px] shadow-sm">
+                  <button type="button" onClick={async (e) => {
+                    e.preventDefault();
+                    setFormError('');
+                    if (!title || !topic || !author || !date || !slug || !content || !description || !readMinutes) {
+                      setFormError("Please fill in all required fields. Ensure you have selected a Topic, a Date, and written some Content.");
+                      return;
+                    }
+
+                    const payload = {
+                      title, topic, author, date, readMinutes, slug, description, content, image: coverImage || ''
+                    };
+
+                    try {
+                      if (editingBlogId) {
+                        await AdminAPI.updateBlog(editingBlogId, payload);
+                      } else {
+                        await AdminAPI.createBlog(payload);
+                      }
+                      
+                      fetchBlogs();
+                      setIsCreateModalOpen(false);
+                    } catch (err: any) {
+                      setFormError("Error saving blog: " + err.message);
+                    }
+                  }} className="px-6 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-black font-medium rounded-sm hover:bg-black transition-colors text-[13px] shadow-sm">
                     Save
                   </button>
                 </div>
 
-              </form>
+              </div>
             </div>
           </div>
         </div>
