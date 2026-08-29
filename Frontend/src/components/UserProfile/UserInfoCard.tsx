@@ -1,18 +1,86 @@
+import { useState } from "react";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import { useUser } from "../../context/UserContext";
+import { countryCodes } from "../../constants/countryCodes";
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
-  const { user } = useUser();
+  const { user, refetch } = useUser();
 
   const displayName = user?.name || user?.email || '';
   const nameParts = displayName.split(' ');
   const firstName = nameParts[0] || '';
   const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+  const [isChangingPhone, setIsChangingPhone] = useState(false);
+  const [phoneStep, setPhoneStep] = useState(1);
+  const [countryCode, setCountryCode] = useState('+91');
+  const [rawPhone, setRawPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [isPhoneLoading, setIsPhoneLoading] = useState(false);
+
+  const handleRequestPhoneOtp = async () => {
+    const fullPhone = `${countryCode}${rawPhone.replace(/\D/g, '')}`;
+    if (fullPhone.length < 5) {
+      setPhoneError('Enter a valid phone number');
+      return;
+    }
+    setIsPhoneLoading(true);
+    setPhoneError(null);
+    try {
+      const token = sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token');
+      const res = await fetch('/openwa-api/crm/auth/request-phone-change-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ newPhoneNumber: fullPhone }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setPhoneError(data.message || 'Failed to request OTP');
+      } else {
+        setPhoneStep(2);
+      }
+    } catch (err) {
+      setPhoneError('Something went wrong');
+    }
+    setIsPhoneLoading(false);
+  };
+
+  const handleVerifyPhoneOtp = async () => {
+    const fullPhone = `${countryCode}${rawPhone.replace(/\D/g, '')}`;
+    if (otp.length < 4) {
+      setPhoneError('Enter valid OTP');
+      return;
+    }
+    setIsPhoneLoading(true);
+    setPhoneError(null);
+    try {
+      const token = sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token');
+      const res = await fetch('/openwa-api/crm/auth/verify-phone-change-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ newPhoneNumber: fullPhone, otp }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setPhoneError(data.message || 'Failed to verify OTP');
+      } else {
+        setIsChangingPhone(false);
+        setPhoneStep(1);
+        setRawPhone('');
+        setOtp('');
+        refetch(); // Use context refetch directly
+      }
+    } catch (err) {
+      setPhoneError('Something went wrong');
+    }
+    setIsPhoneLoading(false);
+  };
 
 
   const handleSave = () => {
@@ -20,6 +88,14 @@ export default function UserInfoCard() {
     console.log("Saving changes...");
     closeModal();
   };
+
+  const overrideCloseModal = () => {
+    setIsChangingPhone(false);
+    setPhoneStep(1);
+    setPhoneError(null);
+    closeModal();
+  };
+
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
@@ -61,7 +137,7 @@ export default function UserInfoCard() {
                 Phone
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Not set
+                {user?.phoneNumber || 'Not set'}
               </p>
             </div>
 
@@ -129,12 +205,75 @@ export default function UserInfoCard() {
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Email Address</Label>
-                    <Input type="text" value={user?.email || ''} />
+                    <Input type="text" value={user?.email || ''} disabled />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Phone</Label>
-                    <Input type="text" value="" placeholder="Not set" />
+                    {!isChangingPhone ? (
+                      <div className="flex gap-2">
+                        <Input type="text" value={user?.phoneNumber || ''} placeholder="Not set" disabled className="flex-1" />
+                        <Button type="button" onClick={() => setIsChangingPhone(true)} size="sm" variant="outline">
+                          Change
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 p-4 border border-gray-200 dark:border-gray-800 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                        {phoneError && (
+                          <div className="text-sm text-error-500 bg-error-50 dark:bg-error-500/10 p-2 rounded-lg">
+                            {phoneError}
+                          </div>
+                        )}
+                        {phoneStep === 1 ? (
+                          <>
+                            <div className="flex gap-2 w-full">
+                              <div className="relative w-[120px] shrink-0">
+                                <select
+                                  value={countryCode}
+                                  onChange={(e) => setCountryCode(e.target.value)}
+                                  className="w-full h-11 appearance-none rounded-lg border border-gray-300 bg-transparent px-3 py-2 pr-8 text-sm text-gray-800 focus:border-brand-300 focus:outline-none dark:border-gray-700 dark:text-white"
+                                >
+                                  {countryCodes.map((c) => (
+                                    <option key={c.code} value={c.dial_code}>{c.name} ({c.dial_code})</option>
+                                  ))}
+                                </select>
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 dark:text-gray-400">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                                </span>
+                              </div>
+                              <input
+                                type="tel"
+                                placeholder="New number"
+                                className="flex-1 min-w-0 h-11 rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-sm text-gray-800 focus:border-brand-300 focus:outline-none dark:border-gray-700 dark:text-white"
+                                value={rawPhone}
+                                onChange={(e) => setRawPhone(e.target.value)}
+                              />
+                            </div>
+                            <div className="flex gap-2 justify-end mt-2">
+                              <Button type="button" onClick={() => setIsChangingPhone(false)} size="sm" variant="outline">Cancel</Button>
+                              <Button type="button" onClick={handleRequestPhoneOtp} size="sm" disabled={isPhoneLoading}>
+                                {isPhoneLoading ? 'Sending...' : 'Send OTP'}
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <Input
+                              type="text"
+                              placeholder="Enter 4-digit OTP"
+                              value={otp}
+                              onChange={(e) => setOtp(e.target.value)}
+                            />
+                            <div className="flex gap-2 justify-end mt-2">
+                              <Button type="button" onClick={() => setPhoneStep(1)} size="sm" variant="outline">Back</Button>
+                              <Button type="button" onClick={handleVerifyPhoneOtp} size="sm" disabled={isPhoneLoading}>
+                                {isPhoneLoading ? 'Verifying...' : 'Verify'}
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="col-span-2">
@@ -145,7 +284,7 @@ export default function UserInfoCard() {
               </div>
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-              <Button size="sm" variant="outline" onClick={closeModal}>
+              <Button size="sm" variant="outline" type="button" onClick={overrideCloseModal}>
                 Close
               </Button>
               <Button size="sm" onClick={handleSave}>

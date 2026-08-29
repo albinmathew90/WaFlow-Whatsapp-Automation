@@ -39,18 +39,21 @@ export class MailService implements OnModuleInit {
     }
   }
 
-  async sendPasswordResetEmail(to: string, resetCode: string) {
+  async sendPasswordResetEmail(to: string, resetCode: string, isAdmin: boolean = false) {
     try {
-      const fromEmail = process.env.SMTP_FROM || '"OpenWa CRM" <noreply@openwa.com>';
+      const fromEmail = process.env.SMTP_FROM || '"WaFlow" <noreply@waflow.com>';
+      const subject = isAdmin ? 'Admin Panel Password Reset - WaFlow' : 'Password Reset Code - WaFlow';
+      const requestText = isAdmin ? 'You requested an admin panel password reset for your WaFlow account.' : 'You requested a password reset for your WaFlow account.';
+      
       const info = await this.transporter.sendMail({
         from: fromEmail,
         to,
-        subject: 'Password Reset Code - OpenWa',
+        subject,
         text: `Your password reset code is: ${resetCode}\n\nThis code will expire in 15 minutes.`,
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
             <h2 style="color: #1f2937; margin-bottom: 24px;">Password Reset</h2>
-            <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">You requested a password reset for your OpenWa account.</p>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">${requestText}</p>
             <p style="color: #4b5563; font-size: 16px; line-height: 1.5;">Your verification code is:</p>
             <div style="background-color: #f3f4f6; padding: 16px; border-radius: 6px; text-align: center; margin: 24px 0;">
               <span style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #465fff;">${resetCode}</span>

@@ -12,6 +12,7 @@ export interface UserProfile {
   subscriptionExpiresAt?: string;
   planType?: string;
   createdAt?: string;
+  phoneNumber?: string;
 }
 
 interface UserContextValue {

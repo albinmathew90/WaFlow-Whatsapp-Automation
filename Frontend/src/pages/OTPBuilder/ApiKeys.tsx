@@ -90,7 +90,7 @@ export default function ApiKeys() {
 
     try {
       const token = (sessionStorage.getItem('crm_token') || localStorage.getItem('crm_token'));
-      const endpoint = type === 'api' ? 'rotate-api-key' : type === 'secret' ? 'rotate-secret-key' : 'rotate-webhook-secret';
+      const endpoint = type === 'api' ? 'rotate-api-key' : type === 'secret' ? 'rotate-secret' : 'rotate-webhook-secret';
       const res = await fetch(`/openwa-api/otp-management/applications/${selectedAppId}/${endpoint}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }

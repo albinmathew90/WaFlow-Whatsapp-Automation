@@ -89,6 +89,12 @@ export default function SignInForm() {
         if (!backendRes.ok) throw new Error('Backend google login failed');
 
         const data = await backendRes.json();
+        
+        if (data.requiresPhoneVerification) {
+          navigate('/signup', { state: { requiresPhoneVerification: true, email: data.email, name: data.name } });
+          return;
+        }
+
         // Only the JWT token is persisted — user profile is always fetched from the server
         if (isChecked) {
           localStorage.setItem("crm_token", data.accessToken);

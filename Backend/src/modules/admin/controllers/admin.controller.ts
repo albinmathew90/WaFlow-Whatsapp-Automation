@@ -153,7 +153,7 @@ export class AdminController {
     otpExpiresAt.setMinutes(otpExpiresAt.getMinutes() + 15);
 
     await this.adminService.adminUserRepo.update(admin.id, { otpCode, otpExpiresAt });
-    await this.mailService.sendPasswordResetEmail(admin.email, otpCode);
+    await this.mailService.sendPasswordResetEmail(admin.email, otpCode, true);
 
     return { success: true };
   }

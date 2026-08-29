@@ -12,11 +12,15 @@ export default function ResetPassword() {
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
+    setSuccess(null);
     try {
       const response = await fetch('/openwa-api/crm/auth/forgot-password', {
         method: 'POST',
@@ -29,9 +33,10 @@ export default function ResetPassword() {
       }
 
       setStep(2);
+      setSuccess('Reset code sent to your email.');
     } catch (err) {
       console.error(err);
-      alert('Failed to request password reset');
+      setError('Failed to request password reset. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -40,6 +45,8 @@ export default function ResetPassword() {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
+    setSuccess(null);
     try {
       const response = await fetch('/openwa-api/crm/auth/reset-password', {
         method: 'POST',
@@ -51,11 +58,11 @@ export default function ResetPassword() {
         throw new Error('Invalid code or failed to reset');
       }
 
-      alert('Password reset successful! Please sign in with your new password.');
-      navigate('/signin');
+      setSuccess('Password reset successful! Redirecting to sign in...');
+      setTimeout(() => navigate('/signin'), 2000);
     } catch (err) {
       console.error(err);
-      alert('Failed to reset password. Check your code.');
+      setError('Failed to reset password. Check your code and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -73,6 +80,18 @@ export default function ResetPassword() {
               {step === 1 ? 'Enter your email to receive a reset code.' : 'Enter the code sent to your email and your new password.'}
             </p>
           </div>
+
+          {error && (
+            <div className="flex items-start gap-3 p-4 mb-5 text-sm font-medium border rounded-xl bg-error-50 text-error-600 border-error-200 dark:bg-error-500/10 dark:border-error-500/20 dark:text-error-400">
+              <div className="flex-1">{error}</div>
+            </div>
+          )}
+          
+          {success && (
+            <div className="flex items-start gap-3 p-4 mb-5 text-sm font-medium border rounded-xl bg-green-50 text-green-700 border-green-200 dark:bg-green-500/10 dark:border-green-500/20 dark:text-green-400">
+              <div className="flex-1">{success}</div>
+            </div>
+          )}
 
           {step === 1 ? (
             <form onSubmit={handleRequestCode}>

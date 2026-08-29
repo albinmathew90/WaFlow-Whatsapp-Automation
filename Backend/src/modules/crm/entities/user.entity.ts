@@ -37,6 +37,15 @@ export class User {
   @Column({ nullable: true })
   phoneNumber?: string;
 
+  @Column({ default: false })
+  isVerified: boolean;
+
+  @Column({ nullable: true })
+  phoneVerificationCode?: string;
+
+  @Column({ nullable: true })
+  phoneVerificationExpires?: Date;
+
   @Column({ nullable: true })
   subscriptionStatus?: string;
 

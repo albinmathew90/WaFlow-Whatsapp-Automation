@@ -11,6 +11,10 @@ const AdminDashboard: React.FC = () => {
   
   // KPI counts
   const [totalUsers, setTotalUsers] = useState(0);
+  const [blogCount, setBlogCount] = useState(0);
+  const [seoCount, setSeoCount] = useState(0);
+  const [mediaCount, setMediaCount] = useState(0);
+  const [topicCount, setTopicCount] = useState(0);
 
   useEffect(() => {
     fetchUsers();
@@ -18,11 +22,19 @@ const AdminDashboard: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const [users, visitors] = await Promise.all([
+      const [users, visitors, blogs, seo, media, topics] = await Promise.all([
         AdminAPI.getUsers().catch(() => []),
-        AdminAPI.getVisitors().catch(e => { console.error('visitors error', e); return []; })
+        AdminAPI.getVisitors().catch(e => { console.error('visitors error', e); return []; }),
+        AdminAPI.getBlogs().catch(() => []),
+        AdminAPI.getSeo().catch(() => []),
+        AdminAPI.getMedia().catch(() => []),
+        AdminAPI.getTopics().catch(() => [])
       ]);
       setTotalUsers(users.length);
+      setBlogCount(blogs.length);
+      setSeoCount(seo.length);
+      setMediaCount(media.length);
+      setTopicCount(topics.length);
 
       // Process Line Data (Signups per day)
       const dateCounts: Record<string, number> = {};
@@ -85,7 +97,7 @@ const AdminDashboard: React.FC = () => {
         />
         <KpiCard
           title="Blog Posts"
-          value="0"
+          value={blogCount.toString()}
           linkText="See all blogs"
           linkTo="/admin/collections/blogs"
           icon={<BlogsIcon className="w-6 h-6 text-white dark:text-black" />}
@@ -95,7 +107,7 @@ const AdminDashboard: React.FC = () => {
         />
         <KpiCard
           title="SEO Records"
-          value="0"
+          value={seoCount.toString()}
           linkText="See all SEO"
           linkTo="/admin/collections/seo"
           icon={<SeoIcon className="w-6 h-6 text-white dark:text-black" />}
@@ -104,18 +116,8 @@ const AdminDashboard: React.FC = () => {
           shadowColor="shadow-[#ff6f20]/40"
         />
         <KpiCard
-          title="New Contacts"
-          value="0"
-          linkText="See all contacts"
-          linkTo="/admin/collections/contact"
-          icon={<ContactsIcon className="w-6 h-6 text-white dark:text-black" />}
-          smallIcon={<ContactsIcon className="w-4 h-4 text-white dark:text-black" />}
-          color="bg-[#f01479]"
-          shadowColor="shadow-[#f01479]/40"
-        />
-        <KpiCard
           title="Media Assets"
-          value="0"
+          value={mediaCount.toString()}
           linkText="See all media"
           linkTo="/admin/collections/media"
           icon={<MediaIcon className="w-6 h-6 text-white dark:text-black" />}
@@ -125,33 +127,13 @@ const AdminDashboard: React.FC = () => {
         />
         <KpiCard
           title="Blog Topics"
-          value="0"
+          value={topicCount.toString()}
           linkText="See all topics"
           linkTo="/admin/collections/blog-topics"
           icon={<TopicsIcon className="w-6 h-6 text-white dark:text-black" />}
           smallIcon={<TopicsIcon className="w-4 h-4 text-white dark:text-black" />}
           color="bg-[#5a67ff]"
           shadowColor="shadow-[#5a67ff]/40"
-        />
-        <KpiCard
-          title="Categories"
-          value="0"
-          linkText="See all categories"
-          linkTo="/admin/collections/case-study-categories"
-          icon={<CategoriesIcon className="w-6 h-6 text-white dark:text-black" />}
-          smallIcon={<CategoriesIcon className="w-4 h-4 text-white dark:text-black" />}
-          color="bg-[#f49300]"
-          shadowColor="shadow-[#f49300]/40"
-        />
-        <KpiCard
-          title="Subscribers"
-          value="0"
-          linkText="See all subscribers"
-          linkTo="/admin/collections/subscriber"
-          icon={<SubscribersIcon className="w-6 h-6 text-white dark:text-black" />}
-          smallIcon={<SubscribersIcon className="w-4 h-4 text-white dark:text-black" />}
-          color="bg-[#00af91]"
-          shadowColor="shadow-[#00af91]/40"
         />
       </div>
 
