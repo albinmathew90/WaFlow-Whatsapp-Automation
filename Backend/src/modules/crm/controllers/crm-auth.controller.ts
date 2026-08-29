@@ -17,18 +17,6 @@ export class CrmAuthController {
   }
 
   @Public()
-  @Post('request-signup-otp')
-  async requestSignupOtp(@Body() body: any) {
-    return this.crmAuthService.requestSignupOtp(body);
-  }
-
-  @Public()
-  @Post('verify-signup-otp')
-  async verifySignupOtp(@Body() body: { phone: string; otp: string }) {
-    return this.crmAuthService.verifySignupOtp(body.phone, body.otp);
-  }
-
-  @Public()
   @Post('login')
   async login(@Body() dto: LoginDto) {
     return this.crmAuthService.login(dto);
@@ -72,18 +60,6 @@ export class CrmAuthController {
   @Post('change-password')
   async changePassword(@Req() req: any, @Body() dto: ChangePasswordDto) {
     return this.crmAuthService.changePassword(req.user.id, dto.currentPassword, dto.newPassword);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('request-phone-change-otp')
-  async requestPhoneChangeOtp(@Req() req: any, @Body() body: { newPhoneNumber: string }) {
-    return this.crmAuthService.requestPhoneChangeOtp(req.user.id, body.newPhoneNumber);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('verify-phone-change-otp')
-  async verifyPhoneChangeOtp(@Req() req: any, @Body() body: { newPhoneNumber: string; otp: string }) {
-    return this.crmAuthService.verifyPhoneChangeOtp(req.user.id, body.newPhoneNumber, body.otp);
   }
 
   @UseGuards(JwtAuthGuard)
