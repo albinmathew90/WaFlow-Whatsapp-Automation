@@ -1,0 +1,39 @@
+# Ignore environment variables
+.env
+.env.*
+*.env
+azure_env.txt
+
+# Ignore patch files and update archives
+*.patch
+*.zip
+*.tar.gz
+
+# Ignore log files
+*.log
+scp_log.txt
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+.idea/
+
+# Ignore script and conf files not belonging to frontend/backend
+check_db.sh
+check_messages.js
+check_session.js
+deploy_vm.sh
+fix_paths.js
+query.js
+waflow.conf
+waflow_nginx.conf
+
+# Ignore patch directories
+patch2/
+patch3/
+patch4/
+patch5/
+patches/
