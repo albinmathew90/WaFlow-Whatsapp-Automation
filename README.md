@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="180" height="180" alt="apple-touch-icon" src="https://github.com/user-attachments/assets/1aa6467a-b41e-49b0-a438-05b7ee5ae4ed" />
+  <!-- <img width="180" height="180" alt="apple-touch-icon" src="https://github.com/user-attachments/assets/1aa6467a-b41e-49b0-a438-05b7ee5ae4ed" /> -->
   <h1>Waflow</h1>
   <p><b>An Open Source WhatsApp CRM, Automation & Bulk-Messaging Platform</b></p>
 
